@@ -31,15 +31,15 @@ class BLOODOFHEROES_API ABOHPlayerController : public APlayerController
 	
 public:
 	// Default mapping context for player controller.
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta=(AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "BOH|Input", meta=(AllowPrivateAccess = "true"))
 	TObjectPtr<UInputMappingContext> DefaultMappingContext = nullptr;
 		
 	// Click input Action.
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta=(AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "BOH|Input", meta=(AllowPrivateAccess = "true"))
 	TObjectPtr<UInputAction> SelectUnitAction = nullptr;
 
 	/** FX Class that we will spawn when clicking */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "BOH|Input")
 	TObjectPtr<UNiagaraSystem> FXCursor = nullptr;
 	
 public:

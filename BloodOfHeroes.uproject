@@ -1,0 +1,22 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "{A0DD7FBE-4BC6-4FD0-2452-28B01470DCD2}",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "BloodOfHeroes",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "ModelingToolsEditorMode",
+			"Enabled": true,
+			"TargetAllowList": [
+				"Editor"
+			]
+		}
+	]
+}

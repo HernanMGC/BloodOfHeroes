@@ -9,6 +9,9 @@
 #include "EnhancedInputSubsystems.h"
 #include "NiagaraFunctionLibrary.h"
 
+// BOH
+#include "BloodOfHeroes/Characters/BOHCharacter.h"
+
 ////////////////////////////////////////////////////////////////////////////////////
 //
 ////////////////////////////////////////////////////////////////////////////////////
@@ -76,17 +79,27 @@ void ABOHPlayerController::OnInputStarted()
 
 void ABOHPlayerController::OnSelectUnitTriggered()
 {
-	UE_LOG(LogBOPlayerController, Display, TEXT("ABOHPlayerController::OnSetDestinationTriggered"));
-
 	// We look for the location in the world where the player has pressed the input
 	FHitResult Hit;
 	bool bHitSuccessful = GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit);
-
+	
+	
 	// If we hit a surface, cache the location
-	if (bHitSuccessful)
+	if (!bHitSuccessful)
 	{
-		CachedLastHitLocation = Hit.Location;
+		return;
 	}
+
+	CachedLastHitLocation = Hit.Location;
+
+	ABOHCharacter* HitCharacter = Cast<ABOHCharacter>(Hit.GetActor());
+	if (!HitCharacter)
+	{
+		return;
+	}
+
+	UE_LOG(LogPlayerController, Display, TEXT("Character clicked and selected: %s"), *HitCharacter->GetUnitInfo().ToString());
+	SelectedCharacter = HitCharacter;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

@@ -32,15 +32,15 @@ struct FBOHUnitInfo
 
 public:
 	// Unit ID.
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	int32 UnitID = -1;
 
 	// Team ID.
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	int32 TeamID = -1;
 
 	// Unit type.
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	EBOHUnitType UnitType = EBOHUnitType::None;
 
 public:
@@ -68,6 +68,12 @@ public:
 	 * @return 
 	 */
 	bool IsValid() const;
+
+	/**
+	 * Return human friend Unity info to print.
+	 * @return 
+	 */
+	FString ToString() const;
 };
 
 /**
@@ -79,7 +85,14 @@ class BLOODOFHEROES_API ABOHCharacter : public ACharacter
 	GENERATED_BODY()
 
 public:
+	/**
+	 * Returns Unit info.
+	 * @return 
+	 */
+	FORCEINLINE const FBOHUnitInfo& GetUnitInfo() const { return UnitInfo; }
+	
+protected:
 	// ToDo: This has to be generated, not a harcoded option.
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FBOHUnitInfo UnitInfo;
 };

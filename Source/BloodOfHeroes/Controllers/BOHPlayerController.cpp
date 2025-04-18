@@ -12,6 +12,7 @@
 
 // BOH
 #include "BloodOfHeroes/Characters/BOHCharacter.h"
+#include "BloodOfHeroes/Component/Path/BOHUnitPathComponent.h"
 #include "BloodOfHeroes/UI/BOHHudWidget.h"
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -99,7 +100,7 @@ void ABOHPlayerController::OnSelectUnitTriggered()
 {
 	// We look for the location in the world where the player has pressed the input
 	FHitResult Hit;
-	bool bHitSuccessful = GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit);
+	const bool bHitSuccessful = GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit);
 	
 	
 	// If we hit a surface, cache the location
@@ -108,18 +109,23 @@ void ABOHPlayerController::OnSelectUnitTriggered()
 		return;
 	}
 
-	CachedLastHitLocation = Hit.Location;
+	UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, FXCursor, Hit.Location,
+													   FRotator::ZeroRotator, FVector(1.f, 1.f, 1.f), true, true,
+													   ENCPoolMethod::None, true);
 
 	ABOHCharacter* HitCharacter = Cast<ABOHCharacter>(Hit.GetActor());
-	if (!HitCharacter)
+	if (HitCharacter)
 	{
-		UE_LOG(LogPlayerController, Display, TEXT("Character selected CLEARED"));
-		SetSelectedUnit(nullptr);
+		SetSelectedUnit(HitCharacter);
+		UE_LOG(LogPlayerController, Display, TEXT("Character clicked and selected: %s"), *SelectedUnit->GetUnitInfo().ToString());
 		return;
 	}
 
-	UE_LOG(LogPlayerController, Display, TEXT("Character clicked and selected: %s"), *HitCharacter->GetUnitInfo().ToString());
-	SetSelectedUnit(HitCharacter);
+	UBOHUnitPathComponent* PathComp = SelectedUnit ? SelectedUnit->GetComponentByClass<UBOHUnitPathComponent>() : nullptr;
+	if (PathComp)
+	{
+		PathComp->AppendPointToPath(Hit.Location);
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -128,12 +134,7 @@ void ABOHPlayerController::OnSelectUnitTriggered()
 
 void ABOHPlayerController::OnSelectUnitReleased()
 {
-	if (CachedLastHitLocation.IsSet())
-	{
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, FXCursor, CachedLastHitLocation.GetValue(),
-		                                               FRotator::ZeroRotator, FVector(1.f, 1.f, 1.f), true, true,
-		                                               ENCPoolMethod::None, true);
-	}
+	UE_LOG(LogBOPlayerController, Display, TEXT("ABOHPlayerController::OnSelectUnitReleased"));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -142,8 +143,17 @@ void ABOHPlayerController::OnSelectUnitReleased()
 
 void ABOHPlayerController::SetSelectedUnit(ABOHCharacter* Unit)
 {
-	SelectedUnit = Unit;
-	OnUnitSelected.Broadcast(this, Unit);
+	if (SelectedUnit && SelectedUnit != Unit)
+	{
+		SelectedUnit->SetIsUnitSelected(false);
+	}
+
+	if (Unit)
+	{
+		SelectedUnit = Unit;
+		OnUnitSelected.Broadcast(this, Unit);
+		SelectedUnit->SetIsUnitSelected(true);	
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

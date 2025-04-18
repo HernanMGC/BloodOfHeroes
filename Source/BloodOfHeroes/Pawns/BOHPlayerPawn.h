@@ -25,7 +25,7 @@ class BLOODOFHEROES_API ABOHPlayerPawn : public ADefaultPawn
 	
 public:
 	/**
-	 * Constructor. It initializes camera component.
+	 * Constructor. Tick removed. It initializes camera component.
 	 */
 	ABOHPlayerPawn();
 	

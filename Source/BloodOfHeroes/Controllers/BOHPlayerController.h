@@ -55,7 +55,7 @@ public:
 
 public:
 	/**
-	 * Constructor. Basic initialization for show cursor.
+	 * Constructor. Tick removed. Basic initialization for show cursor.
 	 */
 	ABOHPlayerController();
 
@@ -93,9 +93,6 @@ protected:
 	TObjectPtr<ABOHCharacter> SelectedUnit = nullptr;
 
 private:
-	// Cached last hit location.
-	TOptional<FVector> CachedLastHitLocation;;
-
 	// HUD Widget reference.
 	TObjectPtr<UBOHHudWidget> HUDWidget = nullptr; 
 };

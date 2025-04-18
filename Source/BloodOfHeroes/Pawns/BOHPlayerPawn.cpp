@@ -14,6 +14,10 @@
 
 ABOHPlayerPawn::ABOHPlayerPawn()
 {
+	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bAllowTickOnDedicatedServer = false;
+	PrimaryActorTick.bStartWithTickEnabled = false;
+	
 	// Don't rotate character to camera direction
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
@@ -31,10 +35,6 @@ ABOHPlayerPawn::ABOHPlayerPawn()
 	TopDownCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("TopDownCamera"));
 	TopDownCameraComponent->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	TopDownCameraComponent->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
-
-	// Activate ticking in order to update the cursor every frame.
-	PrimaryActorTick.bCanEverTick = true;
-	PrimaryActorTick.bStartWithTickEnabled = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

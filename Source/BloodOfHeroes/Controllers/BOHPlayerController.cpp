@@ -8,9 +8,11 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "NiagaraFunctionLibrary.h"
+#include "Blueprint/UserWidget.h"
 
 // BOH
 #include "BloodOfHeroes/Characters/BOHCharacter.h"
+#include "BloodOfHeroes/UI/BOHHudWidget.h"
 
 ////////////////////////////////////////////////////////////////////////////////////
 //
@@ -26,6 +28,22 @@ ABOHPlayerController::ABOHPlayerController()
 {
 	bShowMouseCursor = true;
 	DefaultMouseCursor = EMouseCursor::Default;
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////////
+
+void ABOHPlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	HUDWidget = CreateWidget<UBOHHudWidget>(this, HUDWidgetClass, TEXT("HUD"));
+	if (!HUDWidget)
+	{
+		return;
+	}
+	HUDWidget->AddToViewport(0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -95,11 +113,13 @@ void ABOHPlayerController::OnSelectUnitTriggered()
 	ABOHCharacter* HitCharacter = Cast<ABOHCharacter>(Hit.GetActor());
 	if (!HitCharacter)
 	{
+		UE_LOG(LogPlayerController, Display, TEXT("Character selected CLEARED"));
+		SetSelectedUnit(nullptr);
 		return;
 	}
 
 	UE_LOG(LogPlayerController, Display, TEXT("Character clicked and selected: %s"), *HitCharacter->GetUnitInfo().ToString());
-	SelectedCharacter = HitCharacter;
+	SetSelectedUnit(HitCharacter);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -115,3 +135,17 @@ void ABOHPlayerController::OnSelectUnitReleased()
 		                                               ENCPoolMethod::None, true);
 	}
 }
+
+////////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////////
+
+void ABOHPlayerController::SetSelectedUnit(ABOHCharacter* Unit)
+{
+	SelectedUnit = Unit;
+	OnUnitSelected.Broadcast(this, Unit);
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////////

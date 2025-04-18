@@ -32,15 +32,15 @@ struct FBOHUnitInfo
 
 public:
 	// Unit ID.
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	int32 UnitID = -1;
 
 	// Team ID.
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	int32 TeamID = -1;
 
 	// Unit type.
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	EBOHUnitType UnitType = EBOHUnitType::None;
 
 public:
@@ -92,7 +92,7 @@ public:
 	FORCEINLINE const FBOHUnitInfo& GetUnitInfo() const { return UnitInfo; }
 	
 protected:
-	// ToDo: This has to be generated, not a harcoded option.
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	// ToDo: This has to be generated, not a hardcoded option.
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FBOHUnitInfo UnitInfo;
 };

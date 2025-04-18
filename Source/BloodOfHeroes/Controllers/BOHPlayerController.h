@@ -10,6 +10,7 @@
 // BOH
 #include "BOHPlayerController.generated.h"
 
+class UBOHHudWidget;
 //// ForwardDeclaration
 // UnrealEngine
 class UInputMappingContext;
@@ -21,6 +22,8 @@ class ABOHCharacter;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogBOPlayerController, Log, All);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnUnitSelected, ABOHPlayerController*, PlayerController, ABOHCharacter*, SelectedUnit);
+
 /**
  * Player controller for Blood of Heroes. Allows to select characters and send them orders.
  */
@@ -31,24 +34,42 @@ class BLOODOFHEROES_API ABOHPlayerController : public APlayerController
 	
 public:
 	// Default mapping context for player controller.
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "BOH|Input", meta=(AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BOH|Input", meta=(AllowPrivateAccess = "true"))
 	TObjectPtr<UInputMappingContext> DefaultMappingContext = nullptr;
 		
 	// Click input Action.
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "BOH|Input", meta=(AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BOH|Input", meta=(AllowPrivateAccess = "true"))
 	TObjectPtr<UInputAction> SelectUnitAction = nullptr;
 
-	/** FX Class that we will spawn when clicking */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "BOH|Input")
+	// FX Class that we will spawn when clicking.
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BOH|Input")
 	TObjectPtr<UNiagaraSystem> FXCursor = nullptr;
-	
+
+	// HUD Widget class.
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BOH|UI")
+	TSubclassOf<UBOHHudWidget> HUDWidgetClass = nullptr;
+
+	// On unit selected delegate.
+	UPROPERTY(BlueprintReadOnly, BlueprintAssignable)
+	FOnUnitSelected OnUnitSelected;
+
 public:
 	/**
 	 * Constructor. Basic initialization for show cursor.
 	 */
 	ABOHPlayerController();
 
+	/**
+	 * Returns selected unit.
+	 * @return 
+	 */
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE ABOHCharacter* GetSelectedUnit() const { return SelectedUnit; }
+
 protected:
+	// Overriden to: Add HUD to viewport.
+	virtual void BeginPlay() override;
+	
 	// Overriden to: Bind click input events.
 	virtual void SetupInputComponent() override;
 
@@ -58,13 +79,23 @@ protected:
 	void OnSelectUnitTriggered();
 	void OnSelectUnitReleased();
 #pragma endregion // SelectUnitAction
-	
+
+private:
+	/**
+	 * Set selected unit.
+	 * @param Unit 
+	 */
+	void SetSelectedUnit(ABOHCharacter* Unit);
+
 protected:
 	// Currently selected character.
 	UPROPERTY(Transient)
-	TObjectPtr<ABOHCharacter> SelectedCharacter = nullptr;
+	TObjectPtr<ABOHCharacter> SelectedUnit = nullptr;
 
 private:
 	// Cached last hit location.
 	TOptional<FVector> CachedLastHitLocation;;
+
+	// HUD Widget reference.
+	TObjectPtr<UBOHHudWidget> HUDWidget = nullptr; 
 };

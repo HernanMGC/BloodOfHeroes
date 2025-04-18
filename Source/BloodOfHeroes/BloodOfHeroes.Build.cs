@@ -10,16 +10,27 @@ public class BloodOfHeroes : ModuleRules
 
 		PublicDependencyModuleNames.AddRange(new string[]
 		{
+			// CORE
 			"Core",
 			"CoreUObject",
 			"Engine",
+			
+			// Input
 			"InputCore",
-			"EnhancedInput"
+			"EnhancedInput",
+			
+			// UI
+			"CommonUI",
+			"UMG",
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[]
 		{
-			"Niagara"
+			// FX
+			"Niagara",
+			
+			// UI
+			"CommonUI"
 		});
 
 		// Uncomment if you are using Slate UI

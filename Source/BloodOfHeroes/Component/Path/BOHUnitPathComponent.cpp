@@ -4,6 +4,9 @@
 // Class
 #include "BOHUnitPathComponent.h"
 
+#include "BOHPathActor.h"
+#include "BOHPathLineActor.h"
+#include "BOHPathPointActor.h"
 #include "BloodOfHeroes/Characters/BOHCharacter.h"
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -35,7 +38,52 @@ void UBOHUnitPathComponent::AddPointToPath(FVector NewPoint, int32 NewPointPosit
 
 void UBOHUnitPathComponent::AppendPointToPath(FVector NewPoint)
 {
-	UnitPath.Add(NewPoint);
+	// UnitPath.Add(NewPoint);
+	AddPointToPath(NewPoint, UnitPath.Num());
+
+	UWorld* World = GetWorld();
+	ABOHCharacter* Owner = World ? Cast<ABOHCharacter>(GetOwner()) : nullptr;
+	if (!Owner)
+	{
+		return;
+	}
+	
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Instigator = Owner;
+	SpawnParams.Owner = Owner;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	FTransform PathPointActorTransform = FTransform::Identity;
+	PathPointActorTransform.SetLocation(NewPoint);
+	ABOHPathPointActor* PathPointActor = World->SpawnActorDeferred<ABOHPathPointActor>(PathPointActorClass, PathPointActorTransform, Owner, Owner);
+	if (!PathPointActor)
+	{
+		return;
+	}
+
+	PathPointActor->FinishSpawning(PathPointActorTransform);
+	PathPointActors.Add(PathPointActor);
+
+	if (PathPointActors.Num() <= 1)
+	{
+		return;
+	}
+
+	FTransform PathLineActorTransform = FTransform::Identity;
+	FVector PrevUnitPathPoint = UnitPath[UnitPath.Num() - 2];
+	PathLineActorTransform.SetLocation(PrevUnitPathPoint);
+	PathLineActorTransform.SetRotation((NewPoint - PrevUnitPathPoint).Rotation().Quaternion());
+	FVector PathLineActorScale = FVector(1.f);
+	PathLineActorScale.X = (NewPoint - PrevUnitPathPoint).Length() / 100.f;
+	PathLineActorTransform.SetScale3D(PathLineActorScale);
+	ABOHPathLineActor* PathLineActor = World->SpawnActorDeferred<ABOHPathLineActor>(PathLineActorClass, PathLineActorTransform, Owner, Owner);
+	if (!PathLineActor)
+	{
+		return;
+	}
+	
+	PathLineActor->FinishSpawning(PathLineActorTransform);
+	PathLineActors.Add(PathLineActor);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -80,12 +128,13 @@ void UBOHUnitPathComponent::BeginPlay()
 	Super::BeginPlay();
 
 	ABOHCharacter* Owner = Cast<ABOHCharacter>(GetOwner());
+	if (!Owner)
+	{
+		return;
+	}
 	
 #if WITH_EDITOR
-	if (Owner)
-	{
-		Owner->OnUnitIsSelectedChanged.AddUniqueDynamic(this, &ThisClass::UBOHUnitPathComponent::SetDebugVisible);	
-	}
+	Owner->OnUnitIsSelectedChanged.AddUniqueDynamic(this, &ThisClass::UBOHUnitPathComponent::SetDebugVisible);	
 #endif //WITH_EDITOR
 }
 

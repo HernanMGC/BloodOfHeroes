@@ -10,6 +10,11 @@
 // BOH
 #include "BOHUnitPathComponent.generated.h"
 
+//// ForwardDeclarations
+// NOH
+class ABOHPathLineActor;
+class ABOHPathPointActor;
+
 /**
  * Base class for Unit Path Component. It stores current intended path for the unit and launches its movement along the
  * path.
@@ -18,7 +23,15 @@ UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class BLOODOFHEROES_API UBOHUnitPathComponent : public UActorComponent
 {
 	GENERATED_BODY()
-
+public:
+	// Path actor class
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	TSubclassOf<ABOHPathPointActor> PathPointActorClass = nullptr;
+	
+	// Path actor class
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	TSubclassOf<ABOHPathLineActor> PathLineActorClass = nullptr;
+	
 public:
 	/**
 	 * Constructor. Enables tick.
@@ -73,10 +86,10 @@ protected:
 	// Overriden to: Show debug on editor.
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	// Overriden to: Bind to owners is salected delegate.
+	// Overriden to: Bind to owners is selected delegate.
 	virtual void BeginPlay() override;
 	
-	// Overriden to: Unbind to owners is salected delegate.
+	// Overriden to: Unbind to owners is selected delegate.
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;;
 private:
 #if WITH_EDITOR
@@ -91,6 +104,14 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	TArray<FVector> UnitPath;
 
+	// Path point actor references.
+	UPROPERTY(Transient)
+	TArray<TObjectPtr<ABOHPathPointActor>> PathPointActors; 
+	
+	// Path line actor references.
+	UPROPERTY(Transient)
+	TArray<TObjectPtr<ABOHPathLineActor>> PathLineActors; 
+	
 private:
 #if WITH_EDITOR
 	// Show debug for path.

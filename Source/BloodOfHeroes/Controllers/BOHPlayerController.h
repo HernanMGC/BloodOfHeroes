@@ -40,7 +40,11 @@ public:
 		
 	// Click input Action.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BOH|Input", meta=(AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction> SelectUnitAction = nullptr;
+	TObjectPtr<UInputAction> SelectActorAction = nullptr;
+
+	// Click input Action.
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BOH|Input", meta=(AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> DeleteActorAction = nullptr;
 
 	// FX Class that we will spawn when clicking.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BOH|Input")
@@ -80,12 +84,17 @@ protected:
 	// Overriden to: Bind click input events.
 	virtual void SetupInputComponent() override;
 
-#pragma region SelectUnitAction
-	/** Input handlers for SelectUnit action. */
-	void OnInputStarted();
-	void OnSelectUnitTriggered();
-	void OnSelectUnitReleased();
-#pragma endregion // SelectUnitAction
+#pragma region ActorActions
+	/** Input handlers for SelectActor action. */
+	void OnSelectActorInputStarted();
+	void OnSelectActorTriggered();
+	void OnSelectActorReleased();
+	
+	/** Input handlers for DeleteActor action. */
+	void OnDeleteActorInputStarted();
+	void OnDeleteActorTriggered();
+	void OnDeleteActorReleased();
+#pragma endregion // SelectActorAction
 
 private:
 	/**

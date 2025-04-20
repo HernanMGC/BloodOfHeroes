@@ -82,13 +82,23 @@ void ABOHPlayerController::SetupInputComponent()
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
 	{
 		// Setup mouse input events
-		EnhancedInputComponent->BindAction(SelectUnitAction, ETriggerEvent::Started, this, &ThisClass::OnInputStarted);
-		EnhancedInputComponent->BindAction(SelectUnitAction, ETriggerEvent::Triggered, this,
-		                                   &ThisClass::OnSelectUnitTriggered);
-		EnhancedInputComponent->BindAction(SelectUnitAction, ETriggerEvent::Completed, this,
-		                                   &ThisClass::OnSelectUnitReleased);
-		EnhancedInputComponent->BindAction(SelectUnitAction, ETriggerEvent::Canceled, this,
-		                                   &ThisClass::OnSelectUnitReleased);
+		EnhancedInputComponent->BindAction(SelectActorAction, ETriggerEvent::Started, this, &ThisClass::OnSelectActorInputStarted);
+		EnhancedInputComponent->BindAction(SelectActorAction, ETriggerEvent::Triggered, this,
+		                                   &ThisClass::OnSelectActorTriggered);
+		EnhancedInputComponent->BindAction(SelectActorAction, ETriggerEvent::Completed, this,
+		                                   &ThisClass::OnSelectActorReleased);
+		EnhancedInputComponent->BindAction(SelectActorAction, ETriggerEvent::Canceled, this,
+		                                   &ThisClass::OnSelectActorReleased);
+
+		
+		// Setup mouse input events
+		EnhancedInputComponent->BindAction(DeleteActorAction, ETriggerEvent::Started, this, &ThisClass::OnDeleteActorInputStarted);
+		EnhancedInputComponent->BindAction(DeleteActorAction, ETriggerEvent::Triggered, this,
+										   &ThisClass::OnDeleteActorTriggered);
+		EnhancedInputComponent->BindAction(DeleteActorAction, ETriggerEvent::Completed, this,
+										   &ThisClass::OnDeleteActorReleased);
+		EnhancedInputComponent->BindAction(DeleteActorAction, ETriggerEvent::Canceled, this,
+										   &ThisClass::OnDeleteActorReleased);
 	}
 	else
 	{
@@ -103,7 +113,7 @@ void ABOHPlayerController::SetupInputComponent()
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
-void ABOHPlayerController::OnInputStarted()
+void ABOHPlayerController::OnSelectActorInputStarted()
 {
 	UE_LOG(LogBOPlayerController, Display, TEXT("ABOHPlayerController::OnInputStarted"));
 }
@@ -112,7 +122,7 @@ void ABOHPlayerController::OnInputStarted()
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-void ABOHPlayerController::OnSelectUnitTriggered()
+void ABOHPlayerController::OnSelectActorTriggered()
 {
 	if (bIsPressing)
 	{
@@ -152,17 +162,15 @@ void ABOHPlayerController::OnSelectUnitTriggered()
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
-void ABOHPlayerController::OnSelectUnitReleased()
+void ABOHPlayerController::OnSelectActorReleased()
 {
 	bIsPressing = false;
 	if (SelectedUnitPathPoint == nullptr)
 	{
 		return;
 	}
-	TObjectPtr<ABOHPathPointActor> TempSelectedUnitPathPoint = SelectedUnitPathPoint;
-	SelectedUnitPathPoint = nullptr;
 	
-	UBOHUnitPathComponent* PathComp = SelectedUnit && TempSelectedUnitPathPoint ? SelectedUnit->GetComponentByClass<UBOHUnitPathComponent>() : nullptr;
+	UBOHUnitPathComponent* PathComp = SelectedUnit && SelectedUnitPathPoint ? SelectedUnit->GetComponentByClass<UBOHUnitPathComponent>() : nullptr;
 	if (!PathComp)
 	{
 		return;
@@ -171,8 +179,41 @@ void ABOHPlayerController::OnSelectUnitReleased()
 	FHitResult Hit;
 	if (const bool bHitSuccessful = GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit))
 	{
-		PathComp->ModifyPointFromPath(TempSelectedUnitPathPoint->GetPathPointIndex(), Hit.Location);
+		PathComp->ModifyPointFromPath(SelectedUnitPathPoint->GetPathPointIndex(), Hit.Location);
 	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////
+
+void ABOHPlayerController::OnDeleteActorInputStarted()
+{
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////
+
+void ABOHPlayerController::OnDeleteActorTriggered()
+{
+	UBOHUnitPathComponent* PathComp = SelectedUnit ? SelectedUnit->GetComponentByClass<UBOHUnitPathComponent>() : nullptr;
+	if (!SelectedUnitPathPoint || SelectedUnitPathPoint->GetOwner() != SelectedUnit || !PathComp)
+	{
+		return;
+	}
+
+	PathComp->RemovePointFromPath(SelectedUnitPathPoint->GetPathPointIndex());
+	PathComp->UpdatePathActors();
+	SelectedUnitPathPoint = nullptr;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////
+
+void ABOHPlayerController::OnDeleteActorReleased()
+{
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -233,6 +274,7 @@ void ABOHPlayerController::HandleSingleClick(const FHitResult& Hit)
 	if (PathComp)
 	{
 		PathComp->AppendPointToPath(Hit.Location);
+		SelectedUnitPathPoint = nullptr;
 	}
 }
 

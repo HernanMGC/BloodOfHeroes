@@ -4,12 +4,14 @@
 // Class
 #include "BOHUnitPathComponent.h"
 
+// UnrealEngine
+#include "Components/CapsuleComponent.h"
+
 // BOH
 #include "BOHPathLineActor.h"
 #include "BOHPathPointActor.h"
 #include "BloodOfHeroes/Characters/BOHCharacter.h"
 #include "BloodOfHeroes/Utils/BOHUtils.h"
-#include "Components/CapsuleComponent.h"
 
 ////////////////////////////////////////////////////////////////////////////////////
 //
@@ -19,12 +21,11 @@ UBOHUnitPathComponent::UBOHUnitPathComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 }
-
-////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 //
-////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
-void UBOHUnitPathComponent::AddPointToPath(FVector NewPoint, int32 NewPointPosition, bool bIsEditable)
+void UBOHUnitPathComponent::AddPointToPath(FVector NewPoint, int32 NewPointPosition)
 {
 	if (NewPointPosition < 0)
 	{
@@ -32,63 +33,17 @@ void UBOHUnitPathComponent::AddPointToPath(FVector NewPoint, int32 NewPointPosit
 	}
 
 	UnitPath.Insert(NewPoint, NewPointPosition);
-	
-	UWorld* World = GetWorld();
-	ABOHCharacter* Owner = World ? Cast<ABOHCharacter>(GetOwner()) : nullptr;
-	if (!Owner)
-	{
-		return;
-	}
-	
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.Instigator = Owner;
-	SpawnParams.Owner = Owner;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-	FTransform PathPointActorTransform = FTransform::Identity;
-	PathPointActorTransform.SetLocation(NewPoint);
-	ABOHPathPointActor* PathPointActor = World->SpawnActorDeferred<ABOHPathPointActor>(PathPointActorClass, PathPointActorTransform, Owner, Owner);
-	if (!PathPointActor)
-	{
-		return;
-	}
-
-	PathPointActor->FinishSpawning(PathPointActorTransform);
-	PathPointActors.Add(PathPointActor);
-	PathPointActor->SetCanBeEdit(bIsEditable);
-	PathPointActor->SetPathPointIndex(UnitPath.Num() - 1);
-
-	if (PathPointActors.Num() <= 1)
-	{
-		return;
-	}
-
-	FTransform PathLineActorTransform = FTransform::Identity;
-	FVector PrevUnitPathPoint = UnitPath[UnitPath.Num() - 2];
-	PathLineActorTransform.SetLocation(PrevUnitPathPoint);
-	PathLineActorTransform.SetRotation((NewPoint - PrevUnitPathPoint).Rotation().Quaternion());
-	FVector PathLineActorScale = FVector(1.f);
-	PathLineActorScale.X = (NewPoint - PrevUnitPathPoint).Length() * BOHUnitConstants::CentimetersToMeters;
-	PathLineActorTransform.SetScale3D(PathLineActorScale);
-	ABOHPathLineActor* PathLineActor = World->SpawnActorDeferred<ABOHPathLineActor>(PathLineActorClass, PathLineActorTransform, Owner, Owner);
-	if (!PathLineActor)
-	{
-		return;
-	}
-	
-	PathLineActor->FinishSpawning(PathLineActorTransform);
-	PathLineActors.Add(PathLineActor);
-	PathLineActor->SetPathPointIndex(UnitPath.Num() - 1);
+	UpdateActorsPool();
+	UpdatePathActors();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
-void UBOHUnitPathComponent::AppendPointToPath(FVector NewPoint, bool bIsEditable)
+void UBOHUnitPathComponent::AppendPointToPath(FVector NewPoint)
 {
-	// UnitPath.Add(NewPoint);
-	AddPointToPath(NewPoint, UnitPath.Num(), bIsEditable);
+	AddPointToPath(NewPoint, UnitPath.Num());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -98,6 +53,7 @@ void UBOHUnitPathComponent::AppendPointToPath(FVector NewPoint, bool bIsEditable
 void UBOHUnitPathComponent::RemovePointFromPath(int32 PointToRemovePosition)
 {
 	UnitPath.RemoveAt(PointToRemovePosition);
+	UpdatePathActors();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -160,7 +116,7 @@ void UBOHUnitPathComponent::BeginPlay()
 
 	FVector FootPoint = CapsuleComponent->GetComponentLocation();
 	FootPoint.Z -= CapsuleComponent->GetScaledCapsuleHalfHeight();
-	AppendPointToPath(FootPoint, false);
+	AppendPointToPath(FootPoint);
 	SetPathActorsVisibility(false);
 }
 
@@ -199,18 +155,74 @@ void UBOHUnitPathComponent::OnUnitIsSelectedChange(bool bNewIsSelected)
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-void UBOHUnitPathComponent::SetPathActorsVisibility(bool bNewIsSelected)
+void UBOHUnitPathComponent::SetPathActorsVisibility(bool bNewVisibility)
 {
-	for (TObjectPtr<ABOHPathLineActor> LineActor : PathLineActors)
+	int32 UnitPathLastIndex = UnitPath.Num() - 1;
+	for (int32 i = 0; i < PathLineActors.Num(); i++)
 	{
-		LineActor->SetActorHiddenInGame(!bNewIsSelected);
-		LineActor->SetActorEnableCollision(bNewIsSelected);
+		if (!PathLineActors[i]) { continue; }
+
+		bool bLineIsVisible = bNewVisibility && (UnitPathLastIndex - 1 >= i);
+		PathLineActors[i]->SetActorHiddenInGame(!bLineIsVisible);
+		PathLineActors[i]->SetActorEnableCollision(bLineIsVisible);
 	}
 
-	for (TObjectPtr<ABOHPathPointActor> PointActor : PathPointActors)
+	for (int32 i = 0; i < PathPointActors.Num(); i++)
 	{
-		PointActor->SetActorHiddenInGame(!bNewIsSelected);
-		PointActor->SetActorEnableCollision(bNewIsSelected);
+		if (!PathPointActors[i]) { continue; }
+
+		bool bPointIsVisible = bNewVisibility && (UnitPathLastIndex >= i);
+		PathPointActors[i]->SetActorHiddenInGame(!bPointIsVisible);
+		PathPointActors[i]->SetActorEnableCollision(bPointIsVisible);
+	}
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////////
+
+void UBOHUnitPathComponent::UpdateActorsPool()
+{
+	UWorld* World = GetWorld();
+	ABOHCharacter* Owner = World ? Cast<ABOHCharacter>(GetOwner()) : nullptr;
+	if (!Owner)
+	{
+		return;
+	}
+	
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Instigator = Owner;
+	SpawnParams.Owner = Owner;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	int32 PointsToCreate = FMath::Max(0, UnitPath.Num() - PathPointActors.Num());
+	for (int32 i = 0; i < PointsToCreate; i++)
+	{
+		ABOHPathPointActor* PathPointActor = World->SpawnActorDeferred<ABOHPathPointActor>(PathPointActorClass, FTransform::Identity, Owner, Owner);
+		if (!PathPointActor)
+		{
+			continue;
+		}
+
+		PathPointActor->FinishSpawning(FTransform::Identity);
+		PathPointActors.Add(PathPointActor);
+		PathPointActor->SetCanBeEdit(PathPointActors.Num() != 1);
+		PathPointActor->SetPathPointIndex(UnitPath.Num() - 1);
+	}
+
+	int32 LinesToCreate = FMath::Max(0, UnitPath.Num() - PathLineActors.Num() - 1);
+	for (int32 i = 0; i < LinesToCreate; i++)
+	{
+		ABOHPathLineActor* PathLineActor = World->SpawnActorDeferred<ABOHPathLineActor>(PathLineActorClass, FTransform::Identity, Owner, Owner);
+		if (!PathLineActor)
+		{
+			continue;
+		}
+	
+		PathLineActor->FinishSpawning(FTransform::Identity);
+		PathLineActors.Add(PathLineActor);
+		PathLineActor->SetPathPointIndex(UnitPath.Num() - 1);
 	}
 }
 
@@ -220,6 +232,7 @@ void UBOHUnitPathComponent::SetPathActorsVisibility(bool bNewIsSelected)
 ///
 void UBOHUnitPathComponent::UpdatePathActors()
 {
+	SetPathActorsVisibility(false);
 	for (int32 i = 0; i < UnitPath.Num(); i++ )
 	{
 		FVector PathPoint = UnitPath[i];
@@ -240,6 +253,7 @@ void UBOHUnitPathComponent::UpdatePathActors()
 			PathLineActors[i]->SetActorRotation(LineVector.Rotation());
 		}
 	}
+	SetPathActorsVisibility(true);
 }
 
 

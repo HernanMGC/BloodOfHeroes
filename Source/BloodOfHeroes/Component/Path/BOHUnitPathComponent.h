@@ -37,23 +37,21 @@ public:
 	 * Constructor. Enables tick.
 	 */
 	UBOHUnitPathComponent();
-	
+
 	/**
 	 * Adds a point to the unit path at NewPointPosition.
 	 * @param NewPoint 
-	 * @param NewPointPosition
-	 * @param bIsEditable 
+	 * @param NewPointPosition 
 	 */
 	UFUNCTION(BlueprintCallable)
-	void AddPointToPath(FVector NewPoint, int32 NewPointPosition, bool bIsEditable = true);
+	void AddPointToPath(FVector NewPoint, int32 NewPointPosition);
 
 	/**
 	 * Adds a point to the unit path at last position.
-	 * @param NewPoint
-	 * @param bIsEditable 
+	 * @param NewPoint 
 	 */
 	UFUNCTION(BlueprintCallable)
-	void AppendPointToPath(FVector NewPoint, bool bIsEditable = true);
+	void AppendPointToPath(FVector NewPoint);
 
 	/**
 	 * Removes point from path at PointToRemovePosition.
@@ -117,10 +115,15 @@ protected:
 private:
 	/**
 	 * Set path actors' visibility.
-	 * @param bNewIsSelected 
+	 * @param bNewVisibility 
 	 */
-	void SetPathActorsVisibility(bool bNewIsSelected);
-	
+	void SetPathActorsVisibility(bool bNewVisibility);
+
+	/**
+	 * Update actors pool and create more path actors if needed.
+	 */
+	void UpdateActorsPool();
+
 #if WITH_EDITOR
 	/**
 	 * Draw Debug lines.

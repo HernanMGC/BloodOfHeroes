@@ -5,6 +5,7 @@
 //// Includes
 // UnrealEngine
 #include "CoreMinimal.h"
+#include "BloodOfHeroes/Component/Path/BOHPathPointActor.h"
 #include "GameFramework/PlayerController.h"
 
 // BOH
@@ -87,12 +88,24 @@ private:
 	 */
 	void SetSelectedUnit(ABOHCharacter* Unit);
 
+	/**
+	 * Handle press event.
+	 */
+	void HandlePress();
+
 protected:
 	// Currently selected character.
 	UPROPERTY(Transient)
 	TObjectPtr<ABOHCharacter> SelectedUnit = nullptr;
 
+	// Currently selected unit path point character.
+	UPROPERTY(Transient)
+	TObjectPtr<ABOHPathPointActor> SelectedUnitPathPoint = nullptr;
+
 private:
 	// HUD Widget reference.
 	TObjectPtr<UBOHHudWidget> HUDWidget = nullptr; 
+
+	// Input is being pressed.
+	bool bIsPressing = false;
 };

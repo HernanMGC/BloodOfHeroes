@@ -67,6 +67,14 @@ public:
 	void RemoveLastPointFromPath();
 
 	/**
+	 * Modifys point from path at PointToModifyPosition.
+	 * @param PointToModifyPosition 
+	 */
+	UFUNCTION(BlueprintCallable)
+	void ModifyPointFromPath(int32 PointToModifyPosition, FVector NewPoint);
+
+	
+	/**
 	 * Returns unit path's points.
 	 * @return 
 	 */
@@ -90,8 +98,27 @@ protected:
 	virtual void BeginPlay() override;
 	
 	// Overriden to: Unbind to owners is selected delegate.
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
+	/**
+	 * Reacts to unit selection state changed by show or hiding path actors.
+	 * @param bNewIsSelected 
+	 */
+	UFUNCTION()
+	void OnUnitIsSelectedChange(bool bNewIsSelected);
+		
 private:
+	/**
+	 * Set path actors' visibility.
+	 * @param bNewIsSelected 
+	 */
+	void SetPathActorsVisibility(bool bNewIsSelected);
+
+	/**
+	 * Update path actors' locations and scales.
+	 */
+	void UpdatePathActors();
+	
 #if WITH_EDITOR
 	/**
 	 * Draw Debug lines.

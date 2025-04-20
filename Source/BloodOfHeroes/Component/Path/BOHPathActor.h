@@ -29,6 +29,24 @@ public:
 
 public:
 	/**
+	 * Get Path point index.
+	 * @return 
+	 */
+	FORCEINLINE int32 GetPathPointIndex() const { return PathPointIndex; };
+
+	/**
+	 * Set Path Point index.
+	 * @param InPathPointIndex 
+	 */
+	FORCEINLINE void SetPathPointIndex(int32 InPathPointIndex){ PathPointIndex = InPathPointIndex; };
+	
+protected:
+	// Path point index.
+	UPROPERTY(VisibleAnywhere)
+	int32 PathPointIndex = -1;
+	
+public:
+	/**
 	 *  Constructor. Removes tick.
 	 */
 	ABOHPathActor();

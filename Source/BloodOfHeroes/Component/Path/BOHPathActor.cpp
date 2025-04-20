@@ -12,8 +12,10 @@ ABOHPathActor::ABOHPathActor()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	
+	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
+	
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
-	SetRootComponent(StaticMeshComponent);
+	StaticMeshComponent->SetupAttachment(RootComponent);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -24,7 +24,7 @@ UBOHUnitPathComponent::UBOHUnitPathComponent()
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
-void UBOHUnitPathComponent::AddPointToPath(FVector NewPoint, int32 NewPointPosition)
+void UBOHUnitPathComponent::AddPointToPath(FVector NewPoint, int32 NewPointPosition, bool bIsEditable)
 {
 	if (NewPointPosition < 0)
 	{
@@ -56,6 +56,7 @@ void UBOHUnitPathComponent::AddPointToPath(FVector NewPoint, int32 NewPointPosit
 
 	PathPointActor->FinishSpawning(PathPointActorTransform);
 	PathPointActors.Add(PathPointActor);
+	PathPointActor->SetCanBeEdit(bIsEditable);
 	PathPointActor->SetPathPointIndex(UnitPath.Num() - 1);
 
 	if (PathPointActors.Num() <= 1)
@@ -85,10 +86,10 @@ void UBOHUnitPathComponent::AddPointToPath(FVector NewPoint, int32 NewPointPosit
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
-void UBOHUnitPathComponent::AppendPointToPath(FVector NewPoint)
+void UBOHUnitPathComponent::AppendPointToPath(FVector NewPoint, bool bIsEditable)
 {
 	// UnitPath.Add(NewPoint);
-	AddPointToPath(NewPoint, UnitPath.Num());
+	AddPointToPath(NewPoint, UnitPath.Num(), bIsEditable);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -160,7 +161,7 @@ void UBOHUnitPathComponent::BeginPlay()
 
 	FVector FootPoint = CapsuleComponent->GetComponentLocation();
 	FootPoint.Z -= CapsuleComponent->GetScaledCapsuleHalfHeight();
-	AppendPointToPath(FootPoint);
+	AppendPointToPath(FootPoint, false);
 	SetPathActorsVisibility(false);
 }
 

@@ -39,11 +39,27 @@ public:
 	 * @param InPathPointIndex 
 	 */
 	FORCEINLINE void SetPathPointIndex(int32 InPathPointIndex){ PathPointIndex = InPathPointIndex; };
+
+	/**
+	 * Can actor be edit by controller.
+	 * @return 
+	 */
+	FORCEINLINE bool CanBeEdit() const { return bCanBeEdit; };
+
+	/**
+	 * Can actor be edit by controller.
+	 * @return 
+	 */
+	FORCEINLINE void SetCanBeEdit(bool bInCanBeEdit) { bCanBeEdit = bInCanBeEdit; };
 	
 protected:
 	// Path point index.
 	UPROPERTY(VisibleAnywhere)
 	int32 PathPointIndex = -1;
+
+	// Can the actor be edited by the controller.
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	bool bCanBeEdit = true;
 	
 public:
 	/**

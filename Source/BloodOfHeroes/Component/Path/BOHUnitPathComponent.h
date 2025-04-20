@@ -41,17 +41,19 @@ public:
 	/**
 	 * Adds a point to the unit path at NewPointPosition.
 	 * @param NewPoint 
-	 * @param NewPointPosition 
+	 * @param NewPointPosition
+	 * @param bIsEditable 
 	 */
 	UFUNCTION(BlueprintCallable)
-	void AddPointToPath(FVector NewPoint, int32 NewPointPosition);
+	void AddPointToPath(FVector NewPoint, int32 NewPointPosition, bool bIsEditable = true);
 
 	/**
 	 * Adds a point to the unit path at last position.
-	 * @param NewPoint 
+	 * @param NewPoint
+	 * @param bIsEditable 
 	 */
 	UFUNCTION(BlueprintCallable)
-	void AppendPointToPath(FVector NewPoint);
+	void AppendPointToPath(FVector NewPoint, bool bIsEditable = true);
 
 	/**
 	 * Removes point from path at PointToRemovePosition.

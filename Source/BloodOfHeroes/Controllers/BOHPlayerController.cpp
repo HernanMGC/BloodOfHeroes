@@ -187,7 +187,10 @@ void ABOHPlayerController::HandlePress()
 	ABOHPathPointActor* HitPathPoint = Cast<ABOHPathPointActor>(Hit.GetActor());
 	if (HitPathPoint && HitPathPoint->GetOwner() == SelectedUnit)
 	{
-		SelectedUnitPathPoint = HitPathPoint;
+		if (HitPathPoint->CanBeEdit())
+		{
+			SelectedUnitPathPoint = HitPathPoint;
+		}
 		return;
 	}
 

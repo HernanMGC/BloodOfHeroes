@@ -46,13 +46,16 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BOH|Input")
 	TObjectPtr<UNiagaraSystem> FXCursor = nullptr;
 
+	// On unit selected delegate.
+	UPROPERTY(BlueprintReadOnly, BlueprintAssignable, Category = "BOH|Input")
+	FOnUnitSelected OnUnitSelected;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BOH|Input")
+	float DoubleClickTimeThreshold = 0.01f;
+
 	// HUD Widget class.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BOH|UI")
 	TSubclassOf<UBOHHudWidget> HUDWidgetClass = nullptr;
-
-	// On unit selected delegate.
-	UPROPERTY(BlueprintReadOnly, BlueprintAssignable)
-	FOnUnitSelected OnUnitSelected;
 
 public:
 	/**
@@ -70,6 +73,9 @@ public:
 protected:
 	// Overriden to: Add HUD to viewport.
 	virtual void BeginPlay() override;
+
+	// Overriden to: Unbind events and invalidate timers.
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	
 	// Overriden to: Bind click input events.
 	virtual void SetupInputComponent() override;
@@ -91,9 +97,24 @@ private:
 	/**
 	 * Handle press event.
 	 */
-	void HandlePress();
+	void HandleSingleClick(const FHitResult& Hit);
+
+	
+	/**
+	 * Handle press event.
+	 */
+	void HandleDoubleClick(const FHitResult& Hit);
+
+	/**
+	 * Double click timer
+	 */
+	void OnDoubleClickTimerFinished();
 
 protected:
+	// Last hit actor.
+	UPROPERTY(Transient)
+	TObjectPtr<AActor> LastHiActor = nullptr;
+	
 	// Currently selected character.
 	UPROPERTY(Transient)
 	TObjectPtr<ABOHCharacter> SelectedUnit = nullptr;
@@ -102,10 +123,16 @@ protected:
 	UPROPERTY(Transient)
 	TObjectPtr<ABOHPathPointActor> SelectedUnitPathPoint = nullptr;
 
-private:
 	// HUD Widget reference.
 	TObjectPtr<UBOHHudWidget> HUDWidget = nullptr; 
 
 	// Input is being pressed.
 	bool bIsPressing = false;
+
+	// Input is in double click threshold.
+	bool bIsInDoubleClickThreshold = false;
+
+	// Double click timer handle.
+	FTimerHandle DoubleClickTimerHandle;
 };
+

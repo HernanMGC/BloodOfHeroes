@@ -31,8 +31,7 @@ void UBOHUnitPathComponent::AddPointToPath(FVector NewPoint, int32 NewPointPosit
 		return;
 	}
 
-	UnitPath.EmplaceAt(NewPointPosition, NewPoint);
-
+	UnitPath.Insert(NewPoint, NewPointPosition);
 	
 	UWorld* World = GetWorld();
 	ABOHCharacter* Owner = World ? Cast<ABOHCharacter>(GetOwner()) : nullptr;
@@ -79,7 +78,7 @@ void UBOHUnitPathComponent::AddPointToPath(FVector NewPoint, int32 NewPointPosit
 	
 	PathLineActor->FinishSpawning(PathLineActorTransform);
 	PathLineActors.Add(PathLineActor);
-	PathPointActor->SetPathPointIndex(UnitPath.Num() - 1);
+	PathLineActor->SetPathPointIndex(UnitPath.Num() - 1);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

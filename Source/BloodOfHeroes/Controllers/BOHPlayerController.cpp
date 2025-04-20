@@ -12,6 +12,7 @@
 
 // BOH
 #include "BloodOfHeroes/Characters/BOHCharacter.h"
+#include "BloodOfHeroes/Component/Path/BOHPathLineActor.h"
 #include "BloodOfHeroes/Component/Path/BOHPathPointActor.h"
 #include "BloodOfHeroes/Component/Path/BOHUnitPathComponent.h"
 #include "BloodOfHeroes/UI/BOHHudWidget.h"
@@ -46,6 +47,20 @@ void ABOHPlayerController::BeginPlay()
 		return;
 	}
 	HUDWidget->AddToViewport(0);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////
+
+void ABOHPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	if (DoubleClickTimerHandle.IsValid())
+	{
+		DoubleClickTimerHandle.Invalidate();
+	}
+	
+	Super::EndPlay(EndPlayReason);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -104,9 +119,33 @@ void ABOHPlayerController::OnSelectUnitTriggered()
 		return;
 	}
 	
-	HandlePress();
-	
+	// We look for the location in the world where the player has pressed the input
+	FHitResult Hit;
+	const bool bHitSuccessful = GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit);
+
+	if (bHitSuccessful)
+	{
+		if (bIsInDoubleClickThreshold && LastHiActor == Hit.GetActor())
+		{
+			HandleDoubleClick(Hit);
+		}
+		else
+		{
+			HandleSingleClick(Hit);
+		}
+	}
+
+	bIsInDoubleClickThreshold = true;
+	LastHiActor = Hit.GetActor();
 	bIsPressing = true;
+
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		return;
+	}
+
+	World->GetTimerManager().SetTimer(DoubleClickTimerHandle, this, &ThisClass::OnDoubleClickTimerFinished, DoubleClickTimeThreshold);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -160,18 +199,8 @@ void ABOHPlayerController::SetSelectedUnit(ABOHCharacter* Unit)
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
-void ABOHPlayerController::HandlePress()
+void ABOHPlayerController::HandleSingleClick(const FHitResult& Hit)
 {
-	// We look for the location in the world where the player has pressed the input
-	FHitResult Hit;
-	const bool bHitSuccessful = GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit);
-	
-	// If we hit a surface, cache the location
-	if (!bHitSuccessful)
-	{
-		return;
-	}
-
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, FXCursor, Hit.Location,
 												   FRotator::ZeroRotator, FVector(1.f, 1.f, 1.f), true, true,
 												   ENCPoolMethod::None, true);
@@ -184,6 +213,12 @@ void ABOHPlayerController::HandlePress()
 		return;
 	}
 
+	ABOHPathLineActor* HitPathLine = Cast<ABOHPathLineActor>(Hit.GetActor());
+	if (HitPathLine)
+	{
+		return;
+	}
+	
 	ABOHPathPointActor* HitPathPoint = Cast<ABOHPathPointActor>(Hit.GetActor());
 	if (HitPathPoint && HitPathPoint->GetOwner() == SelectedUnit)
 	{
@@ -201,6 +236,37 @@ void ABOHPlayerController::HandlePress()
 	}
 }
 
+////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////
+
+void ABOHPlayerController::HandleDoubleClick(const FHitResult& Hit)
+{
+	ABOHPathLineActor* HitPathLine = Cast<ABOHPathLineActor>(Hit.GetActor());
+	if (!HitPathLine || !HitPathLine->CanBeEdit() || HitPathLine->GetOwner() != SelectedUnit)
+	{
+		return;
+	}
+
+	UBOHUnitPathComponent* PathComp = SelectedUnit ? SelectedUnit->GetComponentByClass<UBOHUnitPathComponent>() : nullptr;
+	if (!PathComp)
+	{
+		return;
+	}
+
+	PathComp->AddPointToPath(Hit.Location, HitPathLine->GetPathPointIndex());
+	PathComp->UpdatePathActors();
+}
+
 ////////////////////////////////////////////////////////////////////////////////////
 //
 ////////////////////////////////////////////////////////////////////////////////////
+
+void ABOHPlayerController::OnDoubleClickTimerFinished()
+{
+	bIsInDoubleClickThreshold = false;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////

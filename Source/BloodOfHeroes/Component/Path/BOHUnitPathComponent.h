@@ -75,6 +75,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ModifyPointFromPath(int32 PointToModifyPosition, FVector NewPoint);
 
+	/**
+	 * Update path actors' locations and scales.
+	 */
+	UFUNCTION(BlueprintCallable)
+	void UpdatePathActors();
 	
 	/**
 	 * Returns unit path's points.
@@ -115,11 +120,6 @@ private:
 	 * @param bNewIsSelected 
 	 */
 	void SetPathActorsVisibility(bool bNewIsSelected);
-
-	/**
-	 * Update path actors' locations and scales.
-	 */
-	void UpdatePathActors();
 	
 #if WITH_EDITOR
 	/**

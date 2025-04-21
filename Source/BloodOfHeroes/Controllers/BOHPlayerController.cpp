@@ -138,32 +138,30 @@ void ABOHPlayerController::OnSelectActorTriggered()
 	}
 	
 	// We look for the location in the world where the player has pressed the input
-	FHitResult Hit;
-	const bool bHitSuccessful = GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit);
-
-	if (bHitSuccessful)
-	{
-		if (bIsInDoubleClickThreshold && LastHiActor == Hit.GetActor())
-		{
-			HandleDoubleClick(Hit);
-		}
-		else
-		{
-			HandleSingleClick(Hit);
-		}
-	}
-
-	bIsInDoubleClickThreshold = true;
-	LastHiActor = Hit.GetActor();
-	bIsPressing = true;
-
 	UWorld* World = GetWorld();
-	if (!World)
+	FHitResult Hit;
+	const bool bHitSuccessful = World ? GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit) : false;
+	
+	if (!bHitSuccessful)
 	{
 		return;
 	}
 
-	World->GetTimerManager().SetTimer(DoubleClickTimerHandle, this, &ThisClass::OnDoubleClickTimerFinished, DoubleClickTimeThreshold);
+	if (bIsInDoubleClickThreshold && LastHiActor == Hit.GetActor())
+	{
+		HandleDoubleClick(Hit);
+		bIsInDoubleClickThreshold = false;
+		DoubleClickTimerHandle.Invalidate();
+	}
+	else
+	{
+		HandleSingleClick(Hit);
+		bIsInDoubleClickThreshold = true;
+		World->GetTimerManager().SetTimer(DoubleClickTimerHandle, this, &ThisClass::OnDoubleClickTimerFinished, DoubleClickTimeThreshold);
+	}
+
+	LastHiActor = Hit.GetActor();
+	bIsPressing = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -173,23 +171,11 @@ void ABOHPlayerController::OnSelectActorTriggered()
 void ABOHPlayerController::OnSelectActorReleased()
 {
 	bIsPressing = false;
-	if (DraggingTime < DragTimeThreshold)
-	{
-		return;;
-	}
-	
-	if (SelectedUnitPathActor == nullptr)
-	{
-		return;
-	}
-	
-	UBOHUnitPathComponent* PathComp = SelectedUnit && SelectedUnitPathActor ? SelectedUnit->GetComponentByClass<UBOHUnitPathComponent>() : nullptr;
-	if (!PathComp)
-	{
-		return;
-	}
 
-	if (!Cast<ABOHPathPointActor>(LastHiActor))
+	bool bIsDragging = DraggingTime >= DragTimeThreshold;
+	ABOHPathPointActor* PointActor = bIsDragging && SelectedUnit && SelectedUnitPathActor ? Cast<ABOHPathPointActor>(SelectedUnitPathActor) : nullptr;
+	UBOHUnitPathComponent* PathComp = PointActor && PointActor->GetOwner() == SelectedUnit ? SelectedUnit->GetComponentByClass<UBOHUnitPathComponent>() : nullptr;
+	if (!PathComp)
 	{
 		return;
 	}
@@ -197,7 +183,7 @@ void ABOHPlayerController::OnSelectActorReleased()
 	FHitResult Hit;
 	if (const bool bHitSuccessful = GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit))
 	{
-		PathComp->ModifyPointFromPath(SelectedUnitPathActor->GetPathPointIndex(), Hit.Location);
+		PathComp->ModifyPointFromPath(PointActor->GetPathPointIndex(), Hit.Location);
 	}
 }
 
@@ -290,22 +276,12 @@ void ABOHPlayerController::HandleSingleClick(const FHitResult& Hit)
 		return;
 	}
 
-	ABOHPathLineActor* HitPathLine = Cast<ABOHPathLineActor>(Hit.GetActor());
-	if (HitPathLine)
+	ABOHPathActor* HitPathActor = Cast<ABOHPathActor>(Hit.GetActor());
+	if (HitPathActor && HitPathActor->GetOwner() == SelectedUnit)
 	{
-		if (HitPathLine->CanBeEdit())
+		if (HitPathActor->CanBeEdit())
 		{
-			SetSelectedPathActor(HitPathLine);
-		}
-		return;
-	}
-	
-	ABOHPathPointActor* HitPathPoint = Cast<ABOHPathPointActor>(Hit.GetActor());
-	if (HitPathPoint && HitPathPoint->GetOwner() == SelectedUnit)
-	{
-		if (HitPathPoint->CanBeEdit())
-		{
-			SetSelectedPathActor(HitPathPoint);
+			SetSelectedPathActor(HitPathActor);
 		}
 		return;
 	}

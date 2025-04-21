@@ -26,13 +26,20 @@ public:
 	// Static mesh component.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TObjectPtr<UStaticMeshComponent> StaticMeshComponent = nullptr;
+	
+	// Actor size in meters.
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "BOH|PathLine", meta = (ClampMin = 0.f, Units = "meters"))
+	float ActorSize = .3f;
 
 public:
 	/**
 	 *  Constructor. Removes tick.
 	 */
 	ABOHPathActor();
-	
+
+	// Overriden to: Set actor size on BP construction.
+	virtual void OnConstruction(const FTransform& Transform) override;
+
 	/**
 	 * Get Path point index.
 	 * @return 
@@ -64,10 +71,16 @@ public:
 	FORCEINLINE bool IsPathActorSelected() const { return bIsPathActorSelected; };
 
 	/**
-	 * Set if actor has been selected by controller.
+	 * Sets if actor has been selected by controller.
 	 * @return 
 	 */
 	void SetIsPathActorSelected(bool bInIsPathActorSelected);
+
+	/**
+	 * Sets mesh size.
+	 * @param InScale3D 
+	 */
+	void SetMeshSize(const FVector& InScale3D) const;
 
 protected:
 	/**

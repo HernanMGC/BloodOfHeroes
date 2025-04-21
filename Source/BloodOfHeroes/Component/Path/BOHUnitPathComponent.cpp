@@ -237,6 +237,7 @@ void UBOHUnitPathComponent::UpdateActorsPool()
 void UBOHUnitPathComponent::UpdatePathActors()
 {
 	SetPathActorsVisibility(false);
+	float TotalLineLength = 0.f;
 	for (int32 i = 0; i < UnitPath.Num(); i++ )
 	{
 		FVector PathPoint = UnitPath[i];
@@ -249,17 +250,16 @@ void UBOHUnitPathComponent::UpdatePathActors()
 		if (UnitPath.IsValidIndex(i) && UnitPath.IsValidIndex(i+1))
 		{
 			PathLineActors[i]->SetActorLocation(PathPoint);
-			FVector LineScale = FVector(1.f);
 			FVector NextPathPoint = UnitPath[i+1];
 			FVector LineVector = NextPathPoint - PathPoint;
-			LineScale.X = LineVector.Length() * BOHUnitConstants::CentimetersToMeters;
-			PathLineActors[i]->SetActorScale3D(LineScale);
+			float LineLength = LineVector.Length() * BOHUnitConstants::CentimetersToMeters;
+			TotalLineLength += LineLength;
+			PathLineActors[i]->SetLineLength(LineLength, TotalLineLength);
 			PathLineActors[i]->SetActorRotation(LineVector.Rotation());
 		}
 	}
 	SetPathActorsVisibility(true);
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////////
 //

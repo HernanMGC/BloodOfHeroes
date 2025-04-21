@@ -63,6 +63,13 @@ void ABOHPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
+void ABOHPlayerController::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	DraggingTime += DeltaSeconds;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////
 //
 ////////////////////////////////////////////////////////////////////////////////////
@@ -116,6 +123,7 @@ void ABOHPlayerController::SetupInputComponent()
 void ABOHPlayerController::OnSelectActorInputStarted()
 {
 	UE_LOG(LogBOPlayerController, Display, TEXT("ABOHPlayerController::OnInputStarted"));
+	DraggingTime = 0.f;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -165,13 +173,23 @@ void ABOHPlayerController::OnSelectActorTriggered()
 void ABOHPlayerController::OnSelectActorReleased()
 {
 	bIsPressing = false;
-	if (SelectedUnitPathPoint == nullptr)
+	if (DraggingTime < DragTimeThreshold)
+	{
+		return;;
+	}
+	
+	if (SelectedUnitPathActor == nullptr)
 	{
 		return;
 	}
 	
-	UBOHUnitPathComponent* PathComp = SelectedUnit && SelectedUnitPathPoint ? SelectedUnit->GetComponentByClass<UBOHUnitPathComponent>() : nullptr;
+	UBOHUnitPathComponent* PathComp = SelectedUnit && SelectedUnitPathActor ? SelectedUnit->GetComponentByClass<UBOHUnitPathComponent>() : nullptr;
 	if (!PathComp)
+	{
+		return;
+	}
+
+	if (!Cast<ABOHPathPointActor>(LastHiActor))
 	{
 		return;
 	}
@@ -179,7 +197,7 @@ void ABOHPlayerController::OnSelectActorReleased()
 	FHitResult Hit;
 	if (const bool bHitSuccessful = GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit))
 	{
-		PathComp->ModifyPointFromPath(SelectedUnitPathPoint->GetPathPointIndex(), Hit.Location);
+		PathComp->ModifyPointFromPath(SelectedUnitPathActor->GetPathPointIndex(), Hit.Location);
 	}
 }
 
@@ -198,14 +216,14 @@ void ABOHPlayerController::OnDeleteActorInputStarted()
 void ABOHPlayerController::OnDeleteActorTriggered()
 {
 	UBOHUnitPathComponent* PathComp = SelectedUnit ? SelectedUnit->GetComponentByClass<UBOHUnitPathComponent>() : nullptr;
-	if (!SelectedUnitPathPoint || SelectedUnitPathPoint->GetOwner() != SelectedUnit || !PathComp)
+	if (!SelectedUnitPathActor || SelectedUnitPathActor->GetOwner() != SelectedUnit || !PathComp)
 	{
 		return;
 	}
 
-	PathComp->RemovePointFromPath(SelectedUnitPathPoint->GetPathPointIndex());
+	PathComp->RemovePointFromPath(SelectedUnitPathActor->GetPathPointIndex());
 	PathComp->UpdatePathActors();
-	SelectedUnitPathPoint = nullptr;
+	SetSelectedPathActor(nullptr);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -227,14 +245,32 @@ void ABOHPlayerController::SetSelectedUnit(ABOHCharacter* Unit)
 		SelectedUnit->SetIsUnitSelected(false);
 	}
 
+	SelectedUnit = Unit;
+	OnUnitSelected.Broadcast(this, Unit);
+
 	if (Unit)
 	{
-		SelectedUnit = Unit;
-		OnUnitSelected.Broadcast(this, Unit);
 		SelectedUnit->SetIsUnitSelected(true);	
 	}
 }
 
+////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////
+
+void ABOHPlayerController::SetSelectedPathActor(ABOHPathActor* PathActor)
+{
+	if (SelectedUnitPathActor && SelectedUnitPathActor != PathActor)
+	{
+		SelectedUnitPathActor->SetIsPathActorSelected(false);
+	}
+
+	SelectedUnitPathActor = PathActor;
+	if (PathActor)
+	{
+		SelectedUnitPathActor->SetIsPathActorSelected(true);	
+	}
+}
 
 ////////////////////////////////////////////////////////////////////////////////////
 //
@@ -257,6 +293,10 @@ void ABOHPlayerController::HandleSingleClick(const FHitResult& Hit)
 	ABOHPathLineActor* HitPathLine = Cast<ABOHPathLineActor>(Hit.GetActor());
 	if (HitPathLine)
 	{
+		if (HitPathLine->CanBeEdit())
+		{
+			SetSelectedPathActor(HitPathLine);
+		}
 		return;
 	}
 	
@@ -265,7 +305,7 @@ void ABOHPlayerController::HandleSingleClick(const FHitResult& Hit)
 	{
 		if (HitPathPoint->CanBeEdit())
 		{
-			SelectedUnitPathPoint = HitPathPoint;
+			SetSelectedPathActor(HitPathPoint);
 		}
 		return;
 	}
@@ -274,7 +314,7 @@ void ABOHPlayerController::HandleSingleClick(const FHitResult& Hit)
 	if (PathComp)
 	{
 		PathComp->AppendPointToPath(Hit.Location);
-		SelectedUnitPathPoint = nullptr;
+		SetSelectedPathActor(nullptr);
 	}
 }
 

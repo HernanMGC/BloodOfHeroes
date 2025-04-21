@@ -29,6 +29,11 @@ public:
 
 public:
 	/**
+	 *  Constructor. Removes tick.
+	 */
+	ABOHPathActor();
+	
+	/**
 	 * Get Path point index.
 	 * @return 
 	 */
@@ -41,16 +46,35 @@ public:
 	FORCEINLINE void SetPathPointIndex(int32 InPathPointIndex){ PathPointIndex = InPathPointIndex; };
 
 	/**
-	 * Can actor be edit by controller.
+	 * Can actor be edited by controller.
 	 * @return 
 	 */
 	FORCEINLINE bool CanBeEdit() const { return bCanBeEdit; };
 
 	/**
-	 * Can actor be edit by controller.
+	 * Set if actor can be edited by controller.
 	 * @return 
 	 */
 	FORCEINLINE void SetCanBeEdit(bool bInCanBeEdit) { bCanBeEdit = bInCanBeEdit; };
+
+	/**
+	 * Is actor selected by controller.
+	 * @return 
+	 */
+	FORCEINLINE bool IsPathActorSelected() const { return bIsPathActorSelected; };
+
+	/**
+	 * Set if actor has been selected by controller.
+	 * @return 
+	 */
+	void SetIsPathActorSelected(bool bInIsPathActorSelected);
+
+protected:
+	/**
+	 * Event for BP on is selected changed
+	 */
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnIsPathActorSelectedChanged(bool bInIsPathActorSelected);
 	
 protected:
 	// Path point index.
@@ -60,10 +84,8 @@ protected:
 	// Can the actor be edited by the controller.
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	bool bCanBeEdit = true;
-	
-public:
-	/**
-	 *  Constructor. Removes tick.
-	 */
-	ABOHPathActor();
+
+	// Is actor selected. Used for visual updates.
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	bool bIsPathActorSelected = false;
 };

@@ -54,8 +54,13 @@ public:
 	UPROPERTY(BlueprintReadOnly, BlueprintAssignable, Category = "BOH|Input")
 	FOnUnitSelected OnUnitSelected;
 
+	// Double click time threshold.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BOH|Input")
-	float DoubleClickTimeThreshold = 0.01f;
+	float DoubleClickTimeThreshold = 0.05f;
+
+	// Drag time threshold.
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BOH|Input")
+	float DragTimeThreshold = 0.01f;
 
 	// HUD Widget class.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BOH|UI")
@@ -80,6 +85,9 @@ protected:
 
 	// Overriden to: Unbind events and invalidate timers.
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
+	// Overriden to: Update drag time.
+	virtual void Tick(float DeltaSeconds) override;
 	
 	// Overriden to: Bind click input events.
 	virtual void SetupInputComponent() override;
@@ -102,6 +110,12 @@ private:
 	 * @param Unit 
 	 */
 	void SetSelectedUnit(ABOHCharacter* Unit);
+
+	/**
+	 * Set selected path actor.
+	 * @param PathActor 
+	 */
+	void SetSelectedPathActor(ABOHPathActor* PathActor);
 
 	/**
 	 * Handle press event.
@@ -130,7 +144,7 @@ protected:
 
 	// Currently selected unit path point character.
 	UPROPERTY(Transient)
-	TObjectPtr<ABOHPathPointActor> SelectedUnitPathPoint = nullptr;
+	TObjectPtr<ABOHPathActor> SelectedUnitPathActor = nullptr;
 
 	// HUD Widget reference.
 	TObjectPtr<UBOHHudWidget> HUDWidget = nullptr; 
@@ -138,6 +152,9 @@ protected:
 	// Input is being pressed.
 	bool bIsPressing = false;
 
+	// Dragging time.
+	float DraggingTime = 0.f;
+	
 	// Input is in double click threshold.
 	bool bIsInDoubleClickThreshold = false;
 

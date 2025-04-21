@@ -25,14 +25,15 @@ UBOHUnitPathComponent::UBOHUnitPathComponent()
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-void UBOHUnitPathComponent::AddPointToPath(FVector NewPoint, int32 NewPointPosition)
+void UBOHUnitPathComponent::AddPointToPath(const FVector& NewPoint, const int32& NewPointPosition)
 {
 	if (NewPointPosition < 0)
 	{
 		return;
 	}
-
-	UnitPath.Insert(NewPoint, NewPointPosition);
+	FVector InNewPoint = NewPoint;
+	InNewPoint.Z = FootPoint.Z;
+	UnitPath.Insert(InNewPoint, NewPointPosition);
 	UpdateActorsPool();
 	UpdatePathActors();
 }
@@ -41,7 +42,7 @@ void UBOHUnitPathComponent::AddPointToPath(FVector NewPoint, int32 NewPointPosit
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
-void UBOHUnitPathComponent::AppendPointToPath(FVector NewPoint)
+void UBOHUnitPathComponent::AppendPointToPath(const FVector& NewPoint)
 {
 	AddPointToPath(NewPoint, UnitPath.Num());
 }
@@ -50,7 +51,7 @@ void UBOHUnitPathComponent::AppendPointToPath(FVector NewPoint)
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
-void UBOHUnitPathComponent::RemovePointFromPath(int32 PointToRemovePosition)
+void UBOHUnitPathComponent::RemovePointFromPath(const int32& PointToRemovePosition)
 {
 	UnitPath.RemoveAt(PointToRemovePosition);
 	UpdatePathActors();
@@ -69,14 +70,16 @@ void UBOHUnitPathComponent::RemoveLastPointFromPath()
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-void UBOHUnitPathComponent::ModifyPointFromPath(int32 PointToModifyPosition, FVector NewPoint)
+void UBOHUnitPathComponent::ModifyPointFromPath(const int32& PointToModifyPosition, const FVector& NewPoint)
 {
 	if (!UnitPath.IsValidIndex(PointToModifyPosition))
 	{
 		return;
 	}
 	
-	UnitPath[PointToModifyPosition] = NewPoint;
+	FVector InNewPoint = NewPoint;
+	InNewPoint.Z = FootPoint.Z;
+	UnitPath[PointToModifyPosition] = InNewPoint;
 	UpdatePathActors();
 }
 
@@ -114,7 +117,7 @@ void UBOHUnitPathComponent::BeginPlay()
 	Owner->OnUnitIsSelectedChanged.AddUniqueDynamic(this, &ThisClass::UBOHUnitPathComponent::OnUnitIsSelectedChange);	
 #endif //WITH_EDITOR
 
-	FVector FootPoint = CapsuleComponent->GetComponentLocation();
+	FootPoint = CapsuleComponent->GetComponentLocation();
 	FootPoint.Z -= CapsuleComponent->GetScaledCapsuleHalfHeight();
 	AppendPointToPath(FootPoint);
 	SetPathActorsVisibility(false);
@@ -155,7 +158,7 @@ void UBOHUnitPathComponent::OnUnitIsSelectedChange(bool bNewIsSelected)
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-void UBOHUnitPathComponent::SetPathActorsVisibility(bool bNewVisibility)
+void UBOHUnitPathComponent::SetPathActorsVisibility(const bool& bNewVisibility)
 {
 	int32 UnitPathLastIndex = UnitPath.Num() - 1;
 	for (int32 i = 0; i < PathLineActors.Num(); i++)
@@ -222,6 +225,7 @@ void UBOHUnitPathComponent::UpdateActorsPool()
 	
 		PathLineActor->FinishSpawning(FTransform::Identity);
 		PathLineActors.Add(PathLineActor);
+		PathLineActor->SetCanBeEdit(true);
 		PathLineActor->SetPathPointIndex(UnitPath.Num() - 1);
 	}
 }

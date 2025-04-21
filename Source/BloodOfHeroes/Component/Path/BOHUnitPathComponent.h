@@ -31,7 +31,7 @@ public:
 	// Path actor class
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TSubclassOf<ABOHPathLineActor> PathLineActorClass = nullptr;
-	
+
 public:
 	/**
 	 * Constructor. Enables tick.
@@ -44,21 +44,21 @@ public:
 	 * @param NewPointPosition 
 	 */
 	UFUNCTION(BlueprintCallable)
-	void AddPointToPath(FVector NewPoint, int32 NewPointPosition);
+	void AddPointToPath(const FVector& NewPoint, const int32& NewPointPosition);
 
 	/**
 	 * Adds a point to the unit path at last position.
 	 * @param NewPoint 
 	 */
 	UFUNCTION(BlueprintCallable)
-	void AppendPointToPath(FVector NewPoint);
+	void AppendPointToPath(const FVector& NewPoint);
 
 	/**
 	 * Removes point from path at PointToRemovePosition.
 	 * @param PointToRemovePosition 
 	 */
 	UFUNCTION(BlueprintCallable)
-	void RemovePointFromPath(int32 PointToRemovePosition);
+	void RemovePointFromPath(const int32& PointToRemovePosition);
 
 	/**
 	 * Removes last point from unit path.
@@ -71,7 +71,7 @@ public:
 	 * @param PointToModifyPosition 
 	 */
 	UFUNCTION(BlueprintCallable)
-	void ModifyPointFromPath(int32 PointToModifyPosition, FVector NewPoint);
+	void ModifyPointFromPath(const int32& PointToModifyPosition, const FVector& NewPoint);
 
 	/**
 	 * Update path actors' locations and scales.
@@ -117,7 +117,7 @@ private:
 	 * Set path actors' visibility.
 	 * @param bNewVisibility 
 	 */
-	void SetPathActorsVisibility(bool bNewVisibility);
+	void SetPathActorsVisibility(const bool& bNewVisibility);
 
 	/**
 	 * Update actors pool and create more path actors if needed.
@@ -149,4 +149,7 @@ private:
 	// Show debug for path.
 	bool bShowDebug = true;
 #endif // WITH_EDITOR
+
+	// Owner foot point.
+	FVector FootPoint = FVector::ZeroVector;
 };

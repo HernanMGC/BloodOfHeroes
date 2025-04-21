@@ -32,6 +32,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TSubclassOf<ABOHPathLineActor> PathLineActorClass = nullptr;
 
+#if WITH_EDITORONLY_DATA
+	// Is debug enabled.
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	bool bIsDebugEnabled = false;
+#endif // WITH_EDITOR
+	
 public:
 	/**
 	 * Constructor. Enables tick.

@@ -267,7 +267,7 @@ void UBOHUnitPathComponent::UpdatePathActors()
 
 void UBOHUnitPathComponent::DrawDebug()
 {
-	const UWorld* World = bShowDebug && UnitPath.Num() > 0 ? GetWorld() : nullptr;
+	const UWorld* World = bIsDebugEnabled && bShowDebug && UnitPath.Num() > 0 ? GetWorld() : nullptr;
 	const AActor* Owner = World ? GetOwner() : nullptr;
 
 	if (!Owner)

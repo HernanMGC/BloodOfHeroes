@@ -43,6 +43,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	EBOHUnitType UnitType = EBOHUnitType::None;
 
+	// Unit speed
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float Speed = 0.0f;
+
 public:
 	/**
 	 * Defaults constructor.

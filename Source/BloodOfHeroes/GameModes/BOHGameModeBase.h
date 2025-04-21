@@ -17,4 +17,16 @@ UCLASS()
 class BLOODOFHEROES_API ABOHGameModeBase : public AGameMode
 {
 	GENERATED_BODY()
+
+public:
+	/**
+	 * Returns turn time in seconds.
+	 * @return 
+	 */
+	FORCEINLINE float GetTurnTime() const { return TurnTime; }
+	
+protected:
+	// Turn time in seconds
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BOH|Turn", meta = (Units = "seconds"))
+	float TurnTime = 3.f;
 };

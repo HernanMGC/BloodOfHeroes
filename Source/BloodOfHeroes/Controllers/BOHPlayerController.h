@@ -5,6 +5,7 @@
 //// Includes
 // UnrealEngine
 #include "CoreMinimal.h"
+#include "InputActionValue.h"
 #include "BloodOfHeroes/Component/Path/BOHPathPointActor.h"
 #include "GameFramework/PlayerController.h"
 
@@ -42,9 +43,17 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BOH|Input", meta=(AllowPrivateAccess = "true"))
 	TObjectPtr<UInputAction> SelectActorAction = nullptr;
 
-	// Click input Action.
+	// Delete actor input Action.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BOH|Input", meta=(AllowPrivateAccess = "true"))
 	TObjectPtr<UInputAction> DeleteActorAction = nullptr;
+
+	// Move input action.
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BOH|Input", meta=(AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> MoveAction = nullptr;
+
+	// Zoom input action.
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BOH|Input", meta=(AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> ZoomAction = nullptr;
 
 	// FX Class that we will spawn when clicking.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BOH|Input")
@@ -99,9 +108,19 @@ protected:
 	void OnSelectActorReleased();
 	
 	/** Input handlers for DeleteActor action. */
-	void OnDeleteActorInputStarted();
 	void OnDeleteActorTriggered();
-	void OnDeleteActorReleased();
+
+	/**
+	 * Input handlers for Move action. 
+	 * @param Value 
+	 */
+	void OnMoveInputTriggered(const FInputActionValue& Value);
+
+	/**
+	 * Input handlers for Zoom action.
+	 * @param Value 
+	 */
+	void OnZoomInputTriggered(const FInputActionValue& Value);
 #pragma endregion // SelectActorAction
 
 private:

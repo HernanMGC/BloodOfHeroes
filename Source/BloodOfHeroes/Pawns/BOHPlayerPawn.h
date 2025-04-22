@@ -6,6 +6,7 @@
 // UnrealEngine
 #include "CoreMinimal.h"
 #include "GameFramework/DefaultPawn.h"
+#include "GameFramework/SpringArmComponent.h"
 
 // BOH
 #include "BOHPlayerPawn.generated.h"
@@ -19,9 +20,19 @@ class USpringArmComponent;
  * Base class for camera pawn.
  */
 UCLASS()
-class BLOODOFHEROES_API ABOHPlayerPawn : public ADefaultPawn
+class BLOODOFHEROES_API ABOHPlayerPawn : public APawn
 {
 	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BOH|Camera", meta = (ClampMin = 0.f, Units = "m")) 
+	float MinArmLength = 0.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BOH|Camera", meta = (ClampMin = 0.f, Units = "m")) 
+	float MaxArmLength = 0.0f;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BOH|Camera", meta = (ClampMin = 0.f, Units = "m/s")) 
+	float ZoomSpeed = 10.0f;
 	
 public:
 	/**
@@ -40,13 +51,32 @@ public:
 	 * @return 
 	 */
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+
 	
-private:
+	/**
+	 * Gets camera boom arm length.
+	 */
+	FORCEINLINE float GetCameraBoomArmLegth() const { return CameraBoom->TargetArmLength; };
+
+	/**
+	 * Sets camera boom arm length.
+	 */
+	void AddCameraBoomArmLegth(float InArmLength) const;
+	
+protected:
+	// Pawn collision component.
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "BOH|Camera")
+	TObjectPtr<USphereComponent> CollisionComponent = nullptr;
+	
 	// Top down camera.
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "BOH|Camera", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "BOH|Camera")
 	TObjectPtr<UCameraComponent> TopDownCameraComponent = nullptr;
 
 	// Camera boom positioning the camera above the ground.
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "BOH|Camera", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "BOH|Camera")
 	TObjectPtr<USpringArmComponent> CameraBoom = nullptr;
+	
+	/** DefaultPawn movement component */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "BOH|Movement")
+	TObjectPtr<UPawnMovementComponent> MovementComponent = nullptr;
 };

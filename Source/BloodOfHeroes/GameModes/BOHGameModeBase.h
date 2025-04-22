@@ -27,6 +27,6 @@ public:
 	
 protected:
 	// Turn time in seconds
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BOH|Turn", meta = (Units = "seconds"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BOH|Turn", meta = (Units = "s"))
 	float TurnTime = 3.f;
 };

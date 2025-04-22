@@ -15,6 +15,7 @@
 #include "BloodOfHeroes/Component/Path/BOHPathLineActor.h"
 #include "BloodOfHeroes/Component/Path/BOHPathPointActor.h"
 #include "BloodOfHeroes/Component/Path/BOHUnitPathComponent.h"
+#include "BloodOfHeroes/Pawns/BOHPlayerPawn.h"
 #include "BloodOfHeroes/UI/BOHHudWidget.h"
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -99,13 +100,15 @@ void ABOHPlayerController::SetupInputComponent()
 
 		
 		// Setup mouse input events
-		EnhancedInputComponent->BindAction(DeleteActorAction, ETriggerEvent::Started, this, &ThisClass::OnDeleteActorInputStarted);
 		EnhancedInputComponent->BindAction(DeleteActorAction, ETriggerEvent::Triggered, this,
 										   &ThisClass::OnDeleteActorTriggered);
-		EnhancedInputComponent->BindAction(DeleteActorAction, ETriggerEvent::Completed, this,
-										   &ThisClass::OnDeleteActorReleased);
-		EnhancedInputComponent->BindAction(DeleteActorAction, ETriggerEvent::Canceled, this,
-										   &ThisClass::OnDeleteActorReleased);
+
+		// Moving
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ThisClass::OnMoveInputTriggered);
+
+		
+		// Zooming
+		EnhancedInputComponent->BindAction(ZoomAction, ETriggerEvent::Triggered, this, &ThisClass::OnZoomInputTriggered);
 	}
 	else
 	{
@@ -191,14 +194,6 @@ void ABOHPlayerController::OnSelectActorReleased()
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-void ABOHPlayerController::OnDeleteActorInputStarted()
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//
-////////////////////////////////////////////////////////////////////////////////
-
 void ABOHPlayerController::OnDeleteActorTriggered()
 {
 	UBOHUnitPathComponent* PathComp = SelectedUnit ? SelectedUnit->GetComponentByClass<UBOHUnitPathComponent>() : nullptr;
@@ -212,12 +207,53 @@ void ABOHPlayerController::OnDeleteActorTriggered()
 	SetSelectedPathActor(nullptr);
 }
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
 //
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
 
-void ABOHPlayerController::OnDeleteActorReleased()
+void ABOHPlayerController::OnMoveInputTriggered(const FInputActionValue& Value)
 {
+	ABOHPlayerPawn* PlayerPawn = Cast<ABOHPlayerPawn>(GetPawn());
+	if (!PlayerPawn)
+	{
+		return;
+	}
+	
+	// input is a Vector2D
+	FVector2D MovementVector = Value.Get<FVector2D>();
+
+	// find out which way is forward
+	const FRotator Rotation = GetControlRotation();
+	const FRotator YawRotation(0, Rotation.Yaw, 0);
+
+	// get forward vector
+	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+
+	// get right vector 
+	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+
+	// add movement
+	PlayerPawn->AddMovementInput(ForwardDirection, MovementVector.Y);
+	PlayerPawn->AddMovementInput(RightDirection, MovementVector.X);
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////////
+
+void ABOHPlayerController::OnZoomInputTriggered(const FInputActionValue& Value)
+{
+	
+	ABOHPlayerPawn* PlayerPawn = Cast<ABOHPlayerPawn>(GetPawn());
+	if (!PlayerPawn)
+	{
+		return;
+	}
+
+	// input is a Vector2D
+	float ZoomAmount = Value.Get<float>();
+
+	PlayerPawn->AddCameraBoomArmLegth(ZoomAmount);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

@@ -5,7 +5,10 @@
 #include "BOHPlayerPawn.h"
 
 // Unreal
+#include "BloodOfHeroes/Utils/BOHUtils.h"
 #include "Camera/CameraComponent.h"
+#include "Components/SphereComponent.h"
+#include "GameFramework/FloatingPawnMovement.h"
 #include "GameFramework/SpringArmComponent.h"
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -23,6 +26,10 @@ ABOHPlayerPawn::ABOHPlayerPawn()
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 
+	// Create a sphere component...
+	CollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionComponent"));
+	RootComponent = CollisionComponent;
+	
 	// Create a camera boom...
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
@@ -35,6 +42,24 @@ ABOHPlayerPawn::ABOHPlayerPawn()
 	TopDownCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("TopDownCamera"));
 	TopDownCameraComponent->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	TopDownCameraComponent->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+
+	// Create a movement comp...
+	MovementComponent = CreateDefaultSubobject<UPawnMovementComponent, UFloatingPawnMovement>(ADefaultPawn::MovementComponentName);
+	MovementComponent->UpdatedComponent = CollisionComponent;
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////////
+
+void ABOHPlayerPawn::AddCameraBoomArmLegth(float InArmLength) const
+{
+	if (!GetWorld())
+	{
+		return;
+	}
+	
+	CameraBoom->TargetArmLength = FMath::Clamp(CameraBoom->TargetArmLength + InArmLength * GetWorld()->GetDeltaSeconds() * ZoomSpeed * BOHUnitConstants::MetersToCentimeters, MinArmLength, MaxArmLength);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

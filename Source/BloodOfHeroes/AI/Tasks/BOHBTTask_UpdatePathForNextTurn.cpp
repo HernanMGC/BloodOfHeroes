@@ -2,7 +2,7 @@
 
 //// Includes
 // Class
-#include "BOHBTTask_FindNextPathLocation.h"
+#include "BOHBTTask_UpdatePathForNextTurn.h"
 
 // UnrealEngine
 #include "BehaviorTree/BlackboardComponent.h"
@@ -16,42 +16,47 @@
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
-UBOHBTTask_FindNextPathLocation::UBOHBTTask_FindNextPathLocation()
+UBOHBTTask_UpdatePathForNextTurn::UBOHBTTask_UpdatePathForNextTurn()
 {
-	NodeName = "Find Next Path Target Location";
+	NodeName = "Update Path For Next Turn";
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
-EBTNodeResult::Type UBOHBTTask_FindNextPathLocation::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+EBTNodeResult::Type UBOHBTTask_UpdatePathForNextTurn::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	UBlackboardComponent* BlackboardComponent = OwnerComp.GetBlackboardComponent();
 	if (!BlackboardComponent)
 	{
 		return EBTNodeResult::Failed;
 	}
-
+	
 	ABOHAIController* UnitAIController = Cast<ABOHAIController>(OwnerComp.GetAIOwner());
 	ABOHCharacter* Unit = UnitAIController ? Cast<ABOHCharacter>(UnitAIController->GetPawn()) : nullptr;
 	UBOHUnitPathComponent* PathComponent = Unit ? Unit->GetComponentByClass<UBOHUnitPathComponent>() : nullptr;
 	FPathTargetLocation NextPathPoint = FPathTargetLocation();
-	int32 NextPathPointIndex = BlackboardComponent->GetValueAsInt(GetTargetPositionIndexBlackboardKey()) + 1;
-	bool ValidPathPoint = PathComponent
-		                      ? PathComponent->FindPathPointAtIndex(NextPathPointIndex, NextPathPoint)
-		                      : false;
-	if (!ValidPathPoint)
+	if (!PathComponent)
 	{
 		return EBTNodeResult::Failed;
 	}
+	
+	int32 LastPathPointIndex = BlackboardComponent->GetValueAsInt(GetTargetPositionIndexBlackboardKey()) - 1;
+	const bool LastPathPointIndexReached = BlackboardComponent->GetValueAsBool(GetTargetLocationReachedBlackboardKey());
+	if (LastPathPointIndexReached) { LastPathPointIndex--; }
 
-	BlackboardComponent->SetValueAsVector(GetTargetPositionBlackboardKey(), NextPathPoint.RealPathTargetLocation);
-	double RemainingDistanceToTargetLoc = (NextPathPoint.PathTargetLocation, NextPathPoint.RealPathTargetLocation).
-		Length();
-	BlackboardComponent->SetValueAsBool(GetTargetLocationReachedBlackboardKey(),
-	                                    FMath::IsNearlyZero(RemainingDistanceToTargetLoc));
-	BlackboardComponent->SetValueAsInt(GetTargetPositionIndexBlackboardKey(), NextPathPointIndex);
+	for (int32 i = 0; i <= LastPathPointIndex; i++)
+	{
+		PathComponent->RemovePointFromPath(0);
+	}
+
+	PathComponent->AddPointToPath(Unit->GetActorLocation(), 0);
+	PathComponent->UpdatePathActors();
+
+	BlackboardComponent->SetValueAsBool(GetTargetLocationReachedBlackboardKey(), false);
+	BlackboardComponent->SetValueAsInt(GetTargetPositionIndexBlackboardKey(), 0);
+	
 	EBTNodeResult::Type Result = EBTNodeResult::Succeeded;
 	FinishLatentTask(OwnerComp, Result);
 	return Result;

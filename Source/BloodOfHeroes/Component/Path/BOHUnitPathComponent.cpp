@@ -11,10 +11,12 @@
 #include "BOHPathLineActor.h"
 #include "BOHPathPointActor.h"
 #include "BloodOfHeroes/Characters/BOHCharacter.h"
+#include "BloodOfHeroes/GameModes/BOHGameModeBase.h"
+#include "BloodOfHeroes/Utils/BOHUnitLibFuncs.h"
 #include "BloodOfHeroes/Utils/BOHUtils.h"
 
 ////////////////////////////////////////////////////////////////////////////////////
-//
+// UBOHUnitPathComponent
 ////////////////////////////////////////////////////////////////////////////////////
 
 UBOHUnitPathComponent::UBOHUnitPathComponent()
@@ -265,15 +267,38 @@ void UBOHUnitPathComponent::UpdatePathActors()
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
-bool UBOHUnitPathComponent::FindPathPointAtIndex(int32 Index, FVector& PathPoint) const
+bool UBOHUnitPathComponent::FindPathPointAtIndex(int32 Index, FPathTargetLocation& PathTargetLocation) const
 {
-	if (!UnitPath.IsValidIndex(Index))
+	ABOHCharacter* Unit = UnitPath.IsValidIndex(Index) ? Cast<ABOHCharacter>(GetOwner()) : nullptr;
+	if (!Unit)
 	{
 		return false;
 	}
 
-	PathPoint = UnitPath[Index];
-	return true;
+	PathTargetLocation.PathTargetLocation = UnitPath[Index];
+	PathTargetLocation.RealPathTargetLocation = UnitPath[Index];
+	if (Index == 0)
+	{
+		return true;
+	}
+
+	bool IsValid = true;
+	float MaxUnitDistancePerTurn = UBOHUnitLibFuncs::GetMaxDistanceForCharacter(Unit, Unit) * BOHUnitConstants::MetersToCentimeters;
+	for (int32 i = 0; i <= Index - 1; i++)
+	{
+		FVector PathSection = (UnitPath[i+1] - UnitPath[i]);
+		FVector PathSectionNormalized = PathSection.GetSafeNormal();
+		
+		if ((MaxUnitDistancePerTurn - PathSection.Length()) <= 0.f)
+		{
+			PathTargetLocation.RealPathTargetLocation = UnitPath[i] + MaxUnitDistancePerTurn * PathSectionNormalized;
+			IsValid = i == Index -1;
+			break;
+		}
+		MaxUnitDistancePerTurn -= PathSection.Length();
+	}
+	
+	return IsValid;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

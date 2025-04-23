@@ -8,13 +8,13 @@
 #include "BehaviorTree/Tasks/BTTask_BlackboardBase.h"
 
 // BOH
-#include "BOHBTTask_FindNextPathLocation.generated.h"
+#include "BOHBTTask_UpdatePathForNextTurn.generated.h"
 
 /**
- * Find next position. 
+ * Update path component for next turn.
  */
 UCLASS()
-class BLOODOFHEROES_API UBOHBTTask_FindNextPathLocation : public UBTTask_BlackboardBase
+class BLOODOFHEROES_API UBOHBTTask_UpdatePathForNextTurn : public UBTTask_BlackboardBase
 {
 	GENERATED_BODY()
 
@@ -22,9 +22,9 @@ public:
 	/**
 	 * Constructor. Sets Node name and other basic setup.
 	 */
-	UBOHBTTask_FindNextPathLocation();
+	UBOHBTTask_UpdatePathForNextTurn();
 	
-	// Overriden to: Perform search next path target location from agent UBOHUnitPathComponent and update blackboard.
+	// Overriden to: Update agent path component for next turn.
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
 protected:
@@ -35,15 +35,6 @@ protected:
 	FORCEINLINE FName GetTargetPositionIndexBlackboardKey() const
 	{
 		return TargetPositionIndexBlackboardKey.SelectedKeyName;
-	}
-	
-	/**
-	 * Returns target position BB key.
-	 * @return 
-	 */
-	FORCEINLINE FName GetTargetPositionBlackboardKey() const
-	{
-		return TargetPositionBlackboardKey.SelectedKeyName;
 	}
 	
 	/**
@@ -59,10 +50,6 @@ protected:
 	// Target position index BB key.
 	UPROPERTY(EditAnywhere, Category="BOH|Blackboard")
 	FBlackboardKeySelector TargetPositionIndexBlackboardKey;
-	
-	// Target position BB key.
-	UPROPERTY(EditAnywhere, Category="BOH|Blackboard")
-	FBlackboardKeySelector TargetPositionBlackboardKey;
 	
 	// Target position BB key.
 	UPROPERTY(EditAnywhere, Category="BOH|Blackboard")

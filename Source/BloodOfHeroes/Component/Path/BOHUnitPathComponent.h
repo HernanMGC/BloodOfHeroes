@@ -16,6 +16,25 @@ class ABOHPathLineActor;
 class ABOHPathPointActor;
 
 /**
+ * Path target location. A unit may intend to get to a location, but its speed may not allow it. This struct aims to
+ * send the initial target position and the achievable position.
+ */
+USTRUCT(BlueprintType)
+struct FPathTargetLocation
+{
+	GENERATED_BODY()
+
+public:
+	// Intended path target location.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FVector PathTargetLocation = FVector::ZeroVector;
+
+	// Achievable path target location.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FVector RealPathTargetLocation = FVector::ZeroVector;
+};
+
+/**
  * Base class for Unit Path Component. It stores current intended path for the unit and launches its movement along the
  * path.
  */
@@ -96,11 +115,11 @@ public:
 	/**
 	 * Finds path point at index if any. Returns true if Index is valid, and false otherwise. PathPoint returned by
 	 * reference.
-	 * @param Index 
-	 * @param PathPoint 
+	 * @param Index
+	 * @param PathTargetLocation  
 	 * @return 
 	 */
-	bool FindPathPointAtIndex(int32 Index, OUT FVector& PathPoint) const;
+	bool FindPathPointAtIndex(int32 Index, FPathTargetLocation& PathTargetLocation) const;
 
 #if WITH_EDITOR
 	/**

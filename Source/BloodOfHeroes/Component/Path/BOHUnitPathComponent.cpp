@@ -265,6 +265,21 @@ void UBOHUnitPathComponent::UpdatePathActors()
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
+bool UBOHUnitPathComponent::FindPathPointAtIndex(int32 Index, FVector& PathPoint) const
+{
+	if (!UnitPath.IsValidIndex(Index))
+	{
+		return false;
+	}
+
+	PathPoint = UnitPath[Index];
+	return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////////
+
 void UBOHUnitPathComponent::DrawDebug()
 {
 	const UWorld* World = bIsDebugEnabled && bShowDebug && UnitPath.Num() > 0 ? GetWorld() : nullptr;

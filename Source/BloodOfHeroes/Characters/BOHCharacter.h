@@ -10,6 +10,10 @@
 // BOH
 #include "BOHCharacter.generated.h"
 
+//// ForwardDeclaration
+// UnrealEngine
+class UBehaviorTree;
+
 /**
  * Unit types.
  */
@@ -86,7 +90,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUnitIsSelectedChanged, bool, bNew
 /**
  * Base class for unit characters.
  */
-UCLASS()
+UCLASS(Abstract)
 class BLOODOFHEROES_API ABOHCharacter : public ACharacter
 {
 	GENERATED_BODY()
@@ -117,12 +121,23 @@ public:
 	 */
 	FORCEINLINE void SetIsUnitSelected(bool bNewIsSelected);
 
+	/**
+	 * Returns unit behavior tree.
+	 * @return 
+	 */
+	FORCEINLINE UBehaviorTree* GetBehaviorTree() const { return BehaviorTree; }
+
 protected:
 	// ToDo: This has to be generated, not a hardcoded option.
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FBOHUnitInfo UnitInfo;
 
+	// Unit behavior tree.
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<UBehaviorTree> BehaviorTree = nullptr;
+	
 	// Is unit selected.
 	UPROPERTY(Transient)
 	bool bIsUnitSelected = false;
+
 };

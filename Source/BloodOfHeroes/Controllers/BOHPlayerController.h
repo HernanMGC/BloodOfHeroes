@@ -29,7 +29,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnUnitSelected, ABOHPlayerControll
 /**
  * Player controller for Blood of Heroes. Allows to select characters and send them orders.
  */
-UCLASS()
+UCLASS(Abstract)
 class BLOODOFHEROES_API ABOHPlayerController : public APlayerController
 {
 	GENERATED_BODY()

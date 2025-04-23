@@ -22,6 +22,9 @@ public class BloodOfHeroes : ModuleRules
 			// UI
 			"CommonUI",
 			"UMG",
+			
+			// AI
+			"AIModule"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[]
@@ -30,7 +33,8 @@ public class BloodOfHeroes : ModuleRules
 			"Niagara",
 			
 			// UI
-			"CommonUI"
+			"CommonUI",
+			
 		});
 
 		// Uncomment if you are using Slate UI

@@ -13,7 +13,7 @@
 /**
  * Baase game mode for Blood of Heroes.
  */
-UCLASS()
+UCLASS(Abstract)
 class BLOODOFHEROES_API ABOHGameModeBase : public AGameMode
 {
 	GENERATED_BODY()

@@ -23,11 +23,12 @@ UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class BLOODOFHEROES_API UBOHUnitPathComponent : public UActorComponent
 {
 	GENERATED_BODY()
+
 public:
 	// Path actor class
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TSubclassOf<ABOHPathPointActor> PathPointActorClass = nullptr;
-	
+
 	// Path actor class
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TSubclassOf<ABOHPathLineActor> PathLineActorClass = nullptr;
@@ -37,7 +38,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	bool bIsDebugEnabled = false;
 #endif // WITH_EDITOR
-	
+
 public:
 	/**
 	 * Constructor. Enables tick.
@@ -84,13 +85,22 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable)
 	void UpdatePathActors();
-	
+
 	/**
 	 * Returns unit path's points.
 	 * @return 
 	 */
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE TArray<FVector> GetUnitPath() const { return UnitPath; };
+
+	/**
+	 * Finds path point at index if any. Returns true if Index is valid, and false otherwise. PathPoint returned by
+	 * reference.
+	 * @param Index 
+	 * @param PathPoint 
+	 * @return 
+	 */
+	bool FindPathPointAtIndex(int32 Index, OUT FVector& PathPoint) const;
 
 #if WITH_EDITOR
 	/**
@@ -103,11 +113,12 @@ public:
 
 protected:
 	// Overriden to: Show debug on editor.
-	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType,
+	                           FActorComponentTickFunction* ThisTickFunction) override;
 
 	// Overriden to: Bind to owners is selected delegate.
 	virtual void BeginPlay() override;
-	
+
 	// Overriden to: Unbind to owners is selected delegate.
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
@@ -117,7 +128,7 @@ protected:
 	 */
 	UFUNCTION()
 	void OnUnitIsSelectedChange(bool bNewIsSelected);
-		
+
 private:
 	/**
 	 * Set path actors' visibility.
@@ -144,12 +155,12 @@ protected:
 
 	// Path point actor references.
 	UPROPERTY(Transient)
-	TArray<TObjectPtr<ABOHPathPointActor>> PathPointActors; 
-	
+	TArray<TObjectPtr<ABOHPathPointActor>> PathPointActors;
+
 	// Path line actor references.
 	UPROPERTY(Transient)
-	TArray<TObjectPtr<ABOHPathLineActor>> PathLineActors; 
-	
+	TArray<TObjectPtr<ABOHPathLineActor>> PathLineActors;
+
 private:
 #if WITH_EDITOR
 	// Show debug for path.

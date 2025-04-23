@@ -19,7 +19,7 @@ class USpringArmComponent;
 /**
  * Base class for camera pawn.
  */
-UCLASS()
+UCLASS(Abstract)
 class BLOODOFHEROES_API ABOHPlayerPawn : public APawn
 {
 	GENERATED_BODY()

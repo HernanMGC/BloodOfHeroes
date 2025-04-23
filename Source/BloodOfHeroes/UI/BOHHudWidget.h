@@ -13,7 +13,7 @@
 /**
  * Base class for HUD Widget.
  */
-UCLASS()
+UCLASS(Abstract)
 class BLOODOFHEROES_API UBOHHudWidget : public UCommonActivatableWidget
 {
 	GENERATED_BODY()

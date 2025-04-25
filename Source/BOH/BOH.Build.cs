@@ -15,6 +15,9 @@ public class BOH : ModuleRules
 			"CoreUObject",
 			"Engine",
 			
+			// Settings
+			"DeveloperSettings",
+
 			// Input
 			"InputCore",
 			"EnhancedInput",
@@ -24,7 +27,16 @@ public class BOH : ModuleRules
 			"UMG",
 			
 			// AI
-			"AIModule"
+			"AIModule",
+			
+			// Modular
+			"ModularGameplay",
+			"ModularGameplayActors",
+			
+			// GAS
+			"GameplayTags",
+			"GameplayAbilities",
+			"GameplayTasks"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[]

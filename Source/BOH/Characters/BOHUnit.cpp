@@ -4,6 +4,11 @@
 // Class
 #include "BOHUnit.h"
 
+#include "BOH/Component/BOHPawnExtensionComponent.h"
+#include "BOH/Delegates/BOHGameplayDelegates.h"
+#include "BOH/GAS/BOHAbilitySystemComponent.h"
+#include "BOH/Tags/BOHGameplayTags.h"
+
 ////////////////////////////////////////////////////////////////////////////////////
 // FBOHUnitInfo
 ////////////////////////////////////////////////////////////////////////////////////
@@ -63,6 +68,16 @@ ABOHUnit::ABOHUnit()
 	PrimaryActorTick.bCanEverTick = false;
 	PrimaryActorTick.bAllowTickOnDedicatedServer = false;
 	PrimaryActorTick.bStartWithTickEnabled = false;
+
+	PawnExtComponent = CreateDefaultSubobject<UBOHPawnExtensionComponent>(TEXT("PawnExtensionComponent"));
+	PawnExtComponent->OnAbilitySystemInitialized_RegisterAndCall
+	(
+		FSimpleMulticastDelegate::FDelegate::CreateUObject(this, &ThisClass::OnAbilitySystemInitialized)
+	);
+	PawnExtComponent->OnAbilitySystemUninitialized_Register
+	(
+		FSimpleMulticastDelegate::FDelegate::CreateUObject(this, &ThisClass::OnAbilitySystemUninitialized)
+	);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -73,6 +88,84 @@ void ABOHUnit::SetIsUnitSelected(bool bNewIsSelected)
 {
 	bIsUnitSelected = bNewIsSelected;
 	OnUnitIsSelectedChanged.Broadcast(bIsUnitSelected);
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////////
+
+UAbilitySystemComponent* ABOHUnit::GetAbilitySystemComponent() const
+{
+	return AbilitySystemComponent;
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////////
+
+UBOHAbilitySystemComponent* ABOHUnit::GetBOHAbilitySystemComponent() const
+{
+	return Cast<UBOHAbilitySystemComponent>(GetAbilitySystemComponent());
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////////
+
+void ABOHUnit::OnAbilitySystemInitialized_Implementation()
+{
+	checkf(GetBOHAbilitySystemComponent(), TEXT("Ability System is invalid."));
+
+	InitializeGameplayTags();
+	
+	if (IsPlayerControlled())
+	{
+		FBOHGameplayDelegates::OnPlayerAbilitySystemReady.Broadcast(GetController(), this, GetAbilitySystemComponent());
+	}
+	else
+	{
+		FBOHGameplayDelegates::OnPawnAbilitySystemReady.Broadcast(GetController(), this, GetAbilitySystemComponent());
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////////
+
+void ABOHUnit::OnAbilitySystemUninitialized_Implementation()
+{
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////////
+
+void ABOHUnit::InitializeGameplayTags() const
+{
+	// Clear tags that may be lingering on the ability system from the previous pawn.
+	UBOHAbilitySystemComponent* ASC = GetBOHAbilitySystemComponent();
+	if (ASC == nullptr)
+	{
+		return;
+	}
+
+	const UBOHGameplayTags& GameplayTags = UBOHGameplayTags::Get();
+
+	for (auto [MovementMode, Tag] : GameplayTags.MovementModeTagMap)
+	{
+		if (Tag.IsValid())
+		{
+			ASC->SetLooseGameplayTagCount(Tag, 0);
+		}
+	}
+
+	for (auto [MovementMode, Tag] : GameplayTags.CustomMovementModeTagMap)
+	{
+		if (Tag.IsValid())
+		{
+			ASC->SetLooseGameplayTagCount(Tag, 0);
+		}
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

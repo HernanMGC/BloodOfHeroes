@@ -17,7 +17,7 @@
 void ABOHAIController::SendUnitOrder(FUnitOrder UnitOrder)
 {
 	UnitOrder.OrderState = EUnitOrderState::Pending;
-	UnitOrders.AddUnique(UnitOrder);
+	UnitOrders.Add(UnitOrder);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

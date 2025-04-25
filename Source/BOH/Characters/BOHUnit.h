@@ -5,14 +5,20 @@
 //// Includes
 // UnrealEngine
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
+#include "AbilitySystemInterface.h"
+#include "ModularCharacter.h"
 
 // BOH
 #include "BOHUnit.generated.h"
 
+class UAbilitySystemComponent;
+class UBOHAbilitySystemComponent;
 //// ForwardDeclaration
 // UnrealEngine
 class UBehaviorTree;
+
+// BOH
+class UBOHPawnExtensionComponent;
 
 /**
  * Unit types.
@@ -56,7 +62,7 @@ public:
 	 * Defaults constructor.
 	 */
 	FBOHUnitInfo();
-	
+
 	/**
 	 * Explicit constructor for UnitInfo.
 	 * @param InUnitID 
@@ -64,7 +70,7 @@ public:
 	 * @param InUnitType 
 	 */
 	FBOHUnitInfo(int32 InUnitID, int32 InTeamID, EBOHUnitType InUnitType);
-	
+
 	/**
 	 * Equal operator for UnitInfo.
 	 * @return 
@@ -91,17 +97,19 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUnitIsSelectedChanged, bool, bNew
  * Base class for unit characters.
  */
 UCLASS(Abstract)
-class BOH_API ABOHUnit : public ACharacter
+class BOH_API ABOHUnit : public AModularCharacter,
+                         public IAbilitySystemInterface
 {
 	GENERATED_BODY()
+
 public:
 	UPROPERTY(BlueprintReadOnly, BlueprintAssignable)
-	FOnUnitIsSelectedChanged OnUnitIsSelectedChanged; 
-	
+	FOnUnitIsSelectedChanged OnUnitIsSelectedChanged;
+
 public:
 	// Constructor. Removes tick.
 	ABOHUnit();
-	
+
 	/**
 	 * Returns Unit info.
 	 * @return 
@@ -113,7 +121,7 @@ public:
 	 * @return 
 	 */
 	FORCEINLINE bool IsUnitSelected() const { return bIsUnitSelected; }
-	
+
 	/**
 	 * Sets new is selected state.
 	 * @param bNewIsSelected 
@@ -127,6 +135,26 @@ public:
 	 */
 	FORCEINLINE UBehaviorTree* GetBehaviorTree() const { return BehaviorTree; }
 
+#pragma region AbilitySystemInterface
+
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+
+	UFUNCTION(BlueprintCallable, Category = "BOH|Character")
+	UBOHAbilitySystemComponent* GetBOHAbilitySystemComponent() const;
+
+#pragma endregion
+
+protected:
+	UFUNCTION(BlueprintNativeEvent, Category = "TW|Character")
+	void OnAbilitySystemInitialized();
+	virtual void OnAbilitySystemInitialized_Implementation();
+
+	UFUNCTION(BlueprintNativeEvent, Category = "TW|Character")
+	void OnAbilitySystemUninitialized();
+	virtual void OnAbilitySystemUninitialized_Implementation();
+
+	virtual void InitializeGameplayTags() const;
+
 protected:
 	// ToDo: This has to be generated, not a hardcoded option.
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
@@ -135,9 +163,18 @@ protected:
 	// Unit behavior tree.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UBehaviorTree> BehaviorTree = nullptr;
-	
+
 	// Is unit selected.
 	UPROPERTY(Transient)
 	bool bIsUnitSelected = false;
 
+	//! The pawn extension component for this character.
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "BOH|Character", DisplayName="PawnExtComponent",
+		Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UBOHPawnExtensionComponent> PawnExtComponent;
+
+	//! The ability system component for this character. Set by the ATWCharacter::CacheAbilitySystemComponent function.
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "TW|Character", DisplayName="AbilitySystemComponent",
+		Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UBOHAbilitySystemComponent> AbilitySystemComponent;
 };

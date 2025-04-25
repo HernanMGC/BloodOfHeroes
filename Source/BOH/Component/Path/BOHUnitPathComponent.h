@@ -1,0 +1,191 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+//// Includes
+// UnrealEngine
+#include "CoreMinimal.h"
+#include "Components/ActorComponent.h"
+
+// BOH
+#include "BOHUnitPathComponent.generated.h"
+
+//// ForwardDeclarations
+// NOH
+class ABOHPathLineActor;
+class ABOHPathPointActor;
+
+/**
+ * Path target location. A unit may intend to get to a location, but its speed may not allow it. This struct aims to
+ * send the initial target position and the achievable position.
+ */
+USTRUCT(BlueprintType)
+struct FPathTargetLocation
+{
+	GENERATED_BODY()
+
+public:
+	// Intended path target location.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FVector PathTargetLocation = FVector::ZeroVector;
+
+	// Achievable path target location.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FVector RealPathTargetLocation = FVector::ZeroVector;
+};
+
+/**
+ * Base class for Unit Path Component. It stores current intended path for the unit and launches its movement along the
+ * path.
+ */
+UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
+class BOH_API UBOHUnitPathComponent : public UActorComponent
+{
+	GENERATED_BODY()
+
+public:
+	// Path actor class
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	TSubclassOf<ABOHPathPointActor> PathPointActorClass = nullptr;
+
+	// Path actor class
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	TSubclassOf<ABOHPathLineActor> PathLineActorClass = nullptr;
+
+#if WITH_EDITORONLY_DATA
+	// Is debug enabled.
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	bool bIsDebugEnabled = false;
+#endif // WITH_EDITOR
+
+public:
+	/**
+	 * Constructor. Enables tick.
+	 */
+	UBOHUnitPathComponent();
+
+	/**
+	 * Adds a point to the unit path at NewPointPosition.
+	 * @param NewPoint 
+	 * @param NewPointPosition 
+	 */
+	UFUNCTION(BlueprintCallable)
+	void AddPointToPath(const FVector& NewPoint, const int32& NewPointPosition);
+
+	/**
+	 * Adds a point to the unit path at last position.
+	 * @param NewPoint 
+	 */
+	UFUNCTION(BlueprintCallable)
+	void AppendPointToPath(const FVector& NewPoint);
+
+	/**
+	 * Removes point from path at PointToRemovePosition.
+	 * @param PointToRemovePosition 
+	 */
+	UFUNCTION(BlueprintCallable)
+	void RemovePointFromPath(const int32& PointToRemovePosition);
+
+	/**
+	 * Removes last point from unit path.
+	 */
+	UFUNCTION(BlueprintCallable)
+	void RemoveLastPointFromPath();
+
+	/**
+	 * Modifys point from path at PointToModifyPosition.
+	 * @param PointToModifyPosition 
+	 */
+	UFUNCTION(BlueprintCallable)
+	void ModifyPointFromPath(const int32& PointToModifyPosition, const FVector& NewPoint);
+
+	/**
+	 * Update path actors' locations and scales.
+	 */
+	UFUNCTION(BlueprintCallable)
+	void UpdatePathActors();
+
+	/**
+	 * Returns unit path's points.
+	 * @return 
+	 */
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE TArray<FVector> GetUnitPath() const { return UnitPath; };
+
+	/**
+	 * Finds path point at index if any. Returns true if Index is valid, and false otherwise. PathPoint returned by
+	 * reference.
+	 * @param Index
+	 * @param PathTargetLocation  
+	 * @return 
+	 */
+	bool FindPathPointAtIndex(int32 Index, FPathTargetLocation& PathTargetLocation) const;
+
+#if WITH_EDITOR
+	/**
+	 * Enables/Disables debug drawing.
+	 * @param bNewVisibility 
+	 */
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE void SetDebugVisible(bool bNewVisibility) { bShowDebug = bNewVisibility; };
+#endif // WITH_EDITOR
+
+protected:
+	// Overriden to: Show debug on editor.
+	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType,
+	                           FActorComponentTickFunction* ThisTickFunction) override;
+
+	// Overriden to: Bind to owners is selected delegate.
+	virtual void BeginPlay() override;
+
+	// Overriden to: Unbind to owners is selected delegate.
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
+	/**
+	 * Reacts to unit selection state changed by show or hiding path actors.
+	 * @param bNewIsSelected 
+	 */
+	UFUNCTION()
+	void OnUnitIsSelectedChange(bool bNewIsSelected);
+
+private:
+	/**
+	 * Set path actors' visibility.
+	 * @param bNewVisibility 
+	 */
+	void SetPathActorsVisibility(const bool& bNewVisibility);
+
+	/**
+	 * Update actors pool and create more path actors if needed.
+	 */
+	void UpdateActorsPool();
+
+#if WITH_EDITOR
+	/**
+	 * Draw Debug lines.
+	 */
+	void DrawDebug();
+#endif //WITH_EDITOR
+
+protected:
+	// Current unit path to follow.
+	UPROPERTY(BlueprintReadOnly)
+	TArray<FVector> UnitPath;
+
+	// Path point actor references.
+	UPROPERTY(Transient)
+	TArray<TObjectPtr<ABOHPathPointActor>> PathPointActors;
+
+	// Path line actor references.
+	UPROPERTY(Transient)
+	TArray<TObjectPtr<ABOHPathLineActor>> PathLineActors;
+
+private:
+#if WITH_EDITOR
+	// Show debug for path.
+	bool bShowDebug = true;
+#endif // WITH_EDITOR
+
+	// Owner foot point.
+	FVector FootPoint = FVector::ZeroVector;
+};

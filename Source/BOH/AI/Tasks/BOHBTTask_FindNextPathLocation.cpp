@@ -52,6 +52,7 @@ EBTNodeResult::Type UBOHBTTask_FindNextPathLocation::ExecuteTask(UBehaviorTreeCo
 	BlackboardComponent->SetValueAsBool(GetTargetLocationReachedBlackboardKey(),
 	                                    FMath::IsNearlyZero(RemainingDistanceToTargetLoc));
 	BlackboardComponent->SetValueAsInt(GetTargetPositionIndexBlackboardKey(), NextPathPointIndex);
+
 	EBTNodeResult::Type Result = EBTNodeResult::Succeeded;
 	FinishLatentTask(OwnerComp, Result);
 	return Result;

@@ -20,14 +20,14 @@ class UInputAction;
 class UNiagaraSystem;
 
 // BOH
-class ABOHCharacter;
+class ABOHUnit;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogBOPlayerController, Log, All);
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnUnitSelected, ABOHPlayerController*, PlayerController, ABOHCharacter*, SelectedUnit);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnUnitSelected, ABOHPlayerController*, PlayerController, ABOHUnit*, SelectedUnit);
 
 /**
- * Player controller for Blood of Heroes. Allows to select characters and send them orders.
+ * Player controller for Blood of Heroes. Allows to select units and send them orders.
  */
 UCLASS(Abstract)
 class BOH_API ABOHPlayerController : public APlayerController
@@ -86,7 +86,7 @@ public:
 	 * @return 
 	 */
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE ABOHCharacter* GetSelectedUnit() const { return SelectedUnit; }
+	FORCEINLINE ABOHUnit* GetSelectedUnit() const { return SelectedUnit; }
 
 protected:
 	// Overriden to: Add HUD to viewport.
@@ -128,7 +128,7 @@ private:
 	 * Set selected unit.
 	 * @param Unit 
 	 */
-	void SetSelectedUnit(ABOHCharacter* Unit);
+	void SetSelectedUnit(ABOHUnit* Unit);
 
 	/**
 	 * Set selected path actor.
@@ -157,11 +157,11 @@ protected:
 	UPROPERTY(Transient)
 	TObjectPtr<AActor> LastHiActor = nullptr;
 	
-	// Currently selected character.
+	// Currently selected unit.
 	UPROPERTY(Transient)
-	TObjectPtr<ABOHCharacter> SelectedUnit = nullptr;
+	TObjectPtr<ABOHUnit> SelectedUnit = nullptr;
 
-	// Currently selected unit path point character.
+	// Currently selected unit path point unit.
 	UPROPERTY(Transient)
 	TObjectPtr<ABOHPathActor> SelectedUnitPathActor = nullptr;
 

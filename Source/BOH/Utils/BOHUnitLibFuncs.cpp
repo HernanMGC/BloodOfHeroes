@@ -5,14 +5,14 @@
 #include "BOHUnitLibFuncs.h"
 
 // BOH
-#include "BOH/Characters/BOHCharacter.h"
+#include "BOH/Characters/BOHUnit.h"
 #include "BOH/GameModes/BOHGameModeBase.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-float UBOHUnitLibFuncs::GetMaxDistanceForCharacter(const UObject* WorldContext, ABOHCharacter* Unit)
+float UBOHUnitLibFuncs::GetMaxDistanceForUnitPerTurn(const UObject* WorldContext, ABOHUnit* Unit)
 {
 	UWorld* World = WorldContext && Unit ? WorldContext->GetWorld() : nullptr;
 	ABOHGameModeBase* GameMode = World ? Cast<ABOHGameModeBase>(World->GetAuthGameMode()) : nullptr;

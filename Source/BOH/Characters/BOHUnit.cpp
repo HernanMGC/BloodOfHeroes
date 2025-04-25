@@ -2,7 +2,7 @@
 
 //// Includes
 // Class
-#include "BOHCharacter.h"
+#include "BOHUnit.h"
 
 ////////////////////////////////////////////////////////////////////////////////////
 // FBOHUnitInfo
@@ -55,10 +55,10 @@ FString FBOHUnitInfo::ToString() const
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
-// ABOHCharacter
+// ABOHUnit
 ////////////////////////////////////////////////////////////////////////////////////
 
-ABOHCharacter::ABOHCharacter()
+ABOHUnit::ABOHUnit()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	PrimaryActorTick.bAllowTickOnDedicatedServer = false;
@@ -69,7 +69,7 @@ ABOHCharacter::ABOHCharacter()
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
-void ABOHCharacter::SetIsUnitSelected(bool bNewIsSelected)
+void ABOHUnit::SetIsUnitSelected(bool bNewIsSelected)
 {
 	bIsUnitSelected = bNewIsSelected;
 	OnUnitIsSelectedChanged.Broadcast(bIsUnitSelected);

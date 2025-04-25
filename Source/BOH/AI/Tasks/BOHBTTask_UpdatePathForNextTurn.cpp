@@ -9,7 +9,7 @@
 
 // BOH
 #include "BOH/AI/BOHAIController.h"
-#include "BOH/Characters/BOHCharacter.h"
+#include "BOH/Characters/BOHUnit.h"
 #include "BOH/Component/Path/BOHUnitPathComponent.h"
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -34,7 +34,7 @@ EBTNodeResult::Type UBOHBTTask_UpdatePathForNextTurn::ExecuteTask(UBehaviorTreeC
 	}
 	
 	ABOHAIController* UnitAIController = Cast<ABOHAIController>(OwnerComp.GetAIOwner());
-	ABOHCharacter* Unit = UnitAIController ? Cast<ABOHCharacter>(UnitAIController->GetPawn()) : nullptr;
+	ABOHUnit* Unit = UnitAIController ? Cast<ABOHUnit>(UnitAIController->GetPawn()) : nullptr;
 	UBOHUnitPathComponent* PathComponent = Unit ? Unit->GetComponentByClass<UBOHUnitPathComponent>() : nullptr;
 	FPathTargetLocation NextPathPoint = FPathTargetLocation();
 	if (!PathComponent)

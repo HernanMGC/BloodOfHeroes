@@ -8,7 +8,7 @@
 #include "GameFramework/Character.h"
 
 // BOH
-#include "BOHCharacter.generated.h"
+#include "BOHUnit.generated.h"
 
 //// ForwardDeclaration
 // UnrealEngine
@@ -91,7 +91,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUnitIsSelectedChanged, bool, bNew
  * Base class for unit characters.
  */
 UCLASS(Abstract)
-class BOH_API ABOHCharacter : public ACharacter
+class BOH_API ABOHUnit : public ACharacter
 {
 	GENERATED_BODY()
 public:
@@ -100,7 +100,7 @@ public:
 	
 public:
 	// Constructor. Removes tick.
-	ABOHCharacter();
+	ABOHUnit();
 	
 	/**
 	 * Returns Unit info.

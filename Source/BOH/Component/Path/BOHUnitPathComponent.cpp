@@ -10,7 +10,7 @@
 // BOH
 #include "BOHPathLineActor.h"
 #include "BOHPathPointActor.h"
-#include "BOH/Characters/BOHCharacter.h"
+#include "BOH/Characters/BOHUnit.h"
 #include "BOH/GameModes/BOHGameModeBase.h"
 #include "BOH/Utils/BOHUnitLibFuncs.h"
 #include "BOH/Utils/BOHUtils.h"
@@ -108,7 +108,7 @@ void UBOHUnitPathComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	ABOHCharacter* Owner = Cast<ABOHCharacter>(GetOwner());
+	ABOHUnit* Owner = Cast<ABOHUnit>(GetOwner());
 	UCapsuleComponent* CapsuleComponent = Owner ? Owner->GetCapsuleComponent() : nullptr;
 	if (!CapsuleComponent)
 	{
@@ -131,7 +131,7 @@ void UBOHUnitPathComponent::BeginPlay()
 
 void UBOHUnitPathComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	ABOHCharacter* Owner = Cast<ABOHCharacter>(GetOwner());
+	ABOHUnit* Owner = Cast<ABOHUnit>(GetOwner());
 	
 #if WITH_EDITOR
 	if (Owner)
@@ -190,7 +190,7 @@ void UBOHUnitPathComponent::SetPathActorsVisibility(const bool& bNewVisibility)
 void UBOHUnitPathComponent::UpdateActorsPool()
 {
 	UWorld* World = GetWorld();
-	ABOHCharacter* Owner = World ? Cast<ABOHCharacter>(GetOwner()) : nullptr;
+	ABOHUnit* Owner = World ? Cast<ABOHUnit>(GetOwner()) : nullptr;
 	if (!Owner)
 	{
 		return;
@@ -269,7 +269,7 @@ void UBOHUnitPathComponent::UpdatePathActors()
 
 bool UBOHUnitPathComponent::FindPathPointAtIndex(int32 Index, FPathTargetLocation& PathTargetLocation) const
 {
-	ABOHCharacter* Unit = UnitPath.IsValidIndex(Index) ? Cast<ABOHCharacter>(GetOwner()) : nullptr;
+	ABOHUnit* Unit = UnitPath.IsValidIndex(Index) ? Cast<ABOHUnit>(GetOwner()) : nullptr;
 	if (!Unit)
 	{
 		return false;
@@ -283,7 +283,7 @@ bool UBOHUnitPathComponent::FindPathPointAtIndex(int32 Index, FPathTargetLocatio
 	}
 
 	bool IsValid = true;
-	float MaxUnitDistancePerTurn = UBOHUnitLibFuncs::GetMaxDistanceForCharacter(Unit, Unit) * BOHUnitConstants::MetersToCentimeters;
+	float MaxUnitDistancePerTurn = UBOHUnitLibFuncs::GetMaxDistanceForUnitPerTurn(Unit, Unit) * BOHUnitConstants::MetersToCentimeters;
 	for (int32 i = 0; i <= Index - 1; i++)
 	{
 		FVector PathSection = (UnitPath[i+1] - UnitPath[i]);

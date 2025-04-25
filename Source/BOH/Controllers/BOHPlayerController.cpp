@@ -11,7 +11,7 @@
 #include "Blueprint/UserWidget.h"
 
 // BOH
-#include "BOH/Characters/BOHCharacter.h"
+#include "BOH/Characters/BOHUnit.h"
 #include "BOH/Component/Path/BOHPathLineActor.h"
 #include "BOH/Component/Path/BOHPathPointActor.h"
 #include "BOH/Component/Path/BOHUnitPathComponent.h"
@@ -260,7 +260,7 @@ void ABOHPlayerController::OnZoomInputTriggered(const FInputActionValue& Value)
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
-void ABOHPlayerController::SetSelectedUnit(ABOHCharacter* Unit)
+void ABOHPlayerController::SetSelectedUnit(ABOHUnit* Unit)
 {
 	if (SelectedUnit && SelectedUnit != Unit)
 	{
@@ -304,11 +304,11 @@ void ABOHPlayerController::HandleSingleClick(const FHitResult& Hit)
 												   FRotator::ZeroRotator, FVector(1.f, 1.f, 1.f), true, true,
 												   ENCPoolMethod::None, true);
 
-	ABOHCharacter* HitCharacter = Cast<ABOHCharacter>(Hit.GetActor());
-	if (HitCharacter)
+	ABOHUnit* HitUnit = Cast<ABOHUnit>(Hit.GetActor());
+	if (HitUnit)
 	{
-		SetSelectedUnit(HitCharacter);
-		UE_LOG(LogPlayerController, Display, TEXT("Character clicked and selected: %s"), *SelectedUnit->GetUnitInfo().ToString());
+		SetSelectedUnit(HitUnit);
+		UE_LOG(LogPlayerController, Display, TEXT("Unit clicked and selected: %s"), *SelectedUnit->GetUnitInfo().ToString());
 		return;
 	}
 

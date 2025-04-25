@@ -11,8 +11,11 @@
 #include "BOHPathActor.generated.h"
 
 //// ForwardDeclarations
-// BOH
+// UnrealEngine
 class UStaticMeshComponent;
+
+// BOH
+class ABOHUnit;
 
 /**
  * Base class for path actor.
@@ -36,6 +39,13 @@ public:
 	 *  Constructor. Removes tick.
 	 */
 	ABOHPathActor();
+
+	/**
+	 * Return owner unit.
+	 * @return 
+	 */
+	UFUNCTION(BlueprintCallable)
+	ABOHUnit* GetOwnerUnit();
 
 	// Overriden to: Set actor size on BP construction.
 	virtual void OnConstruction(const FTransform& Transform) override;

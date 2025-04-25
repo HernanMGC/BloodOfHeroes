@@ -12,10 +12,10 @@
 
 //// ForwardDeclaration
 // BOH
-class ABOHCharacter;
+class ABOHUnit;
 
 /**
- * BP Lib funcs for characters.
+ * BP Lib funcs for units.
  */
 UCLASS()
 class BOH_API UBOHUnitLibFuncs : public UBlueprintFunctionLibrary
@@ -24,9 +24,9 @@ class BOH_API UBOHUnitLibFuncs : public UBlueprintFunctionLibrary
 
 public:
 	/**
-	 * Returns max distance for character in a turn.
+	 * Returns max distance for unit in a turn.
 	 * @return 
 	 */
 	UFUNCTION(BlueprintPure, meta = (WorldContext = "WorldContext"))
-	static float GetMaxDistanceForCharacter(const UObject* WorldContext, ABOHCharacter* Unit);
+	static float GetMaxDistanceForUnitPerTurn(const UObject* WorldContext, ABOHUnit* Unit);
 };

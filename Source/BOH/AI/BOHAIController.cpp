@@ -8,7 +8,7 @@
 #include "BehaviorTree/BehaviorTree.h"
 
 // BOH
-#include "BOH/Characters/BOHCharacter.h"
+#include "BOH/Characters/BOHUnit.h"
 
 ////////////////////////////////////////////////////////////////////////////////////
 //
@@ -27,7 +27,7 @@ void ABOHAIController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 
-	ABOHCharacter* Unit = InPawn ? Cast<ABOHCharacter>(InPawn) : nullptr;
+	ABOHUnit* Unit = InPawn ? Cast<ABOHUnit>(InPawn) : nullptr;
 	UBehaviorTree* BehaviorTree = Unit ? Unit->GetBehaviorTree() : nullptr;
 	if (!BehaviorTree)
 	{

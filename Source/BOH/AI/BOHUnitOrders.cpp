@@ -7,7 +7,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
-FUnitOrder::FUnitOrder() : OrderType(EUnitOrderType::None)
+FUnitOrder::FUnitOrder() : OrderType(EUnitOrderType::None), OrderState(EUnitOrderState::None), bCanBeInterrupted(false),
+                           TargetActor(nullptr)
 {
 }
 
@@ -15,7 +16,12 @@ FUnitOrder::FUnitOrder() : OrderType(EUnitOrderType::None)
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
-FUnitOrder::FUnitOrder(EUnitOrderType InOrderType) : OrderType(InOrderType), OrderState(EUnitOrderState::Pending)
+FUnitOrder::FUnitOrder(EUnitOrderType InOrderType, EUnitOrderSortingPolicy InUnitOrderSortingPolicy,
+                       bool bInCanBeInterrupted, AActor* InTargetActor) : OrderType(InOrderType),
+                                                                           OrderState(EUnitOrderState::Queued),
+                                                                           OrderSortingPolicy(InUnitOrderSortingPolicy),
+                                                                           bCanBeInterrupted(bInCanBeInterrupted),
+                                                                           TargetActor(InTargetActor)
 {
 }
 
@@ -25,7 +31,11 @@ FUnitOrder::FUnitOrder(EUnitOrderType InOrderType) : OrderType(InOrderType), Ord
 
 bool FUnitOrder::operator==(const FUnitOrder& Other) const
 {
-	return OrderType == Other.OrderType;
+	return OrderType == Other.OrderType
+		&& OrderSortingPolicy == Other.OrderSortingPolicy
+		&& OrderState == Other.OrderState
+		&& bCanBeInterrupted == Other.bCanBeInterrupted
+		&& TargetActor == Other.TargetActor;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -34,7 +44,13 @@ bool FUnitOrder::operator==(const FUnitOrder& Other) const
 
 bool FUnitOrder::IsValid() const
 {
-	return OrderType != EUnitOrderType::None && OrderType != EUnitOrderType::MAX; 
+	return
+		OrderType != EUnitOrderType::None
+		&& OrderType != EUnitOrderType::MAX
+		&& OrderState != EUnitOrderState::None
+		&& OrderState != EUnitOrderState::MAX
+		&& OrderSortingPolicy != EUnitOrderSortingPolicy::None
+		&& OrderSortingPolicy != EUnitOrderSortingPolicy::MAX;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

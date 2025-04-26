@@ -27,7 +27,7 @@ UBOHBTTask_WaitUntilNewOrder::UBOHBTTask_WaitUntilNewOrder()
 EBTNodeResult::Type UBOHBTTask_WaitUntilNewOrder::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	UBlackboardComponent* BlackboardComponent = OwnerComp.GetBlackboardComponent();
-	ABOHAIController* UnitAIController = BlackboardComponent ? Cast<ABOHAIController>(OwnerComp.GetAIOwner()) : nullptr;
+	const ABOHAIController* UnitAIController = BlackboardComponent ? Cast<ABOHAIController>(OwnerComp.GetAIOwner()) : nullptr;
 	FUnitOrder NewOrder;
 	bool bValidNextOrder = UnitAIController->GetNextOrder(NewOrder);
 	if (!bValidNextOrder)
@@ -38,7 +38,7 @@ EBTNodeResult::Type UBOHBTTask_WaitUntilNewOrder::ExecuteTask(UBehaviorTreeCompo
 	
 	BlackboardComponent->SetValueAsEnum(GetCurrentOrderTypeBlackboardKey(), static_cast<uint8>(NewOrder.OrderType));
 
-	EBTNodeResult::Type Result = EBTNodeResult::Succeeded;
+	constexpr EBTNodeResult::Type Result = EBTNodeResult::Succeeded;
 	FinishLatentTask(OwnerComp, Result);
 	return Result;
 }

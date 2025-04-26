@@ -32,16 +32,15 @@ EBTNodeResult::Type UBOHBTTask_UpdatePathForNextTurn::ExecuteTask(UBehaviorTreeC
 	{
 		return EBTNodeResult::Failed;
 	}
-	
-	ABOHAIController* UnitAIController = Cast<ABOHAIController>(OwnerComp.GetAIOwner());
-	ABOHUnit* Unit = UnitAIController ? Cast<ABOHUnit>(UnitAIController->GetPawn()) : nullptr;
+
+	const ABOHAIController* UnitAIController = Cast<ABOHAIController>(OwnerComp.GetAIOwner());
+	const ABOHUnit* Unit = UnitAIController ? Cast<ABOHUnit>(UnitAIController->GetPawn()) : nullptr;
 	UBOHUnitPathComponent* PathComponent = Unit ? Unit->GetComponentByClass<UBOHUnitPathComponent>() : nullptr;
-	FPathTargetLocation NextPathPoint = FPathTargetLocation();
 	if (!PathComponent)
 	{
 		return EBTNodeResult::Failed;
 	}
-	
+
 	int32 LastPathPointIndex = BlackboardComponent->GetValueAsInt(GetTargetPositionIndexBlackboardKey()) - 1;
 	const bool LastPathPointIndexReached = BlackboardComponent->GetValueAsBool(GetTargetLocationReachedBlackboardKey());
 	if (LastPathPointIndexReached) { LastPathPointIndex--; }
@@ -57,7 +56,7 @@ EBTNodeResult::Type UBOHBTTask_UpdatePathForNextTurn::ExecuteTask(UBehaviorTreeC
 	BlackboardComponent->SetValueAsBool(GetTargetLocationReachedBlackboardKey(), false);
 	BlackboardComponent->SetValueAsInt(GetTargetPositionIndexBlackboardKey(), 0);
 	
-	EBTNodeResult::Type Result = EBTNodeResult::Succeeded;
+	constexpr EBTNodeResult::Type Result = EBTNodeResult::Succeeded;
 	FinishLatentTask(OwnerComp, Result);
 	return Result;
 }

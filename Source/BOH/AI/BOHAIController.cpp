@@ -14,10 +14,48 @@
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
-void ABOHAIController::SendUnitOrder(FUnitOrder UnitOrder)
+void ABOHAIController::SendUnitOrder(FUnitOrder NewUnitOrder)
 {
-	UnitOrder.OrderState = EUnitOrderState::Pending;
-	UnitOrders.Add(UnitOrder);
+	NewUnitOrder.OrderState = EUnitOrderState::Queued;
+	if (!NewUnitOrder.IsValid())
+	{
+		return;
+	}
+	
+	if (UnitOrders.IsEmpty())
+	{
+		UnitOrders.Add(NewUnitOrder);
+		return;
+	}
+	
+	FUnitOrder& CurrentUnitOrder = UnitOrders[0];
+
+	switch (NewUnitOrder.OrderSortingPolicy)
+	{
+	case EUnitOrderSortingPolicy::MAX:
+	case EUnitOrderSortingPolicy::None:
+		break;
+	case EUnitOrderSortingPolicy::AddToQueue:
+		UnitOrders.Add(NewUnitOrder);
+		break;
+	case EUnitOrderSortingPolicy::AddAfterCurrent:
+		UnitOrders.EmplaceAt(1);
+		break;
+	case EUnitOrderSortingPolicy::InterruptCurrentMissable:
+		if (!CurrentUnitOrder.bCanBeInterrupted)
+		{
+			return;
+		}
+	case EUnitOrderSortingPolicy::InterruptCurrentQueueable:
+		UnitOrders.EmplaceAt(1, NewUnitOrder);
+		if (CurrentUnitOrder.bCanBeInterrupted)
+		{
+			UpdateOrderState(EUnitOrderState::Finished);
+		}
+		break;
+	default:
+		break;
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -61,7 +99,7 @@ void ABOHAIController::ConsumeOrder()
 {
 	if (UnitOrders.Num() > 0)
 	{
-		UnitOrders.RemoveAt(0);		
+		UnitOrders.RemoveAt(0);
 	}
 }
 

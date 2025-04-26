@@ -33,11 +33,11 @@ EBTNodeResult::Type UBOHBTTask_FindNextPathLocation::ExecuteTask(UBehaviorTreeCo
 		return EBTNodeResult::Failed;
 	}
 
-	ABOHAIController* UnitAIController = Cast<ABOHAIController>(OwnerComp.GetAIOwner());
-	ABOHUnit* Unit = UnitAIController ? Cast<ABOHUnit>(UnitAIController->GetPawn()) : nullptr;
-	UBOHUnitPathComponent* PathComponent = Unit ? Unit->GetComponentByClass<UBOHUnitPathComponent>() : nullptr;
+	const ABOHAIController* UnitAIController = Cast<ABOHAIController>(OwnerComp.GetAIOwner());
+	const ABOHUnit* Unit = UnitAIController ? Cast<ABOHUnit>(UnitAIController->GetPawn()) : nullptr;
+	const UBOHUnitPathComponent* PathComponent = Unit ? Unit->GetComponentByClass<UBOHUnitPathComponent>() : nullptr;
 	FPathTargetLocation NextPathPoint = FPathTargetLocation();
-	int32 NextPathPointIndex = BlackboardComponent->GetValueAsInt(GetTargetPositionIndexBlackboardKey()) + 1;
+	const int32 NextPathPointIndex = BlackboardComponent->GetValueAsInt(GetTargetPositionIndexBlackboardKey()) + 1;
 	bool ValidPathPoint = PathComponent
 		                      ? PathComponent->FindPathPointAtIndex(NextPathPointIndex, NextPathPoint)
 		                      : false;
@@ -47,13 +47,13 @@ EBTNodeResult::Type UBOHBTTask_FindNextPathLocation::ExecuteTask(UBehaviorTreeCo
 	}
 
 	BlackboardComponent->SetValueAsVector(GetTargetPositionBlackboardKey(), NextPathPoint.RealPathTargetLocation);
-	double RemainingDistanceToTargetLoc = (NextPathPoint.PathTargetLocation, NextPathPoint.RealPathTargetLocation).
+	const double RemainingDistanceToTargetLoc = (NextPathPoint.PathTargetLocation - NextPathPoint.RealPathTargetLocation).
 		Length();
 	BlackboardComponent->SetValueAsBool(GetTargetLocationReachedBlackboardKey(),
 	                                    FMath::IsNearlyZero(RemainingDistanceToTargetLoc));
 	BlackboardComponent->SetValueAsInt(GetTargetPositionIndexBlackboardKey(), NextPathPointIndex);
 
-	EBTNodeResult::Type Result = EBTNodeResult::Succeeded;
+	constexpr EBTNodeResult::Type Result = EBTNodeResult::Succeeded;
 	FinishLatentTask(OwnerComp, Result);
 	return Result;
 }

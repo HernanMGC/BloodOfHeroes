@@ -28,7 +28,7 @@ EBTNodeResult::Type UBOHBTTask_UpdateOrderState::ExecuteTask(UBehaviorTreeCompon
 	UBlackboardComponent* BlackboardComponent = OwnerComp.GetBlackboardComponent();
 	ABOHAIController* UnitAIController = BlackboardComponent ? Cast<ABOHAIController>(OwnerComp.GetAIOwner()) : nullptr;
 	FUnitOrder NewOrder;
-	bool bValidNextOrder = UnitAIController->GetNextOrder(NewOrder);
+	const bool bValidNextOrder = UnitAIController->GetNextOrder(NewOrder);
 	if (!bValidNextOrder)
 	{
 		return EBTNodeResult::Failed;
@@ -37,7 +37,7 @@ EBTNodeResult::Type UBOHBTTask_UpdateOrderState::ExecuteTask(UBehaviorTreeCompon
 	BlackboardComponent->SetValueAsEnum(GetCurrentOrderStateBlackboardKey(), static_cast<uint8>(NewOrderState));
 	UnitAIController->UpdateOrderState(NewOrderState);
 	
-	EBTNodeResult::Type Result = EBTNodeResult::Succeeded;
+	constexpr EBTNodeResult::Type Result = EBTNodeResult::Succeeded;
 	FinishLatentTask(OwnerComp, Result);
 	return Result;
 }

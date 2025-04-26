@@ -22,10 +22,10 @@ class BOH_API ABOHAIController : public AAIController
 public:
 	/**
 	 * Send unit order.
-	 * @param UnitOrder 
+	 * @param NewUnitOrder 
 	 */
 	UFUNCTION(BlueprintCallable)
-	void SendUnitOrder(FUnitOrder UnitOrder);
+	void SendUnitOrder(FUnitOrder NewUnitOrder);
 
 	/**
 	 * Returns true if there is a next order, and return the oder through NextOrder reference. NextOrder is  the first

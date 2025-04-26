@@ -56,15 +56,15 @@ public:
 	EBOHUnitType UnitType = EBOHUnitType::None;
 
 	// Unit speed.
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float Speed = 0.0f;
 
 	// Unit evasion radius.
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float EvasionRadius = 0.0f;
 
 	// Unit blocking radius.
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float BlockingRadius = 0.0f;
 
 public:

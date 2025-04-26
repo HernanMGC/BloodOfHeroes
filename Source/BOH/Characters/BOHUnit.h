@@ -5,6 +5,8 @@
 //// Includes
 // UnrealEngine
 #include "CoreMinimal.h"
+#include "AbilitySystemInterface.h"
+#include "GameplayEffectTypes.h"
 #include "GameFramework/Character.h"
 
 // BOH
@@ -12,7 +14,13 @@
 
 //// ForwardDeclaration
 // UnrealEngine
+class UGameplayEffect;
 class UBehaviorTree;
+
+// BOH
+class UBOHAbilitySystemComponent;
+class UBOHGameplayAbility;
+class UBOHUnitAttributeSet;
 
 /**
  * Unit types.
@@ -47,9 +55,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	EBOHUnitType UnitType = EBOHUnitType::None;
 
-	// Unit speed
+	// Unit speed.
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float Speed = 0.0f;
+
+	// Unit evasion radius.
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float EvasionRadius = 0.0f;
+
+	// Unit blocking radius.
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float BlockingRadius = 0.0f;
 
 public:
 	/**
@@ -61,9 +77,11 @@ public:
 	 * Explicit constructor for UnitInfo.
 	 * @param InUnitID 
 	 * @param InTeamID 
-	 * @param InUnitType 
+	 * @param InUnitType
+	 * @param InEvasionRadius
+	 * @param InBlockingRadius 
 	 */
-	FBOHUnitInfo(int32 InUnitID, int32 InTeamID, EBOHUnitType InUnitType);
+	FBOHUnitInfo(int32 InUnitID, int32 InTeamID, EBOHUnitType InUnitType, float InEvasionRadius, float InBlockingRadius);
 	
 	/**
 	 * Equal operator for UnitInfo.
@@ -91,10 +109,12 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUnitIsSelectedChanged, bool, bNew
  * Base class for unit characters.
  */
 UCLASS(Abstract)
-class BOH_API ABOHUnit : public ACharacter
+class BOH_API ABOHUnit : public ACharacter, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
+	
 public:
+	// Unit selection state change delegate.
 	UPROPERTY(BlueprintReadOnly, BlueprintAssignable)
 	FOnUnitIsSelectedChanged OnUnitIsSelectedChanged; 
 	
@@ -128,8 +148,51 @@ public:
 	FORCEINLINE UBehaviorTree* GetBehaviorTree() const { return BehaviorTree; }
 
 protected:
+	// Overriden to: Creates ASC and Unit Attr. set.
+	virtual void BeginPlay() override;
+
+	// Overriden to: Initializes ASC, abilities and effects.
+	virtual void PostInitializeComponents() override;
+	
+#pragma region IAbilitySystemInterface
+	// Overriden to: Return its ability component.
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+#pragma endregion // IAbilitySystemInterface
+
+	UFUNCTION(BlueprintCallable)	
+	virtual UBOHAbilitySystemComponent* GetBOHAbilitySystemComponent() const;
+
+	/**
+	 * Reacts to speed attribute change to update speed on movement component.
+	 * @param OnAttributeChangeData 
+	 */
+	void OnSpeedAttributeChanged(const FOnAttributeChangeData& OnAttributeChangeData);
+
+	/**
+	 * Reacts to evasion radius attribute change to evasion capsule radius.
+	 * @param OnAttributeChangeData 
+	 */
+	void OnEvasionRadiusAttributeChanged(const FOnAttributeChangeData& OnAttributeChangeData);
+
+	/**
+	 * Reacts to blocking radius attribute change to blocking capsule radius.
+	 * @param OnAttributeChangeData 
+	 */
+	void OnBlockingRadiusAttributeChanged(const FOnAttributeChangeData& OnAttributeChangeData);
+
+	/**
+	 * Adds initial abilities to ASC.
+	 */
+	void InitializeAbilities();
+
+	/**
+	 * Adds initial effects to ASC.
+	 */
+	void InitializeEffects();
+	
+protected:
 	// ToDo: This has to be generated, not a hardcoded option.
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "BOH|Unit")
 	FBOHUnitInfo UnitInfo;
 
 	// Unit behavior tree.
@@ -140,4 +203,28 @@ protected:
 	UPROPERTY(Transient)
 	bool bIsUnitSelected = false;
 
+	// Ability component reference.
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "BOH|GAS")
+	TObjectPtr<UBOHAbilitySystemComponent> ASC = nullptr;
+
+	// Basic Unit attribute set.
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "BOH|GAS")
+	TObjectPtr<UBOHUnitAttributeSet> UnitSet = nullptr;
+
+	// Initial abilities.
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BOH|GAS")
+	TArray<TSubclassOf<UBOHGameplayAbility>> DefaultAbilities;
+
+	// Initial gameplay effects.
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BOH|GAS")
+	TArray<TSubclassOf<UGameplayEffect>> DefaultGameplayEffects;
+
+	// Evasion radius capsule.
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "BOH|Unit|Collisions")
+	TObjectPtr<UCapsuleComponent> EvasionCollider = nullptr;
+
+	// Blocking radius capsule.
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "BOH|Unit|Collisions")
+	TObjectPtr<UCapsuleComponent> BlockingCollider = nullptr;
 };
+

@@ -33,12 +33,10 @@ EBTNodeResult::Type UBOHBTTask_WaitUntilNewOrder::ExecuteTask(UBehaviorTreeCompo
 	if (!bValidNextOrder)
 	{
 		BlackboardComponent->SetValueAsEnum(GetCurrentOrderTypeBlackboardKey(), static_cast<uint8>(EUnitOrderType::None));
-		// BlackboardComponent->SetValueAsEnum(GetCurrentOrderStateBlackboardKey(), static_cast<uint8>(EUnitOrderState::None));
 		return EBTNodeResult::Failed;
 	}
 	
 	BlackboardComponent->SetValueAsEnum(GetCurrentOrderTypeBlackboardKey(), static_cast<uint8>(NewOrder.OrderType));
-	// BlackboardComponent->SetValueAsEnum(GetCurrentOrderStateBlackboardKey(), static_cast<uint8>(NewOrder.OrderState));
 
 	EBTNodeResult::Type Result = EBTNodeResult::Succeeded;
 	FinishLatentTask(OwnerComp, Result);

@@ -24,7 +24,12 @@ public class BOH : ModuleRules
 			"UMG",
 			
 			// AI
-			"AIModule"
+			"AIModule",
+			
+			// GAS
+			"GameplayAbilities",
+			"GameplayTasks",
+			"GameplayTags"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[]

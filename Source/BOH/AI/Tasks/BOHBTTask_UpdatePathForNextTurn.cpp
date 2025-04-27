@@ -43,7 +43,7 @@ EBTNodeResult::Type UBOHBTTask_UpdatePathForNextTurn::ExecuteTask(UBehaviorTreeC
 
 	int32 LastPathPointIndex = BlackboardComponent->GetValueAsInt(GetTargetPositionIndexBlackboardKey()) - 1;
 	const bool LastPathPointIndexReached = BlackboardComponent->GetValueAsBool(GetTargetLocationReachedBlackboardKey());
-	if (LastPathPointIndexReached) { LastPathPointIndex--; }
+	if (LastPathPointIndexReached) { LastPathPointIndex++; }
 
 	for (int32 i = 0; i <= LastPathPointIndex; i++)
 	{

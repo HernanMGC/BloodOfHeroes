@@ -9,9 +9,11 @@
 #include "GameFramework/CharacterMovementComponent.h"
 
 // BOH
+#include "BOH/AI/BOHAIController.h"
 #include "BOH/GAS/Abilities/BOHGameplayAbility.h"
 #include "BOH/GAS/Attributes/BOHUnitAttributeSet.h"
 #include "BOH/GAS/Components/BOHAbilitySystemComponent.h"
+#include "BOH/Tags/BOHGameplayTagCollection.h"
 #include "BOH/Utils/BOHUtils.h"
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -19,7 +21,7 @@
 ////////////////////////////////////////////////////////////////////////////////////
 
 FBOHUnitInfo::FBOHUnitInfo(): UnitID(-1), TeamID(-1), UnitType(EBOHUnitType::None), EvasionRadius(-1.f),
-                              BlockingRadius(-1.f)
+                              ReachRadius(-1.f)
 {
 }
 
@@ -28,9 +30,9 @@ FBOHUnitInfo::FBOHUnitInfo(): UnitID(-1), TeamID(-1), UnitType(EBOHUnitType::Non
 ////////////////////////////////////////////////////////////////////////////////////
 
 FBOHUnitInfo::FBOHUnitInfo(int32 InUnitID, int32 InTeamID, EBOHUnitType InUnitType, float InEvasionRadius,
-                           float InBlockingRadius) : UnitID(InUnitID),
+                           float InReachRadius) : UnitID(InUnitID),
                                                      TeamID(InTeamID), UnitType(InUnitType),
-                                                     EvasionRadius(InEvasionRadius), BlockingRadius(InBlockingRadius)
+                                                     EvasionRadius(InEvasionRadius), ReachRadius(InReachRadius)
 {
 }
 
@@ -45,7 +47,7 @@ bool FBOHUnitInfo::operator==(const FBOHUnitInfo& Other) const
 		&& Other.UnitType == UnitType
 		&& Other.Speed == Speed
 		&& Other.EvasionRadius == EvasionRadius
-		&& Other.BlockingRadius == BlockingRadius;
+		&& Other.ReachRadius == ReachRadius;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -60,7 +62,7 @@ bool FBOHUnitInfo::IsValid() const
 		|| UnitType != EBOHUnitType::MAX
 		|| Speed < 0.f
 		|| EvasionRadius < 0.f
-		|| BlockingRadius < 0.f;
+		|| ReachRadius < 0.f;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -70,8 +72,8 @@ bool FBOHUnitInfo::IsValid() const
 FString FBOHUnitInfo::ToString() const
 {
 	return FString::Printf(
-		TEXT("UnitID: %d - TeamID: %d - UnitType: %s\nSpeed: %f - EvasionRadius: %f - BlockingRadius: %f"), UnitID,
-		TeamID, *UEnum::GetValueAsString(UnitType), Speed, EvasionRadius, BlockingRadius);
+		TEXT("UnitID: %d - TeamID: %d - UnitType: %s\nSpeed: %f - EvasionRadius: %f - ReachRadius: %f"), UnitID,
+		TeamID, *UEnum::GetValueAsString(UnitType), Speed, EvasionRadius, ReachRadius);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -91,9 +93,10 @@ ABOHUnit::ABOHUnit()
 	EvasionCollider->SetupAttachment(RootComponent);
 	EvasionCollider->SetCapsuleHalfHeight(GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight());
 
-	BlockingCollider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("BlockingCollider"));
-	BlockingCollider->SetupAttachment(RootComponent);
-	BlockingCollider->SetCapsuleHalfHeight(GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight());
+	ReachCollider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("ReachCollider"));
+	ReachCollider->SetupAttachment(RootComponent);
+	ReachCollider->SetCapsuleHalfHeight(GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight());
+	ReachCollider->OnComponentBeginOverlap.AddUniqueDynamic(this, &ThisClass::OnReachBeginOverlap);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -135,8 +138,8 @@ void ABOHUnit::PostInitializeComponents()
 		this, &ThisClass::OnSpeedAttributeChanged);
 	ASC->GetGameplayAttributeValueChangeDelegate(UnitSet->GetEvasionRadiusAttribute()).AddUObject(
 		this, &ThisClass::OnEvasionRadiusAttributeChanged);
-	ASC->GetGameplayAttributeValueChangeDelegate(UnitSet->GetBlockingRadiusAttribute()).AddUObject(
-		this, &ThisClass::OnBlockingRadiusAttributeChanged);
+	ASC->GetGameplayAttributeValueChangeDelegate(UnitSet->GetReachRadiusAttribute()).AddUObject(
+		this, &ThisClass::OnReachRadiusAttributeChanged);
 	
 	InitializeEffects();
 	InitializeAbilities();
@@ -204,19 +207,19 @@ void ABOHUnit::OnEvasionRadiusAttributeChanged(const FOnAttributeChangeData& OnA
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
-void ABOHUnit::OnBlockingRadiusAttributeChanged(const FOnAttributeChangeData& OnAttributeChangeData)
+void ABOHUnit::OnReachRadiusAttributeChanged(const FOnAttributeChangeData& OnAttributeChangeData)
 {
-	bool bBlockingRadiusHasChanged = BlockingCollider
-		                                 ? OnAttributeChangeData.Attribute == UnitSet->GetBlockingRadiusAttribute() &&
+	bool bReachRadiusHasChanged = ReachCollider
+		                                 ? OnAttributeChangeData.Attribute == UnitSet->GetReachRadiusAttribute() &&
 		                                 OnAttributeChangeData.NewValue != OnAttributeChangeData.OldValue
 		                                 : false;
-	if (!bBlockingRadiusHasChanged)
+	if (!bReachRadiusHasChanged)
 	{
 		return;
 	}
 
-	BlockingCollider->SetCapsuleRadius(OnAttributeChangeData.NewValue);
-	UnitInfo.BlockingRadius = OnAttributeChangeData.NewValue;
+	ReachCollider->SetCapsuleRadius(OnAttributeChangeData.NewValue);
+	UnitInfo.ReachRadius = OnAttributeChangeData.NewValue;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -259,6 +262,53 @@ void ABOHUnit::InitializeEffects()
 		{
 			FActiveGameplayEffectHandle GEHandle = ASC->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());
 		}
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////////
+
+void ABOHUnit::OnReachBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor == this)
+	{
+		return;
+	}
+	
+	ABOHUnit* OtherUnit = OtherActor ? Cast<ABOHUnit>(OtherActor) : nullptr;
+	UPrimitiveComponent* EvasionComponent = OtherUnit && OtherComp == OtherUnit->GetEvasionCollider()
+		                                        ? OtherComp
+		                                        : nullptr;
+
+	UBOHAbilitySystemComponent* OtherASC = EvasionComponent ? OtherUnit->GetBOHAbilitySystemComponent() : nullptr;
+	if (!OtherASC)
+	{
+		return;
+	}
+
+	FUnitOrder StopOrder;
+	StopOrder.OrderState = EUnitOrderState::Queued;
+	StopOrder.OrderType = EUnitOrderType::Stop;
+	StopOrder.TargetActor = nullptr;
+	StopOrder.bCanBeInterrupted = false;
+	StopOrder.OrderSortingPolicy = EUnitOrderSortingPolicy::InterruptCurrentQueueable;
+
+	// ToDo Replace for attack ability and its GEffect
+	OtherASC->AddLooseGameplayTag(UBOHGameplayTagCollection::Get().Tag_Character_Status_Down);
+	
+	ABOHAIController* ThisAIController = Cast<ABOHAIController>(GetController());
+	if (ThisAIController)
+	{
+		
+		ThisAIController->SendUnitOrder(StopOrder);
+	}
+
+	ABOHAIController* OtherAIController = Cast<ABOHAIController>(OtherUnit->GetController());
+	if (OtherAIController)
+	{
+		OtherAIController->SendUnitOrder(StopOrder);
 	}
 }
 

@@ -8,7 +8,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
-UBOHUnitAttributeSet::UBOHUnitAttributeSet() : Speed(0.f), BlockingRadius(0.f), EvasionRadius(0.f)
+UBOHUnitAttributeSet::UBOHUnitAttributeSet() : Speed(0.f), ReachRadius(0.f), EvasionRadius(0.f)
 {
 }
 
@@ -20,7 +20,7 @@ void UBOHUnitAttributeSet::ClampAttributeOnChange(const FGameplayAttribute& Attr
 {
 	if (
 		Attribute == GetSpeedAttribute()
-		|| Attribute == GetBlockingRadiusAttribute()
+		|| Attribute == GetReachRadiusAttribute()
 		|| Attribute == GetEvasionRadiusAttribute()
 	)
 	{

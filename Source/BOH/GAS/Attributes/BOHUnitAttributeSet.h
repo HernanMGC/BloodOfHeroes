@@ -25,8 +25,8 @@ public:
 	ATTRIBUTE_ACCESSORS(UBOHUnitAttributeSet, Speed)
 	
 	UPROPERTY(BlueprintReadOnly, Category = "BOH|Attributes")
-	FGameplayAttributeData BlockingRadius;
-	ATTRIBUTE_ACCESSORS(UBOHUnitAttributeSet, BlockingRadius)
+	FGameplayAttributeData ReachRadius;
+	ATTRIBUTE_ACCESSORS(UBOHUnitAttributeSet, ReachRadius)
 	
 	UPROPERTY(BlueprintReadOnly, Category = "BOH|Attributes")
 	FGameplayAttributeData EvasionRadius;

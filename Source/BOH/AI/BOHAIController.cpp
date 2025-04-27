@@ -51,6 +51,8 @@ void ABOHAIController::SendUnitOrder(FUnitOrder NewUnitOrder)
 		if (CurrentUnitOrder.bCanBeInterrupted)
 		{
 			UpdateOrderState(EUnitOrderState::Finished);
+			bInterruptedDirty = true;
+			OnOrderInterrupted.Broadcast();
 		}
 		break;
 	default:

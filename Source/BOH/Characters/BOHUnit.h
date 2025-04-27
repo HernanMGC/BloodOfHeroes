@@ -102,7 +102,6 @@ public:
 	FString ToString() const;
 };
 
-
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUnitIsSelectedChanged, bool, bNewIsSelected);
 
 /**

@@ -11,6 +11,8 @@
 #include "BOHUnitOrders.h"
 #include "BOHAIController.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnOrderInterrupted);
+
 /**
  * Base class for Unit AI controller.
  */
@@ -18,6 +20,13 @@ UCLASS(Abstract)
 class BOH_API ABOHAIController : public AAIController
 {
 	GENERATED_BODY()
+public:
+	// On order interrupted delegate.
+	UPROPERTY(BlueprintReadOnly, BlueprintAssignable)
+	FOnOrderInterrupted OnOrderInterrupted;
+
+	// Order has been interrupted and service must check it.
+	bool bInterruptedDirty = false;
 
 public:
 	/**

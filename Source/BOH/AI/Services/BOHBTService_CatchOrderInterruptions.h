@@ -46,8 +46,22 @@ protected:
 		return CurrentOrderStateBlackboardKey.SelectedKeyName;
 	}
 	
+	/**
+	 * Returns order interrupted BB key.
+	 * @return 
+	 */
+	FORCEINLINE FName GetOrderInterruptedBlackboardKey() const
+	{
+		return OrderInterruptedBlackboardKey.SelectedKeyName;
+	}
+	
+	
 protected:
 	// Current order state index BB key.
 	UPROPERTY(EditAnywhere, Category="BOH|Blackboard")
 	FBlackboardKeySelector CurrentOrderStateBlackboardKey;
+	
+	// Order interrupted BB key.
+	UPROPERTY(EditAnywhere, Category="BOH|Blackboard")
+	FBlackboardKeySelector OrderInterruptedBlackboardKey;
 };

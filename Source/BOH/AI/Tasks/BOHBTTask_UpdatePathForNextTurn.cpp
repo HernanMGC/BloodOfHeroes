@@ -45,6 +45,9 @@ EBTNodeResult::Type UBOHBTTask_UpdatePathForNextTurn::ExecuteTask(UBehaviorTreeC
 	const bool LastPathPointIndexReached = BlackboardComponent->GetValueAsBool(GetTargetLocationReachedBlackboardKey());
 	if (LastPathPointIndexReached) { LastPathPointIndex++; }
 
+	const bool Interrupted = BlackboardComponent->GetValueAsBool(GetOrderInterruptedBlackboardKey());
+	if (Interrupted) { LastPathPointIndex--; }
+
 	for (int32 i = 0; i <= LastPathPointIndex; i++)
 	{
 		PathComponent->RemovePointFromPath(0);

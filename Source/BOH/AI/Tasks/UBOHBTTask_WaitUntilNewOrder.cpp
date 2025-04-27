@@ -37,6 +37,7 @@ EBTNodeResult::Type UBOHBTTask_WaitUntilNewOrder::ExecuteTask(UBehaviorTreeCompo
 	}
 	
 	BlackboardComponent->SetValueAsEnum(GetCurrentOrderTypeBlackboardKey(), static_cast<uint8>(NewOrder.OrderType));
+	BlackboardComponent->SetValueAsBool(GetOrderInterruptedBlackboardKey(), false);
 
 	constexpr EBTNodeResult::Type Result = EBTNodeResult::Succeeded;
 	FinishLatentTask(OwnerComp, Result);

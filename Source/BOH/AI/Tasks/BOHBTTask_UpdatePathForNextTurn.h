@@ -46,6 +46,15 @@ protected:
 		return TargetLocationReachedBlackboardKey.SelectedKeyName;
 	}
 	
+	/**
+	 * Returns order interrupted BB key.
+	 * @return 
+	 */
+	FORCEINLINE FName GetOrderInterruptedBlackboardKey() const
+	{
+		return OrderInterruptedBlackboardKey.SelectedKeyName;
+	}
+	
 protected:
 	// Target position index BB key.
 	UPROPERTY(EditAnywhere, Category="BOH|Blackboard")
@@ -54,4 +63,8 @@ protected:
 	// Target position BB key.
 	UPROPERTY(EditAnywhere, Category="BOH|Blackboard")
 	FBlackboardKeySelector TargetLocationReachedBlackboardKey;
+	
+	// Order interrupted BB key.
+	UPROPERTY(EditAnywhere, Category="BOH|Blackboard")
+	FBlackboardKeySelector OrderInterruptedBlackboardKey;
 };

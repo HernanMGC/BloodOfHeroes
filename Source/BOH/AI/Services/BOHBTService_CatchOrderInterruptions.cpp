@@ -41,6 +41,7 @@ void UBOHBTService_CatchOrderInterruptions::TickNode(UBehaviorTreeComponent& Own
 	}
 
 	UnitAIController->bInterruptedDirty = false;
+	BlackboardComponent->SetValueAsBool(GetOrderInterruptedBlackboardKey(), true);
 	BlackboardComponent->SetValueAsEnum(GetCurrentOrderStateBlackboardKey(), static_cast<uint8>(EUnitOrderState::Finished));
 }
 

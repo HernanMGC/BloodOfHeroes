@@ -16,7 +16,7 @@
 #include "BOH/Component/Path/BOHPathPointActor.h"
 #include "BOH/Component/Path/BOHUnitPathComponent.h"
 #include "BOH/Pawns/BOHPlayerPawn.h"
-#include "BOH/UI/BOHHudWidget.h"
+#include "BOH/UI/Widgets/BOHHudWidget.h"
 
 ////////////////////////////////////////////////////////////////////////////////////
 //

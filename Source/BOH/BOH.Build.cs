@@ -39,7 +39,7 @@ public class BOH : ModuleRules
 			
 			// UI
 			"CommonUI",
-			
+			"ModelViewViewModel"
 		});
 
 		// Uncomment if you are using Slate UI

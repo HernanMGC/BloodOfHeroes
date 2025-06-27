@@ -281,7 +281,7 @@ void ABOHUnit::OnReachBeginOverlap(UPrimitiveComponent* OverlappedComponent, AAc
 	UPrimitiveComponent* EvasionComponent = OtherUnit && OtherComp == OtherUnit->GetEvasionCollider()
 		                                        ? OtherComp
 		                                        : nullptr;
-
+	
 	UBOHAbilitySystemComponent* OtherASC = EvasionComponent ? OtherUnit->GetBOHAbilitySystemComponent() : nullptr;
 	if (!OtherASC)
 	{

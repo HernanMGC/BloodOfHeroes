@@ -8,7 +8,7 @@
 #include "BehaviorTree/Tasks/BTTask_BlackboardBase.h"
 
 // BOH
-#include "UBOHBTTask_WaitUntilNewOrder.generated.h"
+#include "BOHBTTask_WaitUntilNewOrder.generated.h"
 
 /**
  * Wait until there is a new order.

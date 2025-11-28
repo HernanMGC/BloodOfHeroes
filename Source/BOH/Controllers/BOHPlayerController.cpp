@@ -17,6 +17,7 @@
 #include "BOH/Component/Path/BOHUnitPathComponent.h"
 #include "BOH/Pawns/BOHPlayerPawn.h"
 #include "BOH/UI/Widgets/BOHHudWidget.h"
+#include "BOH/Utils/BOHUtils.h"
 
 ////////////////////////////////////////////////////////////////////////////////////
 //
@@ -143,7 +144,7 @@ void ABOHPlayerController::OnSelectActorTriggered()
 	// We look for the location in the world where the player has pressed the input
 	UWorld* World = GetWorld();
 	FHitResult Hit;
-	const bool bHitSuccessful = World ? GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit) : false;
+	const bool bHitSuccessful = World ? GetHitResultUnderCursor(EBOHCollisionChannel::ECC_PointNClick, true, Hit) : false;
 	
 	if (!bHitSuccessful)
 	{
@@ -184,7 +185,7 @@ void ABOHPlayerController::OnSelectActorReleased()
 	}
 
 	FHitResult Hit;
-	if (const bool bHitSuccessful = GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit))
+	if (const bool bHitSuccessful = GetHitResultUnderCursor(EBOHCollisionChannel::ECC_PointNClick, true, Hit))
 	{
 		PathComp->ModifyPointFromPath(PointActor->GetPathPointIndex(), Hit.Location);
 	}

@@ -2,7 +2,7 @@
 
 //// Includes
 // Class
-#include "UBOHBTTask_WaitUntilNewOrder.h"
+#include "BOHBTTask_WaitUntilNewOrder.h"
 
 // UnrealEngine
 #include "BehaviorTree/BlackboardComponent.h"

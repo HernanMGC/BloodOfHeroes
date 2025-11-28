@@ -153,7 +153,7 @@ void UBOHUnitPathComponent::OnUnitIsSelectedChange(bool bNewIsSelected)
 	bShowDebug = bNewIsSelected;
 #endif // WITH_EDITOR
 
-	SetPathActorsVisibility(bNewIsSelected);
+	// SetPathActorsVisibility(bNewIsSelected);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

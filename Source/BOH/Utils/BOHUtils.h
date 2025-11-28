@@ -8,3 +8,7 @@ namespace BOHUnitConstants
 	inline float MetersToCentimeters = 100.0f;
 }
 
+namespace EBOHCollisionChannel
+{
+	static ECollisionChannel ECC_PointNClick = ECC_GameTraceChannel1;
+}

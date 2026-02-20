@@ -12,8 +12,7 @@
 // BOH
 #include "BOHPlayerController.generated.h"
 
-class UBOHHudWidget;
-//// ForwardDeclaration
+//// ForwardDeclarations
 // UnrealEngine
 class UInputMappingContext;
 class UInputAction;
@@ -71,10 +70,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BOH|Input")
 	float DragTimeThreshold = 0.01f;
 
-	// HUD Widget class.
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BOH|UI")
-	TSubclassOf<UBOHHudWidget> HUDWidgetClass = nullptr;
-
 public:
 	/**
 	 * Constructor. Tick removed. Basic initialization for show cursor.
@@ -89,7 +84,7 @@ public:
 	FORCEINLINE ABOHUnit* GetSelectedUnit() const { return SelectedUnit; }
 
 protected:
-	// Overriden to: Add HUD to viewport.
+	// Overriden to: TODO.
 	virtual void BeginPlay() override;
 
 	// Overriden to: Unbind events and invalidate timers.
@@ -164,9 +159,6 @@ protected:
 	// Currently selected unit path point unit.
 	UPROPERTY(Transient)
 	TObjectPtr<ABOHPathActor> SelectedUnitPathActor = nullptr;
-
-	// HUD Widget reference.
-	TObjectPtr<UBOHHudWidget> HUDWidget = nullptr; 
 
 	// Input is being pressed.
 	bool bIsPressing = false;

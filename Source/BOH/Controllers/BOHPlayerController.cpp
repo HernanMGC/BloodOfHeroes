@@ -8,7 +8,6 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "NiagaraFunctionLibrary.h"
-#include "Blueprint/UserWidget.h"
 
 // BOH
 #include "BOH/Characters/BOHUnit.h"
@@ -16,7 +15,6 @@
 #include "BOH/Component/Path/BOHPathPointActor.h"
 #include "BOH/Component/Path/BOHUnitPathComponent.h"
 #include "BOH/Pawns/BOHPlayerPawn.h"
-#include "BOH/UI/Widgets/BOHHudWidget.h"
 #include "BOH/Utils/BOHUtils.h"
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -42,13 +40,6 @@ ABOHPlayerController::ABOHPlayerController()
 void ABOHPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	HUDWidget = CreateWidget<UBOHHudWidget>(this, HUDWidgetClass, TEXT("HUD"));
-	if (!HUDWidget)
-	{
-		return;
-	}
-	HUDWidget->AddToViewport(0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

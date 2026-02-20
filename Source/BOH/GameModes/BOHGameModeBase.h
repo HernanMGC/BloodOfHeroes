@@ -11,7 +11,7 @@
 #include "BOHGameModeBase.generated.h"
 
 /**
- * Baase game mode for Blood of Heroes.
+ * Base game mode for Blood of Heroes.
  */
 UCLASS(Abstract)
 class BOH_API ABOHGameModeBase : public AGameMode

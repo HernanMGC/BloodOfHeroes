@@ -5,16 +5,16 @@
 //// Includes
 // UnrealEngine
 #include "CoreMinimal.h"
-#include "CommonActivatableWidget.h"
+#include "GameFramework/GameState.h"
 
 // BOH
-#include "BOHHudWidget.generated.h"
+#include "BOHGameState.generated.h"
 
 /**
- * Base class for HUD Widget.
+ * This class handlers player turns.
  */
-UCLASS(Abstract)
-class BOH_API UBOHHudWidget : public UCommonUserWidget
+UCLASS()
+class BOH_API ABOHGameState : public AGameState
 {
 	GENERATED_BODY()
 };

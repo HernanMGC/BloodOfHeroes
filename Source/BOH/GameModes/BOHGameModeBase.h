@@ -24,9 +24,17 @@ public:
 	 * @return 
 	 */
 	FORCEINLINE float GetTurnTime() const { return TurnTime; }
+
+protected:
+	// Overriden to: Prevent two player to start from the same player start.
+	virtual AActor* ChoosePlayerStart_Implementation(AController* Player) override;
 	
 protected:
 	// Turn time in seconds
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BOH|Turn", meta = (Units = "s"))
 	float TurnTime = 3.f;
+
+	// List of occupied player starts as only one player per PlayerStart is allowed.
+	UPROPERTY(Transient)
+	TArray<APlayerStart*> OccupiedPlayerStarts;
 };

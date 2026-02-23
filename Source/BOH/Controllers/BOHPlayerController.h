@@ -6,10 +6,10 @@
 // UnrealEngine
 #include "CoreMinimal.h"
 #include "InputActionValue.h"
-#include "BOH/Component/Path/BOHPathPointActor.h"
 #include "GameFramework/PlayerController.h"
 
 // BOH
+#include "BOH/Component/Path/BOHPathPointActor.h"
 #include "BOHPlayerController.generated.h"
 
 //// ForwardDeclarations
@@ -76,12 +76,21 @@ public:
 	 */
 	ABOHPlayerController();
 
+	// Overriden to: add replicated variables.
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifeProps) const override;
+	
 	/**
 	 * Returns selected unit.
 	 * @return 
 	 */
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE ABOHUnit* GetSelectedUnit() const { return SelectedUnit; }
+
+	/**
+	 * Spawn units at given UnitStartPointsTransforms.
+	 * @param UnitStartPointsTransforms 
+	 */
+	void SpawnUnits(TArray<FTransform> UnitStartPointsTransforms);
 
 protected:
 	// Overriden to: TODO.
@@ -159,6 +168,10 @@ protected:
 	// Currently selected unit path point unit.
 	UPROPERTY(Transient)
 	TObjectPtr<ABOHPathActor> SelectedUnitPathActor = nullptr;
+
+	// List of player's unit
+	UPROPERTY(Replicated, Transient)
+	TArray<TObjectPtr<ABOHUnit>> PlayerUnits;
 
 	// Input is being pressed.
 	bool bIsPressing = false;

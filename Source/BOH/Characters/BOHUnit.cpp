@@ -116,7 +116,8 @@ void ABOHUnit::SetIsUnitSelected(bool bNewIsSelected)
 void ABOHUnit::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
+	UE_LOG(LogTemp, Warning, TEXT("[DHER][%s] ABOHUnit::BeginPlay %s created owned by %s."), *UEnum::GetValueAsString(GetLocalRole()), *GetName(), *GetNetOwner()->GetName());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

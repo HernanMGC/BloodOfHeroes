@@ -14,8 +14,10 @@
 #include "BOH/Component/Path/BOHPathLineActor.h"
 #include "BOH/Component/Path/BOHPathPointActor.h"
 #include "BOH/Component/Path/BOHUnitPathComponent.h"
+#include "BOH/GameModes/BOHGameModeBase.h"
 #include "BOH/Pawns/BOHPlayerPawn.h"
 #include "BOH/Utils/BOHUtils.h"
+#include "Net/UnrealNetwork.h"
 
 ////////////////////////////////////////////////////////////////////////////////////
 //
@@ -31,6 +33,47 @@ ABOHPlayerController::ABOHPlayerController()
 {
 	bShowMouseCursor = true;
 	DefaultMouseCursor = EMouseCursor::Default;
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////////
+
+void ABOHPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ABOHPlayerController, PlayerUnits);
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////////
+
+void ABOHPlayerController::SpawnUnits(TArray<FTransform> UnitStartPointsTransforms)
+{
+	if (!HasAuthority()) { return; }
+
+	UWorld* World = GetWorld();
+	ABOHGameModeBase* GameMode = World ? World->GetAuthGameMode<ABOHGameModeBase>() : nullptr;
+	if (!GameMode)
+	{
+		return;
+	}
+
+	for (int32 i = 0; i < UnitStartPointsTransforms.Num(); ++i)
+	{
+		FActorSpawnParameters SpawnParameter;
+		SpawnParameter.Instigator = this->GetPawn();
+		SpawnParameter.Owner = this;
+		SpawnParameter.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+		ABOHUnit* Unit = World->SpawnActor<ABOHUnit>(GameMode->GetDefaultUnitClass(), UnitStartPointsTransforms[i].GetLocation(), UnitStartPointsTransforms[i].GetRotation().Rotator(), SpawnParameter);
+		if (Unit)
+		{
+			PlayerUnits.AddUnique(Unit);
+		}
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

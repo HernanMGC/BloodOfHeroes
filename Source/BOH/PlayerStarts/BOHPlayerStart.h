@@ -19,11 +19,6 @@ class BOH_API ABOHPlayerStart : public APlayerStart
 	GENERATED_BODY()
 
 public:
-	// Unit spawn points.
-	UPROPERTY(EditInstanceOnly, EditFixedSize, meta = (MakeEditWidget))
-	TArray<FVector> UnitSpawnPoints;
-
-public:
 	/**
 	 * Sets default values for this actor's properties
 	 */
@@ -32,7 +27,36 @@ public:
 	// Overriden to: initialize UnitSpawnPoints length and their default positions.
 	virtual void PostLoad() override;
 
+	/**
+	 * Returns UnitSpawnPoints relative to the player start.
+	 * @return 
+	 */
+	FORCEINLINE TArray<FVector> GetUnitSpawnPointsRelativeLocations() const { return UnitSpawnPoints; }
+
+	/**
+	 * Returns UnitSpawnPoints transform in world coordinates.
+	 * @return 
+	 */
+	FORCEINLINE TArray<FTransform> GetUnitSpawnPointsTransformWorld() const;
+
 protected:
+	/**
+	 * Function that creates a instance button for resetting unit spawn points.
+	 */
+	UFUNCTION(CallInEditor)
+	void ResetUnitSpawnPoints();
+
+	/**
+	 * Create UnitPerPlayerStart points and initializes as equidistant points along a line on the Y-axis centered at
+	 * actor's location.
+	 */
+	void InitializeUnitSpawnPoints();
+	
+protected:
+	// Unit spawn points.
+	UPROPERTY(EditInstanceOnly, EditFixedSize, meta = (MakeEditWidget))
+	TArray<FVector> UnitSpawnPoints;
+
 	// TODO: Maybe this needs to be something saved in Project Settings or GameMode
 	UPROPERTY(EditInstanceOnly, meta = (Units = "cm", ClampMin = 0.f))
 	float StartingLineMaxDistance = 1000.f;

@@ -6,6 +6,8 @@
 
 // UnrealEngine
 #include "EngineUtils.h"
+#include "BOH/Controllers/BOHPlayerController.h"
+#include "BOH/PlayerStarts/BOHPlayerStart.h"
 #include "Engine/PlayerStartPIE.h"
 #include "GameFramework/PlayerStart.h"
 
@@ -48,3 +50,30 @@ AActor* ABOHGameModeBase::ChoosePlayerStart_Implementation(AController* Player)
 	OccupiedPlayerStarts.AddUnique(FoundPlayerStart);
 	return FoundPlayerStart;
 }
+
+////////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////////
+
+void ABOHGameModeBase::RestartPlayerAtPlayerStart(AController* NewPlayer, AActor* StartSpot)
+{
+	Super::RestartPlayerAtPlayerStart(NewPlayer, StartSpot);
+
+	ABOHPlayerController* PlayerController = Cast<ABOHPlayerController>(NewPlayer);
+	if (!PlayerController)
+	{
+		return;
+	}
+
+	ABOHPlayerStart* PlayerStart = Cast<ABOHPlayerStart>(StartSpot);
+	if (!PlayerStart)
+	{
+		return;
+	}
+
+	PlayerController->SpawnUnits(PlayerStart->GetUnitSpawnPointsTransformWorld());
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////////

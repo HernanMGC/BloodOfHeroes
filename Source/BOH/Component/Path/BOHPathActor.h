@@ -93,6 +93,9 @@ public:
 	void SetMeshSize(const FVector& InScale3D) const;
 
 protected:
+	// Overriden to: check unit creation.
+	virtual void BeginPlay() override;
+	
 	/**
 	 * Event for BP on is selected changed
 	 */

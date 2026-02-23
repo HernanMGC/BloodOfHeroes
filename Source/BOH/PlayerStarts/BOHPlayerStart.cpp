@@ -22,6 +22,45 @@ void ABOHPlayerStart::PostLoad()
 {
 	Super::PostLoad();
 
+	InitializeUnitSpawnPoints();
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////////
+
+TArray<FTransform> ABOHPlayerStart::GetUnitSpawnPointsTransformWorld() const
+{
+	TArray<FVector> RelativeSpawnPoints = GetUnitSpawnPointsRelativeLocations();
+	TArray<FTransform> WorldSpawnPoints;
+	
+	for (const FVector& RelativeSpawnPoint : RelativeSpawnPoints)
+	{
+		WorldSpawnPoints.Add(FTransform(
+			GetActorRotation(),
+			RelativeSpawnPoint + GetActorLocation()));
+	}
+
+	return WorldSpawnPoints;
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////////
+
+void ABOHPlayerStart::ResetUnitSpawnPoints()
+{
+	UnitSpawnPoints.Empty();
+
+	InitializeUnitSpawnPoints();
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////////
+
+void ABOHPlayerStart::InitializeUnitSpawnPoints()
+{
 	if (UnitSpawnPoints.IsEmpty() && UnitPerPlayerStart > 0)
 	{
 		if (UnitPerPlayerStart == 1)

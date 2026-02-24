@@ -45,6 +45,11 @@ void UBOHGameplayTagCollection::AddAllTags()
 	AddTag(Tag_Character_Status, "Character.Status", "Character status.");
 	AddTag(Tag_Character_Status_Down, "Character.Status.Down", "Character status when attacked and put down.");
 	AddTag(Tag_Character_Status_Pinned, "Character.Status.Pinned", "Character status when attacked and pinned by other character.");
+
+	// SetByCaller attributes
+	AddTag(Tag_SetByCaller_UnitAttributeSet_Speed, "SetByCaller.UnitAttributeSet.Speed", "Set by caller tags for Speed on Unit Attribute Set.");
+	AddTag(Tag_SetByCaller_UnitAttributeSet_ReachRadius, "SetByCaller.UnitAttributeSet.ReachRadius", "Set by caller tags for ReachRadius on Unit Attribute Set.");
+	AddTag(Tag_SetByCaller_UnitAttributeSet_EvasionRadius, "SetByCaller.UnitAttributeSet.EvasionRadius", "Set by caller tags for EvasionRadius on Unit Attribute Set.");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

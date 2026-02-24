@@ -23,6 +23,11 @@ public:
 	FGameplayTag Tag_Character_Status;
 	FGameplayTag Tag_Character_Status_Down;
 	FGameplayTag Tag_Character_Status_Pinned;
+
+	// SetByCaller attributes
+	FGameplayTag Tag_SetByCaller_UnitAttributeSet_Speed;
+	FGameplayTag Tag_SetByCaller_UnitAttributeSet_ReachRadius;
+	FGameplayTag Tag_SetByCaller_UnitAttributeSet_EvasionRadius;
 	
 public:
 	static const UBOHGameplayTagCollection& Get() { return *StaticClass()->GetDefaultObject<UBOHGameplayTagCollection>(); }

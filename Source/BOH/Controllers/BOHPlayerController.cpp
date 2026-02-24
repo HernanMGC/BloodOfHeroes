@@ -68,10 +68,20 @@ void ABOHPlayerController::SpawnUnits(TArray<FTransform> UnitStartPointsTransfor
 		SpawnParameter.Owner = this;
 		SpawnParameter.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-		ABOHUnit* Unit = World->SpawnActor<ABOHUnit>(GameMode->GetDefaultUnitClass(), UnitStartPointsTransforms[i].GetLocation(), UnitStartPointsTransforms[i].GetRotation().Rotator(), SpawnParameter);
+		ABOHUnit* Unit = World->SpawnActorDeferred<ABOHUnit>(GameMode->GetDefaultUnitClass(), UnitStartPointsTransforms[i], this, this->GetPawn(), ESpawnActorCollisionHandlingMethod::AlwaysSpawn, ESpawnActorScaleMethod::MultiplyWithRoot);
 		if (Unit)
 		{
 			PlayerUnits.AddUnique(Unit);
+			FBOHUnitInfo UnitInfo = FBOHUnitInfo(
+				static_cast<int32>(Unit->GetUniqueID()),
+				static_cast<int32>(GetUniqueID()),
+				EBOHUnitType::Enforcer,
+				FMath::FRandRange(1.f, 3.f),
+				FMath::FRandRange(20.f, 100.f),
+				FMath::FRandRange(20.f, 100.f)
+				);
+			Unit->SetUnitInfo(UnitInfo);
+			Unit->FinishSpawning(UnitStartPointsTransforms[i]);
 		}
 	}
 }

@@ -78,10 +78,11 @@ public:
 	 * @param InUnitID 
 	 * @param InTeamID 
 	 * @param InUnitType
+	 * @param InSpeed
 	 * @param InEvasionRadius
 	 * @param InReachRadius 
 	 */
-	FBOHUnitInfo(int32 InUnitID, int32 InTeamID, EBOHUnitType InUnitType, float InEvasionRadius, float InReachRadius);
+	FBOHUnitInfo(int32 InUnitID, int32 InTeamID, EBOHUnitType InUnitType, float InSpeed, float InEvasionRadius, float InReachRadius);
 
 	/**
 	 * Equal operator for UnitInfo.
@@ -126,6 +127,12 @@ public:
 	 * @return 
 	 */
 	FORCEINLINE const FBOHUnitInfo& GetUnitInfo() const { return UnitInfo; }
+
+	/**
+	 * Sets Unit info.
+	 * @param InUnitInfo 
+	 */
+	FORCEINLINE void SetUnitInfo(const FBOHUnitInfo& InUnitInfo) { UnitInfo = InUnitInfo; }
 
 	/**
 	 * Returns is selected current state.
@@ -239,6 +246,10 @@ protected:
 	// Initial abilities.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BOH|GAS")
 	TArray<TSubclassOf<UBOHGameplayAbility>> DefaultAbilities;
+
+	// Unit initialization gameplay effect.
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BOH|GAS")
+	TSubclassOf<UGameplayEffect> UnitInitializationEffect;
 
 	// Initial gameplay effects.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BOH|GAS")

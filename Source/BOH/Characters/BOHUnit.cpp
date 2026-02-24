@@ -29,9 +29,9 @@ FBOHUnitInfo::FBOHUnitInfo(): UnitID(-1), TeamID(-1), UnitType(EBOHUnitType::Non
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
-FBOHUnitInfo::FBOHUnitInfo(int32 InUnitID, int32 InTeamID, EBOHUnitType InUnitType, float InEvasionRadius,
+FBOHUnitInfo::FBOHUnitInfo(int32 InUnitID, int32 InTeamID, EBOHUnitType InUnitType, float InSpeedRadius, float InEvasionRadius,
                            float InReachRadius) : UnitID(InUnitID),
-                                                     TeamID(InTeamID), UnitType(InUnitType),
+                                                     TeamID(InTeamID), UnitType(InUnitType), Speed(InSpeedRadius),
                                                      EvasionRadius(InEvasionRadius), ReachRadius(InReachRadius)
 {
 }
@@ -256,14 +256,22 @@ void ABOHUnit::InitializeEffects()
 	FGameplayEffectContextHandle EffectContext = GetAbilitySystemComponent()->MakeEffectContext();
 	EffectContext.AddSourceObject(this);
 
-	for (const TSubclassOf<UGameplayEffect>& Effect : DefaultGameplayEffects)
+	FGameplayEffectSpecHandle EffectSpecHandle = ASC->MakeOutgoingSpec(UnitInitializationEffect, 1, EffectContext);
+	if (EffectSpecHandle.IsValid())
 	{
-		FGameplayEffectSpecHandle EffectSpecHandle = ASC->MakeOutgoingSpec(Effect, 1, EffectContext);
-		if (EffectSpecHandle.IsValid())
-		{
-			FActiveGameplayEffectHandle GEHandle = ASC->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());
-		}
+		EffectSpecHandle.Data->SetSetByCallerMagnitude(UBOHGameplayTagCollection::Get().Tag_SetByCaller_UnitAttributeSet_Speed, UnitInfo.Speed);
+		EffectSpecHandle.Data->SetSetByCallerMagnitude(UBOHGameplayTagCollection::Get().Tag_SetByCaller_UnitAttributeSet_ReachRadius, UnitInfo.ReachRadius);
+		EffectSpecHandle.Data->SetSetByCallerMagnitude(UBOHGameplayTagCollection::Get().Tag_SetByCaller_UnitAttributeSet_EvasionRadius, UnitInfo.EvasionRadius);
+		FActiveGameplayEffectHandle GEHandle = ASC->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());
 	}
+	// for (const TSubclassOf<UGameplayEffect>& Effect : DefaultGameplayEffects)
+	// {
+	// 	FGameplayEffectSpecHandle EffectSpecHandle = ASC->MakeOutgoingSpec(Effect, 1, EffectContext);
+	// 	if (EffectSpecHandle.IsValid())
+	// 	{
+	// 		FActiveGameplayEffectHandle GEHandle = ASC->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());
+	// 	}
+	// }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

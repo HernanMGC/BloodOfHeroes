@@ -87,7 +87,7 @@ public:
 	FORCEINLINE ABOHUnit* GetSelectedUnit() const { return SelectedUnit; }
 
 	/**
-	 * Spawn units at given UnitStartPointsTransforms.
+	 * Spawn units at given UnitStartPointsTransforms.This is expected to be called only on server.
 	 * @param UnitStartPointsTransforms 
 	 */
 	void SpawnUnits(TArray<FTransform> UnitStartPointsTransforms);
@@ -159,7 +159,7 @@ private:
 protected:
 	// Last hit actor.
 	UPROPERTY(Transient)
-	TObjectPtr<AActor> LastHiActor = nullptr;
+	TObjectPtr<AActor> LastHitActor = nullptr;
 	
 	// Currently selected unit.
 	UPROPERTY(Transient)

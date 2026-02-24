@@ -71,6 +71,7 @@ void ABOHPlayerController::SpawnUnits(TArray<FTransform> UnitStartPointsTransfor
 		ABOHUnit* Unit = World->SpawnActorDeferred<ABOHUnit>(GameMode->GetDefaultUnitClass(), UnitStartPointsTransforms[i], this, this->GetPawn(), ESpawnActorCollisionHandlingMethod::AlwaysSpawn, ESpawnActorScaleMethod::MultiplyWithRoot);
 		if (Unit)
 		{
+		    // TODO: Change this for a data source. A data asset maybe? 
 			PlayerUnits.AddUnique(Unit);
 			FBOHUnitInfo UnitInfo = FBOHUnitInfo(
 				static_cast<int32>(Unit->GetUniqueID()),
@@ -195,7 +196,7 @@ void ABOHPlayerController::OnSelectActorTriggered()
 		return;
 	}
 
-	if (bIsInDoubleClickThreshold && LastHiActor == Hit.GetActor())
+	if (bIsInDoubleClickThreshold && LastHitActor == Hit.GetActor())
 	{
 		HandleDoubleClick(Hit);
 		bIsInDoubleClickThreshold = false;
@@ -208,7 +209,7 @@ void ABOHPlayerController::OnSelectActorTriggered()
 		World->GetTimerManager().SetTimer(DoubleClickTimerHandle, this, &ThisClass::OnDoubleClickTimerFinished, DoubleClickTimeThreshold);
 	}
 
-	LastHiActor = Hit.GetActor();
+	LastHitActor = Hit.GetActor();
 	bIsPressing = true;
 }
 
@@ -353,7 +354,7 @@ void ABOHPlayerController::HandleSingleClick(const FHitResult& Hit)
 	if (HitUnit)
 	{
 		SetSelectedUnit(HitUnit);
-		UE_LOG(LogPlayerController, Display, TEXT("Unit clicked and selected: %s"), *SelectedUnit->GetUnitInfo().ToString());
+		BOH_LOG(LogPlayerController, Display, "Unit clicked and selected: %s", *SelectedUnit->GetUnitInfo().ToString());
 		return;
 	}
 
@@ -367,6 +368,8 @@ void ABOHPlayerController::HandleSingleClick(const FHitResult& Hit)
 		return;
 	}
 
+	// No actor nor path actor clicked, and there is a valid SelectedUnit -> New point can be added to path.
+	// TODO: Check valid course point?
 	UBOHUnitPathComponent* PathComp = SelectedUnit ? SelectedUnit->GetComponentByClass<UBOHUnitPathComponent>() : nullptr;
 	if (PathComp)
 	{

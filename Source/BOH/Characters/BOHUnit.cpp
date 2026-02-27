@@ -7,6 +7,7 @@
 // UnrealEngine
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Net/UnrealNetwork.h"
 
 // BOH
 #include "BOH/AI/BOHAIController.h"
@@ -15,6 +16,12 @@
 #include "BOH/GAS/Components/BOHAbilitySystemComponent.h"
 #include "BOH/Tags/BOHGameplayTagCollection.h"
 #include "BOH/Utils/BOHUtils.h"
+
+////////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////////
+
+DEFINE_LOG_CATEGORY(LogBOHUnit);
 
 ////////////////////////////////////////////////////////////////////////////////////
 // FBOHUnitInfo
@@ -82,6 +89,8 @@ FString FBOHUnitInfo::ToString() const
 
 ABOHUnit::ABOHUnit()
 {
+	bReplicates = true;
+	
 	PrimaryActorTick.bCanEverTick = false;
 	PrimaryActorTick.bAllowTickOnDedicatedServer = false;
 	PrimaryActorTick.bStartWithTickEnabled = false;
@@ -103,6 +112,17 @@ ABOHUnit::ABOHUnit()
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
+void ABOHUnit::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ABOHUnit, UnitInfo);
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////////
+
 void ABOHUnit::SetIsUnitSelected(bool bNewIsSelected)
 {
 	bIsUnitSelected = bNewIsSelected;
@@ -117,7 +137,7 @@ void ABOHUnit::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	UE_LOG(LogTemp, Warning, TEXT("[DHER][%s] ABOHUnit::BeginPlay %s created owned by %s."), *UEnum::GetValueAsString(GetLocalRole()), *GetName(), *GetNetOwner()->GetName());
+	BOH_LOG(LogBOHUnit, Warning, "[DHER][%s] ABOHUnit::BeginPlay %s created owned by %s.", *UEnum::GetValueAsString(GetLocalRole()), *GetName(), *GetNetOwner()->GetName());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -297,7 +317,7 @@ void ABOHUnit::OnReachBeginOverlap(UPrimitiveComponent* OverlappedComponent, AAc
 		return;
 	}
 
-	FUnitOrder StopOrder;
+	FBOHUnitOrder StopOrder;
 	StopOrder.OrderState = EUnitOrderState::Queued;
 	StopOrder.OrderType = EUnitOrderType::Stop;
 	StopOrder.TargetActor = nullptr;

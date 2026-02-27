@@ -14,7 +14,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
-void ABOHAIController::SendUnitOrder(FUnitOrder NewUnitOrder)
+void ABOHAIController::SendUnitOrder(FBOHUnitOrder NewUnitOrder)
 {
 	NewUnitOrder.OrderState = EUnitOrderState::Queued;
 	if (!NewUnitOrder.IsValid())
@@ -28,7 +28,7 @@ void ABOHAIController::SendUnitOrder(FUnitOrder NewUnitOrder)
 		return;
 	}
 	
-	FUnitOrder& CurrentUnitOrder = UnitOrders[0];
+	FBOHUnitOrder& CurrentUnitOrder = UnitOrders[0];
 
 	switch (NewUnitOrder.OrderSortingPolicy)
 	{
@@ -64,7 +64,7 @@ void ABOHAIController::SendUnitOrder(FUnitOrder NewUnitOrder)
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
-bool ABOHAIController::GetNextOrder(FUnitOrder& NextOrder) const
+bool ABOHAIController::GetNextOrder(FBOHUnitOrder& NextOrder) const
 {
 	if (UnitOrders.Num() > 0)
 	{

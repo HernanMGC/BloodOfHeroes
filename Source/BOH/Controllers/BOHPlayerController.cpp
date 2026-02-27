@@ -7,23 +7,26 @@
 // UnrealEngine
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Net/UnrealNetwork.h"
 #include "NiagaraFunctionLibrary.h"
 
 // BOH
+#include "BOH/AI/BOHAIController.h"
 #include "BOH/Characters/BOHUnit.h"
 #include "BOH/Component/Path/BOHPathLineActor.h"
 #include "BOH/Component/Path/BOHPathPointActor.h"
 #include "BOH/Component/Path/BOHUnitPathComponent.h"
 #include "BOH/GameModes/BOHGameModeBase.h"
+#include "BOH/Messages/BOHGameplayMessage.h"
 #include "BOH/Pawns/BOHPlayerPawn.h"
+#include "BOH/Tags/BOHGameplayTagCollection.h"
 #include "BOH/Utils/BOHUtils.h"
-#include "Net/UnrealNetwork.h"
 
 ////////////////////////////////////////////////////////////////////////////////////
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
-DEFINE_LOG_CATEGORY(LogBOPlayerController);
+DEFINE_LOG_CATEGORY(LogBOHPlayerController);
 
 ////////////////////////////////////////////////////////////////////////////////////
 //
@@ -94,6 +97,12 @@ void ABOHPlayerController::SpawnUnits(TArray<FTransform> UnitStartPointsTransfor
 void ABOHPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
+
+	UGameplayMessageSubsystem& GameplayMessageSubsystem = UGameplayMessageSubsystem::Get(this);
+	OnUnitCommandMessageListenerHandle = GameplayMessageSubsystem.RegisterListener<
+		FBOHSenderAuthorizedMessage>(UBOHGameplayTagCollection::Get().Tag_MessageChannel_UnitMoveCommand, this,
+		                            &ThisClass::OnUnitMoveCommandReceived);
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -105,6 +114,12 @@ void ABOHPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	if (DoubleClickTimerHandle.IsValid())
 	{
 		DoubleClickTimerHandle.Invalidate();
+	}
+
+	UGameplayMessageSubsystem& GameplayMessageSubsystem = UGameplayMessageSubsystem::Get(this);
+	if (OnUnitCommandMessageListenerHandle.IsValid())
+	{
+		GameplayMessageSubsystem.UnregisterListener(OnUnitCommandMessageListenerHandle);
 	}
 	
 	Super::EndPlay(EndPlayReason);
@@ -158,10 +173,9 @@ void ABOHPlayerController::SetupInputComponent()
 	}
 	else
 	{
-		UE_LOG(LogBOPlayerController, Error,
-		       TEXT(
-			       "'%s' Failed to find an Enhanced Input Component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."
-		       ), *GetNameSafe(this));
+		BOH_LOG(LogBOHPlayerController, Error,
+			"'%s' Failed to find an Enhanced Input Component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."
+		    , *GetNameSafe(this));
 	}
 }
 
@@ -171,7 +185,7 @@ void ABOHPlayerController::SetupInputComponent()
 
 void ABOHPlayerController::OnSelectActorInputStarted()
 {
-	UE_LOG(LogBOPlayerController, Display, TEXT("ABOHPlayerController::OnInputStarted"));
+	BOH_LOG(LogBOHPlayerController, Display, "OnInputStarted");
 	DraggingTime = 0.f;
 }
 
@@ -306,6 +320,59 @@ void ABOHPlayerController::OnZoomInputTriggered(const FInputActionValue& Value)
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
+void ABOHPlayerController::Sever_SendUnitMoveCommand_Implementation(const TArray<FBOHUnitPath>& UnitsPath)
+{
+	for (FBOHUnitPath UnitPath : UnitsPath)
+	{
+		BOH_LOG(LogBOHPlayerController, Display, "%s", *UnitPath.ToString());
+
+		if (!PlayerUnits.Contains(UnitPath.UnitPtr)) { continue; }
+
+		if (UBOHUnitPathComponent* UnitPathComponent = UnitPath.UnitPtr->GetComponentByClass<UBOHUnitPathComponent>())
+		{
+			UnitPathComponent->SetUnitPath(UnitPath.UnitMoves);
+		}
+
+		if (ABOHAIController* UnitAIController = Cast<ABOHAIController>(UnitPath.UnitPtr->GetController()))
+		{
+			UnitAIController->SendUnitOrder(FBOHUnitOrder(EUnitOrderType::MoveAlongPath, EUnitOrderSortingPolicy::AddToQueue, true, nullptr));
+		}
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////////
+
+void ABOHPlayerController::OnUnitMoveCommandReceived(FGameplayTag GameplayTag,
+	const FBOHSenderAuthorizedMessage& UnitMoveCommandMessage)
+{
+	if (UnitMoveCommandMessage.Sender != this)
+	{
+		return;
+	}
+	
+	TArray<FBOHUnitPath> UnitMoveCommands;
+	for (TObjectPtr<ABOHUnit> Unit : PlayerUnits)
+	{
+		UBOHUnitPathComponent* PathComponent = Unit ? Unit->GetComponentByClass<UBOHUnitPathComponent>() : nullptr;
+		if (!PathComponent) { continue; }
+		
+		FBOHUnitPath UnitMoveCommand;
+
+		UnitMoveCommand.UnitPtr = Unit;
+		UnitMoveCommand.UnitMoves = PathComponent->GetUnitPath();
+
+		UnitMoveCommands.Add(UnitMoveCommand);
+	}
+
+	Sever_SendUnitMoveCommand(UnitMoveCommands);
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////////
+
 void ABOHPlayerController::SetSelectedUnit(ABOHUnit* Unit)
 {
 	if (SelectedUnit && SelectedUnit != Unit)
@@ -350,11 +417,10 @@ void ABOHPlayerController::HandleSingleClick(const FHitResult& Hit)
 												   FRotator::ZeroRotator, FVector(1.f, 1.f, 1.f), true, true,
 												   ENCPoolMethod::None, true);
 
-	ABOHUnit* HitUnit = Cast<ABOHUnit>(Hit.GetActor());
-	if (HitUnit)
+	if (ABOHUnit* HitUnit = Cast<ABOHUnit>(Hit.GetActor()))
 	{
 		SetSelectedUnit(HitUnit);
-		BOH_LOG(LogPlayerController, Display, "Unit clicked and selected: %s", *SelectedUnit->GetUnitInfo().ToString());
+		BOH_LOG(LogBOHPlayerController, Display, "Unit clicked and selected: %s", *SelectedUnit->GetUnitInfo().ToString());
 		return;
 	}
 
@@ -370,8 +436,7 @@ void ABOHPlayerController::HandleSingleClick(const FHitResult& Hit)
 
 	// No actor nor path actor clicked, and there is a valid SelectedUnit -> New point can be added to path.
 	// TODO: Check valid course point?
-	UBOHUnitPathComponent* PathComp = SelectedUnit ? SelectedUnit->GetComponentByClass<UBOHUnitPathComponent>() : nullptr;
-	if (PathComp)
+	if (UBOHUnitPathComponent* PathComp = SelectedUnit ? SelectedUnit->GetComponentByClass<UBOHUnitPathComponent>() : nullptr)
 	{
 		PathComp->AppendPointToPath(Hit.Location);
 		SetSelectedPathActor(nullptr);

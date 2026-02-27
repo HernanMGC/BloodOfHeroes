@@ -28,7 +28,7 @@ EBTNodeResult::Type UBOHBTTask_WaitUntilNewOrder::ExecuteTask(UBehaviorTreeCompo
 {
 	UBlackboardComponent* BlackboardComponent = OwnerComp.GetBlackboardComponent();
 	const ABOHAIController* UnitAIController = BlackboardComponent ? Cast<ABOHAIController>(OwnerComp.GetAIOwner()) : nullptr;
-	FUnitOrder NewOrder;
+	FBOHUnitOrder NewOrder;
 	bool bValidNextOrder = UnitAIController->GetNextOrder(NewOrder);
 	if (!bValidNextOrder)
 	{

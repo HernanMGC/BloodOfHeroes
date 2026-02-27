@@ -11,7 +11,6 @@
 #include "BOHPathLineActor.h"
 #include "BOHPathPointActor.h"
 #include "BOH/Characters/BOHUnit.h"
-#include "BOH/GameModes/BOHGameModeBase.h"
 #include "BOH/Utils/BOHUnitLibFuncs.h"
 #include "BOH/Utils/BOHUtils.h"
 
@@ -21,6 +20,7 @@
 
 UBOHUnitPathComponent::UBOHUnitPathComponent()
 {
+	SetIsReplicatedByDefault(true);
 	PrimaryComponentTick.bCanEverTick = true;
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -82,6 +82,17 @@ void UBOHUnitPathComponent::ModifyPointFromPath(const int32& PointToModifyPositi
 	FVector InNewPoint = NewPoint;
 	InNewPoint.Z = FootPoint.Z;
 	UnitPath[PointToModifyPosition] = InNewPoint;
+	UpdatePathActors();
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////////
+
+void UBOHUnitPathComponent::Client_SetUnitPath_Implementation(const TArray<FVector>& InUnitPath)
+{
+	UnitPath = InUnitPath;
+	UpdateActorsPool();
 	UpdatePathActors();
 }
 
@@ -235,7 +246,7 @@ void UBOHUnitPathComponent::UpdateActorsPool()
 ////////////////////////////////////////////////////////////////////////////////
 //
 ////////////////////////////////////////////////////////////////////////////////
-///
+
 void UBOHUnitPathComponent::UpdatePathActors()
 {
 	SetPathActorsVisibility(false);
@@ -244,13 +255,14 @@ void UBOHUnitPathComponent::UpdatePathActors()
 	{
 		FVector PathPoint = UnitPath[i];
 
-		if (UnitPath.IsValidIndex(i))
+		if (UnitPath.IsValidIndex(i) && PathPointActors.IsValidIndex(i))
 		{
 			PathPointActors[i]->SetActorLocation(PathPoint);
 		}
 
-		if (UnitPath.IsValidIndex(i) && UnitPath.IsValidIndex(i+1))
+		if (UnitPath.IsValidIndex(i) && UnitPath.IsValidIndex(i+1) && PathLineActors.IsValidIndex(i))
 		{
+			// TODO: Change this to be update on client.
 			PathLineActors[i]->SetActorLocation(PathPoint);
 			FVector NextPathPoint = UnitPath[i+1];
 			FVector LineVector = NextPathPoint - PathPoint;

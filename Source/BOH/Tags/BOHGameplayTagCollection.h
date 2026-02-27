@@ -28,7 +28,10 @@ public:
 	FGameplayTag Tag_SetByCaller_UnitAttributeSet_Speed;
 	FGameplayTag Tag_SetByCaller_UnitAttributeSet_ReachRadius;
 	FGameplayTag Tag_SetByCaller_UnitAttributeSet_EvasionRadius;
-	
+
+	// Messages Channels
+	FGameplayTag Tag_MessageChannel_UnitMoveCommand;
+
 public:
 	static const UBOHGameplayTagCollection& Get() { return *StaticClass()->GetDefaultObject<UBOHGameplayTagCollection>(); }
 	

@@ -9,7 +9,10 @@
 #include "GameFramework/PlayerController.h"
 
 // BOH
+#include "GameplayTagContainer.h"
 #include "BOH/Component/Path/BOHPathPointActor.h"
+#include "BOH/Messages/BOHGameplayMessage.h"
+#include "GameFramework/GameplayMessageSubsystem.h"
 #include "BOHPlayerController.generated.h"
 
 //// ForwardDeclarations
@@ -21,7 +24,7 @@ class UNiagaraSystem;
 // BOH
 class ABOHUnit;
 
-DECLARE_LOG_CATEGORY_EXTERN(LogBOPlayerController, Log, All);
+DECLARE_LOG_CATEGORY_EXTERN(LogBOHPlayerController, Log, All);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnUnitSelected, ABOHPlayerController*, PlayerController, ABOHUnit*, SelectedUnit);
 
@@ -93,7 +96,7 @@ public:
 	void SpawnUnits(TArray<FTransform> UnitStartPointsTransforms);
 
 protected:
-	// Overriden to: TODO.
+	// Overriden to: bind messages.
 	virtual void BeginPlay() override;
 
 	// Overriden to: Unbind events and invalidate timers.
@@ -126,6 +129,22 @@ protected:
 	 */
 	void OnZoomInputTriggered(const FInputActionValue& Value);
 #pragma endregion // SelectActorAction
+
+	/**
+	 * ONLY SERVER. Calls for AI Controller movement.
+	 * @param UnitsPath
+	 */
+	UFUNCTION(Server, Reliable)
+	void Sever_SendUnitMoveCommand(const TArray<FBOHUnitPath>& UnitsPath);
+	
+#pragma region MessageRouter
+	/**
+	 * Gets a UnitMoveCommand message and sent a call for server.
+	 * @param GameplayTag 
+	 * @param UnitMoveCommandMessage 
+	 */
+	void OnUnitMoveCommandReceived(FGameplayTag GameplayTag, const FBOHSenderAuthorizedMessage& UnitMoveCommandMessage);
+#pragma endregion // MessageRouter
 
 private:
 	/**
@@ -184,5 +203,8 @@ protected:
 
 	// Double click timer handle.
 	FTimerHandle DoubleClickTimerHandle;
+
+	// Message listener handler for Unit Command Messages. 
+	FGameplayMessageListenerHandle OnUnitCommandMessageListenerHandle; 
 };
 

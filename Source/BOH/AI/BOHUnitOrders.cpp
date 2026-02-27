@@ -7,7 +7,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
-FUnitOrder::FUnitOrder() : OrderType(EUnitOrderType::None), OrderState(EUnitOrderState::None), bCanBeInterrupted(false),
+FBOHUnitOrder::FBOHUnitOrder() : OrderType(EUnitOrderType::None), OrderState(EUnitOrderState::None), bCanBeInterrupted(false),
                            TargetActor(nullptr)
 {
 }
@@ -16,7 +16,7 @@ FUnitOrder::FUnitOrder() : OrderType(EUnitOrderType::None), OrderState(EUnitOrde
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
-FUnitOrder::FUnitOrder(EUnitOrderType InOrderType, EUnitOrderSortingPolicy InUnitOrderSortingPolicy,
+FBOHUnitOrder::FBOHUnitOrder(EUnitOrderType InOrderType, EUnitOrderSortingPolicy InUnitOrderSortingPolicy,
                        bool bInCanBeInterrupted, AActor* InTargetActor) : OrderType(InOrderType),
                                                                            OrderState(EUnitOrderState::Queued),
                                                                            OrderSortingPolicy(InUnitOrderSortingPolicy),
@@ -29,7 +29,7 @@ FUnitOrder::FUnitOrder(EUnitOrderType InOrderType, EUnitOrderSortingPolicy InUni
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
-bool FUnitOrder::operator==(const FUnitOrder& Other) const
+bool FBOHUnitOrder::operator==(const FBOHUnitOrder& Other) const
 {
 	return OrderType == Other.OrderType
 		&& OrderSortingPolicy == Other.OrderSortingPolicy
@@ -42,7 +42,7 @@ bool FUnitOrder::operator==(const FUnitOrder& Other) const
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
-bool FUnitOrder::IsValid() const
+bool FBOHUnitOrder::IsValid() const
 {
 	return
 		OrderType != EUnitOrderType::None

@@ -2,6 +2,13 @@
 
 #pragma once
 
+//// Includes
+// UnrealEngine
+#include "CoreMinimal.h"
+
+// BOH
+#include "BOHUtils.generated.h"
+
 namespace BOHUnitConstants
 {
 	inline float CentimetersToMeters = 0.01f;
@@ -19,28 +26,42 @@ inline FString GetGWorldNetMode()
 	{
 		return "NO GWorld";
 	}
-	
+
+	int32 PIEID = static_cast<int32>(GPlayInEditorID);
 	switch (GWorld->GetNetMode())
 	{
 	case NM_Standalone:
-		return "NM_Standalone";
+		return FString::Printf(TEXT("NM_Standalone[%d]"), PIEID);
 		break;
 	case NM_DedicatedServer:
-		return "NM_DedicatedServer";
+		return FString::Printf(TEXT("NM_DedicatedServer[%d]"), PIEID);
 		break;
 	case NM_ListenServer:
-		return "NM_ListenServer";
+		return FString::Printf(TEXT("NM_ListenServer[%d]"), PIEID);
 		break;
 	case NM_Client:
-		return "NM_Client";
+		return FString::Printf(TEXT("NM_Client[%d]"), PIEID);
 		break;
 	case NM_MAX:
-		return "NM_MAX";
+		return FString::Printf(TEXT("NM_MAX[%d]"), PIEID);
 		break;
 	default: ;
 		return "NONE";
 	}
-}
+};
+
+/**
+ * Utility position structs for TMaps
+ */
+USTRUCT(BlueprintType)
+struct FBOHPositionList
+{
+	GENERATED_BODY()
+
+	// List of positions
+	UPROPERTY(BlueprintReadOnly)
+	TArray<FVector> Positions;
+};
 
 //Current Class Name + Function Name where this is called!
 #define TRACE_STR_CUR_CLASS_FUNC (FString(__FUNCTION__))

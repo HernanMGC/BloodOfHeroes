@@ -29,7 +29,10 @@ public class BOH : ModuleRules
 			// GAS
 			"GameplayAbilities",
 			"GameplayTasks",
-			"GameplayTags"
+			"GameplayTags",
+			
+			// GMS
+			"GameplayMessageRuntime"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[]

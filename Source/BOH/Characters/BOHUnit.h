@@ -22,6 +22,8 @@ class UBOHAbilitySystemComponent;
 class UBOHGameplayAbility;
 class UBOHUnitAttributeSet;
 
+DECLARE_LOG_CATEGORY_EXTERN(LogBOHUnit, Log, All);
+
 /**
  * Unit types.
  */
@@ -97,7 +99,7 @@ public:
 	bool IsValid() const;
 
 	/**
-	 * Return human friend Unity info to print.
+	 * Return human friend Unit info to print.
 	 * @return 
 	 */
 	FString ToString() const;
@@ -117,11 +119,14 @@ public:
 	// Unit selection state change delegate.
 	UPROPERTY(BlueprintReadOnly, BlueprintAssignable)
 	FOnUnitIsSelectedChanged OnUnitIsSelectedChanged;
-
+	
 public:
 	// Constructor. Removes tick.
 	ABOHUnit();
 
+	// Overriden to: add replicated variables.
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	
 	/**
 	 * Returns Unit info.
 	 * @return 
@@ -224,7 +229,7 @@ protected:
 
 protected:
 	// ToDo: This has to be generated, not a hardcoded option.
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "BOH|Unit")
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, Category = "BOH|Unit")
 	FBOHUnitInfo UnitInfo;
 
 	// Unit behavior tree.

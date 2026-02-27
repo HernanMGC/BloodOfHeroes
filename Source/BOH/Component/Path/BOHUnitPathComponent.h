@@ -113,6 +113,13 @@ public:
 	FORCEINLINE TArray<FVector> GetUnitPath() const { return UnitPath; };
 
 	/**
+	 * Set unit path's points given a InUnitPath list of pints.
+	 * @param InUnitPath
+	 */
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE void SetUnitPath(const TArray<FVector> InUnitPath) { UnitPath = InUnitPath; };
+	
+	/**
 	 * Finds path point at index if any. Returns true if Index is valid, and false otherwise. PathPoint returned by
 	 * reference.
 	 * @param Index
@@ -130,6 +137,13 @@ public:
 	FORCEINLINE void SetDebugVisible(bool bNewVisibility) { bShowDebug = bNewVisibility; };
 #endif // WITH_EDITOR
 
+	/**
+	 * Function called by the server to update UnitPath on client.
+	 * @param InUnitPath 
+	 */
+	UFUNCTION(Client, Reliable)
+	void Client_SetUnitPath(const TArray<FVector>& InUnitPath);
+	
 protected:
 	// Overriden to: Show debug on editor.
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType,

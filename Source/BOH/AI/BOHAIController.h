@@ -34,7 +34,7 @@ public:
 	 * @param NewUnitOrder 
 	 */
 	UFUNCTION(BlueprintCallable)
-	void SendUnitOrder(FUnitOrder NewUnitOrder);
+	void SendUnitOrder(FBOHUnitOrder NewUnitOrder);
 
 	/**
 	 * Returns true if there is a next order, and return the oder through NextOrder reference. NextOrder is  the first
@@ -42,7 +42,7 @@ public:
 	 * @param NextOrder Output value for NextOrder.
 	 * @return 
 	 */
-	bool GetNextOrder(OUT FUnitOrder& NextOrder) const;
+	bool GetNextOrder(OUT FBOHUnitOrder& NextOrder) const;
 
 	/**
 	 * Update next order state.
@@ -66,5 +66,5 @@ protected:
 
 	// List of unit orders. It's a FIFO list.
 	UPROPERTY(Transient)
-	TArray<FUnitOrder> UnitOrders;
+	TArray<FBOHUnitOrder> UnitOrders;
 };

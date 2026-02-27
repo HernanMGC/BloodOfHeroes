@@ -50,6 +50,9 @@ void UBOHGameplayTagCollection::AddAllTags()
 	AddTag(Tag_SetByCaller_UnitAttributeSet_Speed, "SetByCaller.UnitAttributeSet.Speed", "Set by caller tags for Speed on Unit Attribute Set.");
 	AddTag(Tag_SetByCaller_UnitAttributeSet_ReachRadius, "SetByCaller.UnitAttributeSet.ReachRadius", "Set by caller tags for ReachRadius on Unit Attribute Set.");
 	AddTag(Tag_SetByCaller_UnitAttributeSet_EvasionRadius, "SetByCaller.UnitAttributeSet.EvasionRadius", "Set by caller tags for EvasionRadius on Unit Attribute Set.");
+
+	// Messages Channels
+	AddTag(Tag_MessageChannel_UnitMoveCommand, "MessageChannel.UnitMoveCommand", "Message channel for Unit Move Commands.");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

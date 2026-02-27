@@ -11,6 +11,9 @@
 #include "BOHGameModeBase.generated.h"
 
 class ABOHUnit;
+
+DECLARE_LOG_CATEGORY_EXTERN(LogBOHGameMode, Log, All);
+
 /**
  * Base game mode for Blood of Heroes.
  */

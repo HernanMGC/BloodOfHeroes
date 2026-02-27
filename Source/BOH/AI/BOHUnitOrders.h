@@ -54,7 +54,7 @@ enum class EUnitOrderSortingPolicy : uint8
  * Unit order.
  */
 USTRUCT(BlueprintType)
-struct FUnitOrder
+struct FBOHUnitOrder
 {
 	GENERATED_BODY()
 
@@ -81,9 +81,9 @@ public:
 
 public:
 	/**
-	 * Default constructor. It constructs an invalid FUnitOrder.
+	 * Default constructor. It constructs an invalid FBOHUnitOrder.
 	 */
-	FUnitOrder();
+	FBOHUnitOrder();
 
 	/**
 	 * Explicit constructor.
@@ -92,10 +92,10 @@ public:
 	 * @param bInCanBeInterrupted
 	 * @param InTargetActor 
 	 */
-	FUnitOrder(EUnitOrderType InOrderType, EUnitOrderSortingPolicy InUnitOrderSortingPolicy,
+	FBOHUnitOrder(EUnitOrderType InOrderType, EUnitOrderSortingPolicy InUnitOrderSortingPolicy,
 	           bool bInCanBeInterrupted, AActor* InTargetActor);
 
-	bool operator==(const FUnitOrder& Other) const;
+	bool operator==(const FBOHUnitOrder& Other) const;
 
 	/**
 	 * Is unit order valid.

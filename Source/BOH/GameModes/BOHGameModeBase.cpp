@@ -6,12 +6,24 @@
 
 // UnrealEngine
 #include "EngineUtils.h"
-#include "BOH/Controllers/BOHPlayerController.h"
-#include "BOH/PlayerStarts/BOHPlayerStart.h"
 #include "Engine/PlayerStartPIE.h"
 #include "GameFramework/PlayerStart.h"
 
 // BOH
+#include "BOH/Controllers/BOHPlayerController.h"
+#include "BOH/PlayerStarts/BOHPlayerStart.h"
+#include "BOH/Utils/BOHUtils.h"
+
+////////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////////
+
+DEFINE_LOG_CATEGORY(LogBOHGameMode);
+
+////////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////////
+
 AActor* ABOHGameModeBase::ChoosePlayerStart_Implementation(AController* Player)
 {
 	// DO NOT USE SUPER IMPLEMENTATION. WE WANT TO AVOID UNNECESSARY CODE AND WE WANT TO TOTALLY OVERRIDE THE BEHAVIOUR 
@@ -24,7 +36,7 @@ AActor* ABOHGameModeBase::ChoosePlayerStart_Implementation(AController* Player)
 		APlayerStart* PlayerStart = *It;
 		if (!PlayerStart) { continue; }
 		
-		UE_LOG(LogTemp, Warning, TEXT("[DHER] PlayerStart: %s"), *PlayerStart->GetName());
+		BOH_LOG(LogBOHGameMode, Verbose, "[DHER] PlayerStart: %s", *PlayerStart->GetName());
 		if (OccupiedPlayerStarts.Contains(PlayerStart))
 		{
 			continue;

@@ -54,7 +54,7 @@ EBTNodeResult::Type UBOHBTTask_UpdatePathForNextTurn::ExecuteTask(UBehaviorTreeC
 	}
 
 	PathComponent->AddPointToPath(Unit->GetActorLocation(), 0);
-	PathComponent->UpdatePathActors();
+	PathComponent->Client_SetUnitPath(PathComponent->GetUnitPath());
 
 	BlackboardComponent->SetValueAsBool(GetTargetLocationReachedBlackboardKey(), false);
 	BlackboardComponent->SetValueAsInt(GetTargetPositionIndexBlackboardKey(), 0);

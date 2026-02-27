@@ -17,6 +17,57 @@ class UStaticMeshComponent;
 // BOH
 class ABOHUnit;
 
+DECLARE_LOG_CATEGORY_EXTERN(LogBOHPathActor, Log, All);
+
+/**
+ * Unit move commands.
+ */
+USTRUCT(BlueprintType)
+struct FBOHUnitPath
+{
+	GENERATED_BODY()
+
+public:
+	// Unit ID.
+	UPROPERTY(BlueprintReadOnly)
+	TObjectPtr<ABOHUnit> UnitPtr = nullptr;
+
+	// Ordered list of unit intended moves.
+	UPROPERTY(BlueprintReadOnly)
+	TArray<FVector> UnitMoves;
+
+public:
+	/**
+	 * Default constructor. It constructs an invalid FBOHUnitPath
+	 */
+	FBOHUnitPath();
+
+	/**
+	 * Explicit constructor.
+	 * @param InUnitPtr 
+	 * @param InUnitMoves 
+	 */
+	FBOHUnitPath(ABOHUnit* InUnitPtr, TArray<FVector> InUnitMoves);
+
+	/**
+	 * Equal operator for UnitPath.
+	 * @return 
+	 */
+	bool operator==(const FBOHUnitPath& Other) const;
+	
+	/**
+	 * Checks if Unit path has valid info.
+	 * @return 
+	 */
+	bool IsValid() const;
+
+	/**
+	 * Return human friend Unit info to print.
+	 * @return 
+	 */
+	FString ToString() const;
+};
+
 /**
  * Base class for path actor.
  */

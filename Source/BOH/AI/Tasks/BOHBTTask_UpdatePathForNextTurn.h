@@ -10,6 +10,8 @@
 // BOH
 #include "BOHBTTask_UpdatePathForNextTurn.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(LogBOHTask_UpdatePathForNextTurn, Log, All);
+
 /**
  * Update path component for next turn.
  */

@@ -11,6 +11,8 @@
 #include "BOH/AI/BOHUnitOrders.h"
 #include "BOHBTTask_UpdateOrderState.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(LogBOHTask_UpdateOrderState, Log, All);
+
 /**
  * Consumes order and sets the BB to consume next order.
  */

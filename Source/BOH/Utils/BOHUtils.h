@@ -6,9 +6,6 @@
 // UnrealEngine
 #include "CoreMinimal.h"
 
-// BOH
-#include "BOHUtils.generated.h"
-
 namespace BOHUnitConstants
 {
 	inline float CentimetersToMeters = 0.01f;
@@ -50,18 +47,29 @@ inline FString GetGWorldNetMode()
 	}
 };
 
-/**
- * Utility position structs for TMaps
- */
-USTRUCT(BlueprintType)
-struct FBOHPositionList
+inline FString GetNetRole(UObject* Context)
 {
-	GENERATED_BODY()
+	FString Str = FString("NetRole::Undetermined");
 
-	// List of positions
-	UPROPERTY(BlueprintReadOnly)
-	TArray<FVector> Positions;
-};
+	
+	if (UActorComponent* ActorComponent = Cast<UActorComponent>(Context))
+	{
+		AActor* OwnerActor = ActorComponent->GetOwner();
+		UNetConnection* NetConnection = OwnerActor->GetNetConnection();
+		FString NetConnectionStr = NetConnection ? NetConnection->GetName() : FString("NoNetConnection");
+		Str = FString::Printf(TEXT("OwnerRole::%s|Owner::%s|OwningConn::%s"), *UEnum::GetValueAsString(ActorComponent->GetOwnerRole()), *OwnerActor->GetName(), *NetConnectionStr);
+	}
+	else if (AActor* Actor = Cast<AActor>(Context))
+	{
+		UNetConnection* NetConnection = Actor->GetNetConnection();
+		FString NetConnectionStr = NetConnection ? NetConnection->GetName() : FString("NoNetConnection");
+		AActor* ActorOwner = Actor->GetOwner();
+		FString ActorOwnerStr = ActorOwner ? ActorOwner->GetName() : FString("NoOwner");
+		Str = FString::Printf(TEXT("LocalRole::%s|Owner::%s|OwningConn::%s"), *UEnum::GetValueAsString(Actor->GetLocalRole()), *ActorOwnerStr, *NetConnectionStr);
+	}
+	
+	return Str;
+}
 
 //Current Class Name + Function Name where this is called!
 #define TRACE_STR_CUR_CLASS_FUNC (FString(__FUNCTION__))
@@ -83,6 +91,7 @@ struct FBOHPositionList
 #define TRACE_SCREENMSG_PRINTF(FormatString , ...) (GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, *(TRACE_STR_CUR_CLASS_FUNC_LINE + ": " + (FString::Printf(TEXT(FormatString), ##__VA_ARGS__ )))) )
 
 //UE LOG!
+#define BOH_LOG_OBJECT(LogCat, Verbosity, Object, FormatString, ...) UE_LOG(LogCat,Verbosity,TEXT("[%s][%s] %s: %s"), *GetGWorldNetMode(), *GetNetRole(Object), *TRACE_STR_CUR_CLASS_FUNC_LINE, *FString::Printf(TEXT(FormatString), ##__VA_ARGS__ ) )
 #define BOH_LOG(LogCat, Verbosity, FormatString, ...) UE_LOG(LogCat,Verbosity,TEXT("[%s] %s: %s"), *GetGWorldNetMode(), *TRACE_STR_CUR_CLASS_FUNC_LINE, *FString::Printf(TEXT(FormatString), ##__VA_ARGS__ ) )
 #define TRACE_LOG(LogCategory, OutputMessage) UE_LOG(LogCategory,Log,TEXT("%s: %s"), *TRACE_STR_CUR_CLASS_FUNC_LINE, *FString(OutputMessage))
 #define TRACE_LOG_PRINTF(LogCat, FormatString , ...) UE_LOG(LogCat,Log,TEXT("%s: %s"), *TRACE_STR_CUR_CLASS_FUNC_LINE, *FString::Printf(TEXT(FormatString), ##__VA_ARGS__ ) )

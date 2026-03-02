@@ -11,6 +11,16 @@
 #include "BOH/AI/BOHAIController.h"
 #include "BOH/Characters/BOHUnit.h"
 #include "BOH/Component/Path/BOHUnitPathComponent.h"
+#include "BOH/Messages/BOHGameplayMessage.h"
+#include "BOH/Tags/BOHGameplayTagCollection.h"
+#include "BOH/Utils/BOHUtils.h"
+#include "GameFramework/GameplayMessageSubsystem.h"
+
+////////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////////
+
+DEFINE_LOG_CATEGORY(LogBOHTask_UpdatePathForNextTurn);
 
 ////////////////////////////////////////////////////////////////////////////////////
 //
@@ -34,7 +44,7 @@ EBTNodeResult::Type UBOHBTTask_UpdatePathForNextTurn::ExecuteTask(UBehaviorTreeC
 	}
 
 	const ABOHAIController* UnitAIController = Cast<ABOHAIController>(OwnerComp.GetAIOwner());
-	const ABOHUnit* Unit = UnitAIController ? Cast<ABOHUnit>(UnitAIController->GetPawn()) : nullptr;
+	ABOHUnit* Unit = UnitAIController ? Cast<ABOHUnit>(UnitAIController->GetPawn()) : nullptr;
 	UBOHUnitPathComponent* PathComponent = Unit ? Unit->GetComponentByClass<UBOHUnitPathComponent>() : nullptr;
 	if (!PathComponent)
 	{
@@ -54,7 +64,15 @@ EBTNodeResult::Type UBOHBTTask_UpdatePathForNextTurn::ExecuteTask(UBehaviorTreeC
 	}
 
 	PathComponent->AddPointToPath(Unit->GetActorLocation(), 0);
-	PathComponent->Client_SetUnitPath(PathComponent->GetUnitPath());
+	BOH_LOG(LogBOHTask_UpdatePathForNextTurn, Display, "Client_SetUnitPath");
+	
+	// TODO: Check whether this can be done in a less coupled way
+	UGameplayMessageSubsystem& GameplayMessageSubsystem = UGameplayMessageSubsystem::Get(this);
+	FBOHUnitPathUpdateMessage UnitPathUpdateMessage;
+	UnitPathUpdateMessage.Unit = Unit;
+	UnitPathUpdateMessage.Path = PathComponent->GetUnitPath();
+	
+	GameplayMessageSubsystem.BroadcastMessage(UBOHGameplayTagCollection::Get().Tag_MessageChannel_UnitPathUpdate, UnitPathUpdateMessage);
 
 	BlackboardComponent->SetValueAsBool(GetTargetLocationReachedBlackboardKey(), false);
 	BlackboardComponent->SetValueAsInt(GetTargetPositionIndexBlackboardKey(), 0);

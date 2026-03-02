@@ -136,14 +136,28 @@ protected:
 	 */
 	UFUNCTION(Server, Reliable)
 	void Sever_SendUnitMoveCommand(const TArray<FBOHUnitPath>& UnitsPath);
-	
+
+	/**
+	 * ONLY CLIENT. Calls for unit path update.
+	 * @param UnitPathUpdateMessage
+	 */
+	UFUNCTION(Client, Reliable)
+	void Client_TryUpdateUnitPath(const FBOHUnitPathUpdateMessage& UnitPathUpdateMessage);
 #pragma region MessageRouter
+	
 	/**
 	 * Gets a UnitMoveCommand message and sent a call for server.
 	 * @param GameplayTag 
 	 * @param UnitMoveCommandMessage 
 	 */
 	void OnUnitMoveCommandReceived(FGameplayTag GameplayTag, const FBOHSenderAuthorizedMessage& UnitMoveCommandMessage);
+
+	/**
+	 * Gets a Unit Path update message and sent a call for client to be updated. 
+	 * @param GameplayTag 
+	 * @param UnitPathUpdateMessage 
+	 */
+	void OnUnitPathUpdateReceived(FGameplayTag GameplayTag, const FBOHUnitPathUpdateMessage& UnitPathUpdateMessage);
 #pragma endregion // MessageRouter
 
 private:
@@ -206,5 +220,8 @@ protected:
 
 	// Message listener handler for Unit Command Messages. 
 	FGameplayMessageListenerHandle OnUnitCommandMessageListenerHandle; 
+
+	// Message listener handler for Unit Path update Messages. 
+	FGameplayMessageListenerHandle OnUnitPathUpdateMessageListenerHandle; 
 };
 

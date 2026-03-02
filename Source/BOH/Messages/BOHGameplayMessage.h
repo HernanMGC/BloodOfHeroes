@@ -6,10 +6,12 @@
 // UnrealEngine
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
+#include "BOH/Utils/BOHUtils.h"
 
 // BOH
 #include "BOHGameplayMessage.generated.h"
 
+class ABOHUnit;
 /**
  * Empty message.
  */
@@ -56,4 +58,20 @@ struct FBOHSenderAuthorizedMessage
 	// Sender pointer for auth validation.
 	UPROPERTY(BlueprintReadWrite)
 	TObjectPtr<AActor> Sender = nullptr;
+};
+
+/**
+ * Unit path update message.
+ */
+USTRUCT(BlueprintType)
+struct FBOHUnitPathUpdateMessage
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadWrite)
+	TObjectPtr<ABOHUnit> Unit = nullptr;
+	
+	// Sender pointer for auth validation.
+	UPROPERTY(BlueprintReadWrite)
+	TArray<FVector> Path;
 };

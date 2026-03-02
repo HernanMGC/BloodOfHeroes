@@ -11,6 +11,8 @@
 
 // BOH
 #include "BOH/AI/BOHAIController.h"
+#include "BOH/Component/Path/BOHUnitPathComponent.h"
+#include "BOH/Controllers/BOHPlayerController.h"
 #include "BOH/GAS/Abilities/BOHGameplayAbility.h"
 #include "BOH/GAS/Attributes/BOHUnitAttributeSet.h"
 #include "BOH/GAS/Components/BOHAbilitySystemComponent.h"
@@ -98,6 +100,8 @@ ABOHUnit::ABOHUnit()
 	ASC = CreateDefaultSubobject<UBOHAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 	UnitSet = CreateDefaultSubobject<UBOHUnitAttributeSet>(TEXT("UnitSet"));
 
+	UnitPath = CreateDefaultSubobject<UBOHUnitPathComponent>(TEXT("UnitPathComponent"));
+	
 	EvasionCollider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("EvasionCollider"));
 	EvasionCollider->SetupAttachment(RootComponent);
 	EvasionCollider->SetCapsuleHalfHeight(GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight());
@@ -117,6 +121,7 @@ void ABOHUnit::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetime
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ABOHUnit, UnitInfo);
+	DOREPLIFETIME(ABOHUnit, Player);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -127,6 +132,20 @@ void ABOHUnit::SetIsUnitSelected(bool bNewIsSelected)
 {
 	bIsUnitSelected = bNewIsSelected;
 	OnUnitIsSelectedChanged.Broadcast(bIsUnitSelected);
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////////
+
+void ABOHUnit::SetUnitPath(const TArray<FVector>& InUnitPath) const
+{
+	if (!UnitPath)
+	{
+		return;
+	}
+
+	UnitPath->SetUnitPath(InUnitPath);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

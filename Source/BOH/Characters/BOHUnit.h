@@ -6,21 +6,24 @@
 // UnrealEngine
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
-#include "GameplayEffectTypes.h"
 #include "GameFramework/Character.h"
+#include "GameplayEffectTypes.h"
 
 // BOH
+#include "BOH/Component/Path/BOHUnitPathComponent.h"
 #include "BOHUnit.generated.h"
 
 //// ForwardDeclaration
 // UnrealEngine
-class UGameplayEffect;
 class UBehaviorTree;
+class UGameplayEffect;
 
 // BOH
+class ABOHPlayerController;
 class UBOHAbilitySystemComponent;
 class UBOHGameplayAbility;
 class UBOHUnitAttributeSet;
+class UBOHUnitPathComponent;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogBOHUnit, Log, All);
 
@@ -119,7 +122,7 @@ public:
 	// Unit selection state change delegate.
 	UPROPERTY(BlueprintReadOnly, BlueprintAssignable)
 	FOnUnitIsSelectedChanged OnUnitIsSelectedChanged;
-	
+
 public:
 	// Constructor. Removes tick.
 	ABOHUnit();
@@ -138,6 +141,12 @@ public:
 	 * @param InUnitInfo 
 	 */
 	FORCEINLINE void SetUnitInfo(const FBOHUnitInfo& InUnitInfo) { UnitInfo = InUnitInfo; }
+
+	/**
+	 * Set Player Controller
+	 * @param InPlayerController 
+	 */
+	FORCEINLINE void SetPlayer(ABOHPlayerController* InPlayerController) { Player = InPlayerController; } ;
 
 	/**
 	 * Returns is selected current state.
@@ -169,7 +178,13 @@ public:
 	 * @return 
 	 */
 	FORCEINLINE UCapsuleComponent* GetReachCollider() const { return ReachCollider; }
-	
+
+	/**
+	 * Set unit path.
+	 * @param InUnitPath 
+	 */
+	void SetUnitPath(const TArray<FVector>& InUnitPath) const;
+
 protected:
 	// Overriden to: Creates ASC and Unit Attr. set.
 	virtual void BeginPlay() override;
@@ -226,7 +241,6 @@ protected:
 	void OnReachBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	                         UPrimitiveComponent* OtherComp, int OtherBodyIndex, bool bFromSweep,
 	                         const FHitResult& SweepResult);
-
 protected:
 	// ToDo: This has to be generated, not a hardcoded option.
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, Category = "BOH|Unit")
@@ -260,6 +274,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BOH|GAS")
 	TArray<TSubclassOf<UGameplayEffect>> DefaultGameplayEffects;
 
+	// Unit path component reference.
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "BOH|Unit|Path")
+	TObjectPtr<UBOHUnitPathComponent> UnitPath = nullptr;
+
 	// Evasion radius capsule.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "BOH|Unit|Collisions")
 	TObjectPtr<UCapsuleComponent> EvasionCollider = nullptr;
@@ -267,4 +285,7 @@ protected:
 	// Reach radius capsule.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "BOH|Unit|Collisions")
 	TObjectPtr<UCapsuleComponent> ReachCollider = nullptr;
+
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "BOH|Unit")
+	TObjectPtr<ABOHPlayerController> Player = nullptr;
 };

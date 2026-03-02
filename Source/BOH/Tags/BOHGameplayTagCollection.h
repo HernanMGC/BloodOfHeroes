@@ -31,6 +31,7 @@ public:
 
 	// Messages Channels
 	FGameplayTag Tag_MessageChannel_UnitMoveCommand;
+	FGameplayTag Tag_MessageChannel_UnitPathUpdate;
 
 public:
 	static const UBOHGameplayTagCollection& Get() { return *StaticClass()->GetDefaultObject<UBOHGameplayTagCollection>(); }

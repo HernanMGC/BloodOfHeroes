@@ -53,6 +53,7 @@ void UBOHGameplayTagCollection::AddAllTags()
 
 	// Messages Channels
 	AddTag(Tag_MessageChannel_UnitMoveCommand, "MessageChannel.UnitMoveCommand", "Message channel for Unit Move Commands.");
+	AddTag(Tag_MessageChannel_UnitPathUpdate, "MessageChannel.UnitPathUpdate", "Message channel for Player controller to update Unit Paths visualization.");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

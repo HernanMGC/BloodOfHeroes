@@ -10,6 +10,8 @@
 #include "GameFramework/PlayerStart.h"
 
 // BOH
+#include "BOH/AI/BOHAIController.h"
+#include "BOH/Characters/BOHUnit.h"
 #include "BOH/Controllers/BOHPlayerController.h"
 #include "BOH/PlayerStarts/BOHPlayerStart.h"
 #include "BOH/Utils/BOHUtils.h"
@@ -19,6 +21,59 @@
 ////////////////////////////////////////////////////////////////////////////////////
 
 DEFINE_LOG_CATEGORY(LogBOHGameMode);
+
+////////////////////////////////////////////////////////////////////////////////////
+// FBOHUnitPathList
+////////////////////////////////////////////////////////////////////////////////////
+
+FBOHUnitPathList::FBOHUnitPathList() : UnitPaths(TArray<FBOHUnitPath>())
+{
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////////
+
+FBOHUnitPathList::FBOHUnitPathList(const TArray<FBOHUnitPath>& InUnitPaths) : UnitPaths(InUnitPaths)
+{
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+// ABOHGameModeBase
+////////////////////////////////////////////////////////////////////////////////////
+
+void ABOHGameModeBase::SubmitUnitsMoveCommand(const ABOHPlayerController* Player, const TArray<FBOHUnitPath> UnitsPath)
+{
+	PlayerTurnsSubmitted.Add(Player, FBOHUnitPathList(UnitsPath));
+	if (PlayerTurnsSubmitted.Num() < PlayersPerMatch)
+	{
+		return;
+	}
+
+	for (TPair<const ABOHPlayerController*, FBOHUnitPathList> PlayerTurn : PlayerTurnsSubmitted)
+	{
+		if (!PlayerTurn.Key) { continue; }
+		
+		for (FBOHUnitPath UnitPath : PlayerTurn.Value.UnitPaths)
+		{
+			BOH_LOG(LogBOHPlayerController, Display, "%s", *UnitPath.ToString());
+			
+			if (!PlayerTurn.Key->GetUnits().Contains(UnitPath.UnitPtr)) { continue; }
+
+			if (UBOHUnitPathComponent* UnitPathComponent = UnitPath.UnitPtr->GetComponentByClass<UBOHUnitPathComponent>())
+			{
+				UnitPathComponent->SetUnitPath(UnitPath.UnitPath);
+			}
+
+			if (ABOHAIController* UnitAIController = Cast<ABOHAIController>(UnitPath.UnitPtr->GetController()))
+			{
+				UnitAIController->SendUnitOrder(FBOHUnitOrder(EUnitOrderType::MoveAlongPath, EUnitOrderSortingPolicy::AddToQueue, true, nullptr));
+			}
+		}
+	}
+
+	PlayerTurnsSubmitted.Empty();
+}
 
 ////////////////////////////////////////////////////////////////////////////////////
 //

@@ -5,6 +5,7 @@
 //// Includes
 // UnrealEngine
 #include "CoreMinimal.h"
+#include "BOH/Controllers/BOHPlayerController.h"
 #include "GameFramework/GameMode.h"
 
 // BOH
@@ -13,6 +14,20 @@
 class ABOHUnit;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogBOHGameMode, Log, All);
+
+USTRUCT()
+struct FBOHUnitPathList
+{
+	GENERATED_BODY()
+public:
+	UPROPERTY(Transient)
+	TArray<FBOHUnitPath> UnitPaths;
+
+public:
+	FBOHUnitPathList();
+	
+	FBOHUnitPathList(const TArray<FBOHUnitPath>& InUnitPaths);
+};
 
 /**
  * Base game mode for Blood of Heroes.
@@ -34,7 +49,13 @@ public:
 	 * @return 
 	 */
 	FORCEINLINE TSubclassOf<ABOHUnit> GetDefaultUnitClass() const { return DefaultUnitClass; }
-	
+
+	/**
+	 * Submit move command. Actual AI controller movement will only be executed when all clients have submitted their turns.
+	 * @param Player
+	 * @param UnitsPath 
+	 */
+	void SubmitUnitsMoveCommand(const ABOHPlayerController* Player, TArray<FBOHUnitPath> UnitsPath);
 
 protected:
 	// Overriden to: Prevent two player to start from the same player start.
@@ -45,9 +66,13 @@ protected:
 	
 protected:
 	// Turn time in seconds
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BOH|Turn", meta = (Units = "s"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BOH|Turn", meta = (Units = "s", ClampMin = 0.f))
 	float TurnTime = 3.f;
 
+	// Players Per Match.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BOH|Players", meta = (ClampMin = 0))
+	int32 PlayersPerMatch = 2;
+	
 	// Default unit class.
 	UPROPERTY(EditAnywhere, Category = "BOH|Classes")
 	TSubclassOf<ABOHUnit> DefaultUnitClass = nullptr;
@@ -55,4 +80,8 @@ protected:
 	// List of occupied player starts as only one player per PlayerStart is allowed.
 	UPROPERTY(Transient)
 	TArray<APlayerStart*> OccupiedPlayerStarts;
+
+	// List of submitted turns
+	UPROPERTY(Transient)
+	TMap<const ABOHPlayerController*, FBOHUnitPathList> PlayerTurnsSubmitted;
 };

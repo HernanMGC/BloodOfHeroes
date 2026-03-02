@@ -18,7 +18,7 @@ DEFINE_LOG_CATEGORY(LogBOHPathActor);
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-FBOHUnitPath::FBOHUnitPath() : UnitPtr(nullptr), UnitMoves(TArray<FVector>())
+FBOHUnitPath::FBOHUnitPath() : UnitPtr(nullptr), UnitPath(TArray<FVector>())
 {
 }
 
@@ -26,7 +26,7 @@ FBOHUnitPath::FBOHUnitPath() : UnitPtr(nullptr), UnitMoves(TArray<FVector>())
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
-FBOHUnitPath::FBOHUnitPath(ABOHUnit* InUnitPtr, TArray<FVector> InUnitMoves) : UnitPtr(InUnitPtr), UnitMoves(InUnitMoves)
+FBOHUnitPath::FBOHUnitPath(ABOHUnit* InUnitPtr, TArray<FVector> InUnitMoves) : UnitPtr(InUnitPtr), UnitPath(InUnitMoves)
 {
 }
 
@@ -37,7 +37,7 @@ FBOHUnitPath::FBOHUnitPath(ABOHUnit* InUnitPtr, TArray<FVector> InUnitMoves) : U
 bool FBOHUnitPath::operator==(const FBOHUnitPath& Other) const
 {
 	return UnitPtr == Other.UnitPtr
-	&& UnitMoves == Other.UnitMoves;
+	&& UnitPath == Other.UnitPath;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -56,7 +56,7 @@ bool FBOHUnitPath::IsValid() const
 FString FBOHUnitPath::ToString() const
 {
 	FString Str = FString("");
-	for (int i = 0; i < UnitMoves.Num(); i++)
+	for (int i = 0; i < UnitPath.Num(); i++)
 	{
 		if (!UnitPtr)
 		{
@@ -64,9 +64,9 @@ FString FBOHUnitPath::ToString() const
 		}
 		
 		int32 UnitID = UnitPtr ? UnitPtr->GetUnitInfo().UnitID : INDEX_NONE;
-		Str.Append(FString::Printf(TEXT("[UnitID:%d][%d] moves to %s"), UnitID , i, *UnitMoves[i].ToString()));
+		Str.Append(FString::Printf(TEXT("[UnitID:%d][%d] moves to %s"), UnitID , i, *UnitPath[i].ToString()));
 
-		if (i < UnitMoves.Num() -1)
+		if (i < UnitPath.Num() -1)
 		{
 			Str.Append(FString("\n\t"));
 		}

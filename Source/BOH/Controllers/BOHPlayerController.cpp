@@ -107,7 +107,7 @@ void ABOHPlayerController::BeginPlay()
 
 
 	OnUnitPathUpdateMessageListenerHandle = GameplayMessageSubsystem.RegisterListener<
-		FBOHUnitPathUpdateMessage>(UBOHGameplayTagCollection::Get().Tag_MessageChannel_UnitPathUpdate, this,
+		FBOHUnitPath>(UBOHGameplayTagCollection::Get().Tag_MessageChannel_UnitPathUpdate, this,
 									&ThisClass::OnUnitPathUpdateReceived);
 }
 
@@ -331,24 +331,16 @@ void ABOHPlayerController::OnZoomInputTriggered(const FInputActionValue& Value)
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
-void ABOHPlayerController::Sever_SendUnitMoveCommand_Implementation(const TArray<FBOHUnitPath>& UnitsPath)
+void ABOHPlayerController::Server_SendUnitMoveCommand_Implementation(const TArray<FBOHUnitPath>& UnitsPath)
 {
-	for (FBOHUnitPath UnitPath : UnitsPath)
+	UWorld* World = GetWorld();
+	ABOHGameModeBase* GameMode = World ? World->GetAuthGameMode<ABOHGameModeBase>() : nullptr;
+	if (!GameMode)
 	{
-		BOH_LOG(LogBOHPlayerController, Display, "%s", *UnitPath.ToString());
-
-		if (!PlayerUnits.Contains(UnitPath.UnitPtr)) { continue; }
-
-		if (UBOHUnitPathComponent* UnitPathComponent = UnitPath.UnitPtr->GetComponentByClass<UBOHUnitPathComponent>())
-		{
-			UnitPathComponent->SetUnitPath(UnitPath.UnitMoves);
-		}
-
-		if (ABOHAIController* UnitAIController = Cast<ABOHAIController>(UnitPath.UnitPtr->GetController()))
-		{
-			UnitAIController->SendUnitOrder(FBOHUnitOrder(EUnitOrderType::MoveAlongPath, EUnitOrderSortingPolicy::AddToQueue, true, nullptr));
-		}
+		return;
 	}
+
+	GameMode->SubmitUnitsMoveCommand(this, UnitsPath);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -356,17 +348,17 @@ void ABOHPlayerController::Sever_SendUnitMoveCommand_Implementation(const TArray
 ////////////////////////////////////////////////////////////////////////////////////
 
 void ABOHPlayerController::Client_TryUpdateUnitPath_Implementation(
-	const FBOHUnitPathUpdateMessage& UnitPathUpdateMessage)
+	const FBOHUnitPath& UnitPathUpdateMessage)
 {
 	BOH_LOG_OBJECT(LogBOHPlayerController, Display, this, "DHER Client call");
 
-	TObjectPtr<ABOHUnit> UpdatedUnit = UnitPathUpdateMessage.Unit;
+	TObjectPtr<ABOHUnit> UpdatedUnit = UnitPathUpdateMessage.UnitPtr;
 	if (!UpdatedUnit || !PlayerUnits.Contains(UpdatedUnit))
 	{
 		return;
 	}
 
-	UpdatedUnit->SetUnitPath(UnitPathUpdateMessage.Path);
+	UpdatedUnit->SetUnitPath(UnitPathUpdateMessage.UnitPath);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -390,23 +382,23 @@ void ABOHPlayerController::OnUnitMoveCommandReceived(FGameplayTag GameplayTag,
 		FBOHUnitPath UnitMoveCommand;
 
 		UnitMoveCommand.UnitPtr = Unit;
-		UnitMoveCommand.UnitMoves = PathComponent->GetUnitPath();
+		UnitMoveCommand.UnitPath = PathComponent->GetUnitPath();
 
 		UnitMoveCommands.Add(UnitMoveCommand);
 	}
 
-	Sever_SendUnitMoveCommand(UnitMoveCommands);
+	Server_SendUnitMoveCommand(UnitMoveCommands);
 }
 
 void ABOHPlayerController::OnUnitPathUpdateReceived(FGameplayTag GameplayTag,
-	const FBOHUnitPathUpdateMessage& UnitPathUpdateMessage)
+	const FBOHUnitPath& UnitPathUpdateMessage)
 {
 	if (!HasAuthority())
 	{
 		return;
 	}
 	
-	TObjectPtr<ABOHUnit> UpdatedUnit = UnitPathUpdateMessage.Unit;
+	TObjectPtr<ABOHUnit> UpdatedUnit = UnitPathUpdateMessage.UnitPtr;
 	if (!UpdatedUnit || !PlayerUnits.Contains(UpdatedUnit))
 	{
 		return;

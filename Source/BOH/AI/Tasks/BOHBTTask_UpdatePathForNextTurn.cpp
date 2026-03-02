@@ -10,8 +10,8 @@
 // BOH
 #include "BOH/AI/BOHAIController.h"
 #include "BOH/Characters/BOHUnit.h"
+#include "BOH/Component/Path/BOHPathActor.h"
 #include "BOH/Component/Path/BOHUnitPathComponent.h"
-#include "BOH/Messages/BOHGameplayMessage.h"
 #include "BOH/Tags/BOHGameplayTagCollection.h"
 #include "BOH/Utils/BOHUtils.h"
 #include "GameFramework/GameplayMessageSubsystem.h"
@@ -68,9 +68,9 @@ EBTNodeResult::Type UBOHBTTask_UpdatePathForNextTurn::ExecuteTask(UBehaviorTreeC
 	
 	// TODO: Check whether this can be done in a less coupled way
 	UGameplayMessageSubsystem& GameplayMessageSubsystem = UGameplayMessageSubsystem::Get(this);
-	FBOHUnitPathUpdateMessage UnitPathUpdateMessage;
-	UnitPathUpdateMessage.Unit = Unit;
-	UnitPathUpdateMessage.Path = PathComponent->GetUnitPath();
+	FBOHUnitPath UnitPathUpdateMessage;
+	UnitPathUpdateMessage.UnitPtr = Unit;
+	UnitPathUpdateMessage.UnitPath = PathComponent->GetUnitPath();
 	
 	GameplayMessageSubsystem.BroadcastMessage(UBOHGameplayTagCollection::Get().Tag_MessageChannel_UnitPathUpdate, UnitPathUpdateMessage);
 

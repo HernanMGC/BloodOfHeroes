@@ -95,6 +95,11 @@ public:
 	 */
 	void SpawnUnits(TArray<FTransform> UnitStartPointsTransforms);
 
+	/**
+	 * Returns player's units.
+	 */
+	FORCEINLINE TArray<ABOHUnit*> GetUnits() const { return PlayerUnits; };
+
 protected:
 	// Overriden to: bind messages.
 	virtual void BeginPlay() override;
@@ -135,14 +140,14 @@ protected:
 	 * @param UnitsPath
 	 */
 	UFUNCTION(Server, Reliable)
-	void Sever_SendUnitMoveCommand(const TArray<FBOHUnitPath>& UnitsPath);
+	void Server_SendUnitMoveCommand(const TArray<FBOHUnitPath>& UnitsPath);
 
 	/**
 	 * ONLY CLIENT. Calls for unit path update.
 	 * @param UnitPathUpdateMessage
 	 */
 	UFUNCTION(Client, Reliable)
-	void Client_TryUpdateUnitPath(const FBOHUnitPathUpdateMessage& UnitPathUpdateMessage);
+	void Client_TryUpdateUnitPath(const FBOHUnitPath& UnitPathUpdateMessage);
 #pragma region MessageRouter
 	
 	/**
@@ -157,7 +162,7 @@ protected:
 	 * @param GameplayTag 
 	 * @param UnitPathUpdateMessage 
 	 */
-	void OnUnitPathUpdateReceived(FGameplayTag GameplayTag, const FBOHUnitPathUpdateMessage& UnitPathUpdateMessage);
+	void OnUnitPathUpdateReceived(FGameplayTag GameplayTag, const FBOHUnitPath& UnitPathUpdateMessage);
 #pragma endregion // MessageRouter
 
 private:

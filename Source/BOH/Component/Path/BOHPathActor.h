@@ -34,7 +34,7 @@ public:
 
 	// Ordered list of unit intended moves.
 	UPROPERTY(BlueprintReadOnly)
-	TArray<FVector> UnitMoves;
+	TArray<FVector> UnitPath;
 
 public:
 	/**

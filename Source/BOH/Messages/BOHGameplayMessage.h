@@ -59,19 +59,3 @@ struct FBOHSenderAuthorizedMessage
 	UPROPERTY(BlueprintReadWrite)
 	TObjectPtr<AActor> Sender = nullptr;
 };
-
-/**
- * Unit path update message.
- */
-USTRUCT(BlueprintType)
-struct FBOHUnitPathUpdateMessage
-{
-	GENERATED_BODY()
-
-	UPROPERTY(BlueprintReadWrite)
-	TObjectPtr<ABOHUnit> Unit = nullptr;
-	
-	// Sender pointer for auth validation.
-	UPROPERTY(BlueprintReadWrite)
-	TArray<FVector> Path;
-};

@@ -11,7 +11,6 @@
 #include "NiagaraFunctionLibrary.h"
 
 // BOH
-#include "BOH/AI/BOHAIController.h"
 #include "BOH/Characters/BOHUnit.h"
 #include "BOH/Component/Path/BOHPathLineActor.h"
 #include "BOH/Component/Path/BOHPathPointActor.h"
@@ -419,8 +418,15 @@ void ABOHPlayerController::SetSelectedUnit(ABOHUnit* Unit)
 	}
 
 	SelectedUnit = Unit;
+
 	OnUnitSelected.Broadcast(this, Unit);
 
+	UGameplayMessageSubsystem& GameplayMessageSubsystem = UGameplayMessageSubsystem::Get(this);
+	FBOHSelectedUnitMessage SelectedUnitMessage;
+	SelectedUnitMessage.Unit = Unit;
+	SelectedUnitMessage.PlayerController = this;
+	GameplayMessageSubsystem.BroadcastMessage(UBOHGameplayTagCollection::Get().Tag_MessageChannel_UnitSelected, SelectedUnitMessage);
+	
 	if (Unit)
 	{
 		SelectedUnit->SetIsUnitSelected(true);	

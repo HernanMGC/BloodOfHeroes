@@ -6,12 +6,15 @@
 // UnrealEngine
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
-#include "BOH/Utils/BOHUtils.h"
 
 // BOH
 #include "BOHGameplayMessage.generated.h"
 
+//// ForwardDeclarations
+// BOH
+class ABOHPlayerController;
 class ABOHUnit;
+
 /**
  * Empty message.
  */
@@ -58,4 +61,21 @@ struct FBOHSenderAuthorizedMessage
 	// Sender pointer for auth validation.
 	UPROPERTY(BlueprintReadWrite)
 	TObjectPtr<AActor> Sender = nullptr;
+};
+
+/**
+ * Sender authorized message.
+ */
+USTRUCT(BlueprintType)
+struct FBOHSelectedUnitMessage
+{
+	GENERATED_BODY()
+
+	// Sender pointer for auth validation.
+	UPROPERTY(BlueprintReadWrite)
+	TObjectPtr<ABOHPlayerController> PlayerController = nullptr;
+
+	// Sender pointer for auth validation.
+	UPROPERTY(BlueprintReadWrite)
+	TObjectPtr<ABOHUnit> Unit = nullptr;
 };

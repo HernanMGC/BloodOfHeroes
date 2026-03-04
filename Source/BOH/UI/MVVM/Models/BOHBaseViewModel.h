@@ -6,6 +6,7 @@
 #include "MVVMViewModelBase.h"
 #include "BOHBaseViewModel.generated.h"
 
+class ABOHPlayerController;
 /**
  * Base class view model init params.
  */
@@ -13,6 +14,15 @@ USTRUCT()
 struct FBOHViewModelInitParams
 {
 	GENERATED_BODY()
+public:
+	FBOHViewModelInitParams();
+	
+	FBOHViewModelInitParams(ABOHPlayerController* InOwningPlayerController);
+
+public:
+	// View owning player controller.
+	UPROPERTY(Transient)
+	TObjectPtr<ABOHPlayerController> OwningPlayerController = nullptr;
 };
 
 /**

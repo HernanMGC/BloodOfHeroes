@@ -44,6 +44,10 @@ public:
 	// Click input Action.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BOH|Input", meta=(AllowPrivateAccess = "true"))
 	TObjectPtr<UInputAction> SelectActorAction = nullptr;
+		
+	// Right Click input Action.
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BOH|Input", meta=(AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> DeselectActorAction = nullptr;
 
 	// Delete actor input Action.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BOH|Input", meta=(AllowPrivateAccess = "true"))
@@ -119,6 +123,9 @@ protected:
 	void OnSelectActorTriggered();
 	void OnSelectActorReleased();
 	
+	/** Input handlers for DeselectActor action */
+	void OnDeselectActorTriggered();
+
 	/** Input handlers for DeleteActor action. */
 	void OnDeleteActorTriggered();
 

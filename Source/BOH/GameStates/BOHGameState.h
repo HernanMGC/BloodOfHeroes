@@ -17,4 +17,6 @@ UCLASS()
 class BOH_API ABOHGameState : public AGameState
 {
 	GENERATED_BODY()
+
+	
 };

@@ -64,7 +64,33 @@ struct FBOHSenderAuthorizedMessage
 };
 
 /**
- * Sender authorized message.
+ * Sender authorized sring message.
+ */
+USTRUCT(BlueprintType)
+struct FBOHAuthorizedTextMessage : public FBOHSenderAuthorizedMessage
+{
+	GENERATED_BODY()
+
+	// String Message.
+	UPROPERTY(BlueprintReadWrite)
+	FString String = TEXT("");
+};
+
+/**
+ * Sender authorized Int32 message.
+ */
+USTRUCT(BlueprintType)
+struct FBOHAuthorizedInt32Message : public FBOHSenderAuthorizedMessage
+{
+	GENERATED_BODY()
+
+	// Int32 Message.
+	UPROPERTY(BlueprintReadWrite)
+	int32 Number = INDEX_NONE;
+};
+
+/**
+ * Selected unit message.
  */
 USTRUCT(BlueprintType)
 struct FBOHSelectedUnitMessage

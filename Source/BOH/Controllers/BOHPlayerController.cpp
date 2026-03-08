@@ -169,6 +169,9 @@ void ABOHPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(SelectActorAction, ETriggerEvent::Canceled, this,
 		                                   &ThisClass::OnSelectActorReleased);
 
+		// Setup right click input events
+		EnhancedInputComponent->BindAction(DeselectActorAction, ETriggerEvent::Triggered, this,
+										   &ThisClass::OnDeselectActorTriggered);
 		
 		// Setup mouse input events
 		EnhancedInputComponent->BindAction(DeleteActorAction, ETriggerEvent::Triggered, this,
@@ -258,6 +261,20 @@ void ABOHPlayerController::OnSelectActorReleased()
 	{
 		PathComp->ModifyPointFromPath(PointActor->GetPathPointIndex(), Hit.Location);
 	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////////
+
+void ABOHPlayerController::OnDeselectActorTriggered()
+{
+	if (!SelectedUnit)
+	{
+		return;
+	}
+	
+	SetSelectedUnit(nullptr);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

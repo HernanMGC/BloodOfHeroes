@@ -78,34 +78,16 @@ public:
 	float GetSpeed() const;
 
 	/**
-	* Returns formatted Speed for field notify.
-	*/
-	UFUNCTION(BlueprintPure, FieldNotify)
-	FText GetSpeedFormatted() const;
-
-	/**
 	* Returns EvasionRadius for field notify.
 	*/
 	UFUNCTION(BlueprintPure, FieldNotify)
 	float GetEvasionRadius() const;
 
 	/**
-	* Returns formatted EvasionRadius for field notify.
-	*/
-	UFUNCTION(BlueprintPure, FieldNotify)
-	FText GetEvasionRadiusFormatted() const;
-
-	/**
 	* Returns ReachRadius for field notify.
 	*/
 	UFUNCTION(BlueprintPure, FieldNotify)
 	float GetReachRadius() const;
-
-	/**
-	* Returns formatted ReachRadius for field notify.
-	*/
-	UFUNCTION(BlueprintPure, FieldNotify)
-	FText GetReachRadiusFormatted() const;
 
 private:
 	// Selected unit ptr.

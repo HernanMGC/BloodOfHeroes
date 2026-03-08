@@ -83,11 +83,8 @@ void UBOHVMPlayerUnits::SetSelectedUnit(ABOHUnit* InUnit)
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetTeamID);
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetUnitType);
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetSpeed);
-	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetSpeedFormatted);
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetEvasionRadius);
-	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetEvasionRadiusFormatted);
 	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetReachRadius);
-	UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetReachRadiusFormatted);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -139,15 +136,6 @@ float UBOHVMPlayerUnits::GetSpeed() const
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
-FText UBOHVMPlayerUnits::GetSpeedFormatted() const
-{
-	return FText::FromString(FString::Printf(TEXT("%f"), GetSpeed()));
-}
-
-////////////////////////////////////////////////////////////////////////////////////
-//
-////////////////////////////////////////////////////////////////////////////////////
-
 float UBOHVMPlayerUnits::GetEvasionRadius() const
 {
 	return SelectedUnit ? SelectedUnit->GetUnitInfo().EvasionRadius : 0.f;
@@ -157,27 +145,9 @@ float UBOHVMPlayerUnits::GetEvasionRadius() const
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
-FText UBOHVMPlayerUnits::GetEvasionRadiusFormatted() const
-{
-	return FText::FromString(FString::Printf(TEXT("%f"), GetEvasionRadius()));
-}
-
-////////////////////////////////////////////////////////////////////////////////////
-//
-////////////////////////////////////////////////////////////////////////////////////
-
 float UBOHVMPlayerUnits::GetReachRadius() const
 {
 	return SelectedUnit ? SelectedUnit->GetUnitInfo().ReachRadius : 0.f;
-}
-
-////////////////////////////////////////////////////////////////////////////////////
-//
-////////////////////////////////////////////////////////////////////////////////////
-
-FText UBOHVMPlayerUnits::GetReachRadiusFormatted() const
-{
-	return FText::FromString(FString::Printf(TEXT("%f"), GetReachRadius()));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

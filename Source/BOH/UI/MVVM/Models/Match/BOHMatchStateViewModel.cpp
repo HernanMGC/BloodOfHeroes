@@ -30,8 +30,6 @@ void UBOHMatchStateViewModel::Init(FBOHViewModelInitParams& InitParams)
 {
 	Super::Init(InitParams);
 
-	BOH_LOG(LogTemp, Warning, "[DHER]");
-
 	OwningPlayerController = InitParams.OwningPlayerController;
 	if (!OwningPlayerController)
 	{
@@ -49,12 +47,14 @@ void UBOHMatchStateViewModel::Init(FBOHViewModelInitParams& InitParams)
 	{
 		UE_MVVM_SET_PROPERTY_VALUE(OwnPlayerName, OwnPlayerState->GetPlayerName());
 		UE_MVVM_SET_PROPERTY_VALUE(OwnPlayerScore, OwnPlayerState->GetTeamScore());
+		UE_MVVM_SET_PROPERTY_VALUE(OwnPlayerTurnState, OwnPlayerState->GetTurnState());
 	}
 
 	if (ABOHPlayerState* OtherPlayerState = Cast<ABOHPlayerState>(UGameplayStatics::GetPlayerState(OwningPlayerController, 1)))
 	{
 		UE_MVVM_SET_PROPERTY_VALUE(OtherPlayerName, OtherPlayerState->GetPlayerName());
 		UE_MVVM_SET_PROPERTY_VALUE(OtherPlayerScore, OtherPlayerState->GetTeamScore());
+		UE_MVVM_SET_PROPERTY_VALUE(OtherPlayerTurnState, OtherPlayerState->GetTurnState());
 	}
 
 	if (ABOHGameState* GameState = Cast<ABOHGameState>(UGameplayStatics::GetGameState(OwningPlayerController)))
@@ -80,7 +80,11 @@ void UBOHMatchStateViewModel::Init(FBOHViewModelInitParams& InitParams)
 
 	OnMatchCurrentTimeChangedMessageListenerHandle = GameplayMessageSubsystem.RegisterListener
 	<FBOHAuthorizedFloatMessage>(UBOHGameplayTagCollection::Get().Tag_MessageChannel_MatchCurrentTimeChanged, this,
-								   &ThisClass::OnMatchCurrentTimeChanged);
+	&ThisClass::OnMatchCurrentTimeChanged);
+
+	OnPlayersTurnStateChangedMessageListenerHandle = GameplayMessageSubsystem.RegisterListener
+	<FBOHAuthorizedPlayerTurnStateMessage>(UBOHGameplayTagCollection::Get().Tag_MessageChannel_PlayersTurnStateChanged, this,
+								   &ThisClass::OnPlayersTurnStateChanged);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -108,8 +112,11 @@ void UBOHMatchStateViewModel::Deinit() const
 		{
 			GameplayMessageSubsystem.UnregisterListener(OnMatchCurrentTimeChangedMessageListenerHandle);
 		}
+		if (OnPlayersTurnStateChangedMessageListenerHandle.IsValid())
+		{
+			GameplayMessageSubsystem.UnregisterListener(OnPlayersTurnStateChangedMessageListenerHandle);
+		}
 	}
-	BOH_LOG(LogTemp, Warning, "[DHER]");
 
 	Super::Deinit();
 }
@@ -121,8 +128,6 @@ void UBOHMatchStateViewModel::Deinit() const
 void UBOHMatchStateViewModel::OnPlayersNameChanged(FGameplayTag GameplayTag,
 	const FBOHAuthorizedTextMessage& AuthorizedTextMessage)
 {
-	BOH_LOG(LogTemp, Warning, "[DHER]");
-
 	if (AuthorizedTextMessage.Sender == UGameplayStatics::GetPlayerState(OwningPlayerController, 0))
 	{
 		UE_MVVM_SET_PROPERTY_VALUE(OwnPlayerName, AuthorizedTextMessage.String);
@@ -140,8 +145,6 @@ void UBOHMatchStateViewModel::OnPlayersNameChanged(FGameplayTag GameplayTag,
 void UBOHMatchStateViewModel::OnPlayersScoreChanged(FGameplayTag GameplayTag,
 	const FBOHAuthorizedInt32Message& AuthorizedInt32Message)
 {
-	BOH_LOG(LogTemp, Warning, "[DHER]");
-
 	if (AuthorizedInt32Message.Sender.Get() == UGameplayStatics::GetPlayerState(OwningPlayerController, 0))
 	{
 		UE_MVVM_SET_PROPERTY_VALUE(OwnPlayerScore, AuthorizedInt32Message.Number);
@@ -170,6 +173,19 @@ void UBOHMatchStateViewModel::OnMatchCurrentTimeChanged(FGameplayTag GameplayTag
 	const FBOHAuthorizedFloatMessage& AuthorizedFloatMessage)
 {
 	UE_MVVM_SET_PROPERTY_VALUE(MatchCurrentTime, AuthorizedFloatMessage.Number);
+}
+
+void UBOHMatchStateViewModel::OnPlayersTurnStateChanged(FGameplayTag GameplayTag,
+	const FBOHAuthorizedPlayerTurnStateMessage& AuthorizedTurnStateMessage)
+{
+	if (AuthorizedTurnStateMessage.Sender.Get() == UGameplayStatics::GetPlayerState(OwningPlayerController, 0))
+	{
+		UE_MVVM_SET_PROPERTY_VALUE(OwnPlayerTurnState, AuthorizedTurnStateMessage.TurnState);
+	}
+	if (AuthorizedTurnStateMessage.Sender.Get() == UGameplayStatics::GetPlayerState(OwningPlayerController, 1))
+	{
+		UE_MVVM_SET_PROPERTY_VALUE(OtherPlayerTurnState, AuthorizedTurnStateMessage.TurnState);
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

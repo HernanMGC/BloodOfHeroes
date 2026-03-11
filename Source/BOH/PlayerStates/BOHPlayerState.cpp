@@ -33,11 +33,8 @@ void ABOHPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	FDoRepLifetimeParams SharedParams;
-	SharedParams.bIsPushBased = true;
-
-	DOREPLIFETIME_WITH_PARAMS_FAST(ABOHPlayerState, TeamScore, SharedParams);
-	DOREPLIFETIME_CONDITION_NOTIFY(ABOHPlayerState, TurnState, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME(ABOHPlayerState, TeamScore);
+	DOREPLIFETIME(ABOHPlayerState, PlayerTurnState);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -46,7 +43,6 @@ void ABOHPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 
 void ABOHPlayerState::SetTeamScore(int32 InTeamScore)
 {
-	MARK_PROPERTY_DIRTY_FROM_NAME(ABOHPlayerState, TeamScore, this);
 	TeamScore = InTeamScore;
 
 	ENetMode NetMode = GetNetMode();
@@ -54,9 +50,21 @@ void ABOHPlayerState::SetTeamScore(int32 InTeamScore)
 	{
 		OnRep_TeamScore();
 	}
-	
-	ForceNetUpdate();
-	BOH_LOG(LogTemp, Warning, "[DHER]");
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////////
+
+void ABOHPlayerState::SetTurnState(EBOHPlayerTurnState InTurnState)
+{
+	PlayerTurnState = InTurnState;
+
+	ENetMode NetMode = GetNetMode();
+	if (NetMode == NM_Standalone || NetMode == NM_ListenServer)
+	{
+		OnRep_PlayerTurnState();
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -72,7 +80,6 @@ void ABOHPlayerState::OnRep_PlayerName()
 	PlayersNameMessage.Sender = this;
 	PlayersNameMessage.String = GetPlayerName();
 
-	BOH_LOG(LogTemp, Warning, "[DHER]");
 	GameplayMessageSubsystem.BroadcastMessage(UBOHGameplayTagCollection::Get().Tag_MessageChannel_PlayersNameChanged, PlayersNameMessage);
 }
 
@@ -88,7 +95,20 @@ void ABOHPlayerState::OnRep_TeamScore()
 	PlayersScoreMessage.Number = TeamScore;
 
 	GameplayMessageSubsystem.BroadcastMessage(UBOHGameplayTagCollection::Get().Tag_MessageChannel_PlayersScoreChanged, PlayersScoreMessage);
-	BOH_LOG(LogTemp, Warning, "[DHER]");
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////////
+
+void ABOHPlayerState::OnRep_PlayerTurnState()
+{
+	UGameplayMessageSubsystem& GameplayMessageSubsystem = UGameplayMessageSubsystem::Get(this);
+	FBOHAuthorizedPlayerTurnStateMessage PlayersTurnStateMessage;
+	PlayersTurnStateMessage.Sender = this;
+	PlayersTurnStateMessage.TurnState = PlayerTurnState;
+
+	GameplayMessageSubsystem.BroadcastMessage(UBOHGameplayTagCollection::Get().Tag_MessageChannel_PlayersTurnStateChanged, PlayersTurnStateMessage);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

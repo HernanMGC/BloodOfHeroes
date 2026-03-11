@@ -104,11 +104,6 @@ void ABOHPlayerController::BeginPlay()
 	OnUnitCommandMessageListenerHandle = GameplayMessageSubsystem.RegisterListener<
 		FBOHSenderAuthorizedMessage>(UBOHGameplayTagCollection::Get().Tag_MessageChannel_UnitMoveCommand, this,
 		                            &ThisClass::OnUnitMoveCommandReceived);
-
-
-	OnUnitPathUpdateMessageListenerHandle = GameplayMessageSubsystem.RegisterListener<
-		FBOHUnitPath>(UBOHGameplayTagCollection::Get().Tag_MessageChannel_UnitPathUpdate, this,
-									&ThisClass::OnUnitPathUpdateReceived);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -126,11 +121,6 @@ void ABOHPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	if (OnUnitCommandMessageListenerHandle.IsValid())
 	{
 		GameplayMessageSubsystem.UnregisterListener(OnUnitCommandMessageListenerHandle);
-	}
-
-	if (OnUnitPathUpdateMessageListenerHandle.IsValid())
-	{
-		GameplayMessageSubsystem.UnregisterListener(OnUnitPathUpdateMessageListenerHandle);
 	}
 	
 	Super::EndPlay(EndPlayReason);
@@ -407,21 +397,20 @@ void ABOHPlayerController::OnUnitMoveCommandReceived(FGameplayTag GameplayTag,
 	Server_SendUnitMoveCommand(UnitMoveCommands);
 }
 
-void ABOHPlayerController::OnUnitPathUpdateReceived(FGameplayTag GameplayTag,
-	const FBOHUnitPath& UnitPathUpdateMessage)
+void ABOHPlayerController::UpdateUnitPath(const FBOHUnitPath& UnitPath)
 {
 	if (!HasAuthority())
 	{
 		return;
 	}
 	
-	TObjectPtr<ABOHUnit> UpdatedUnit = UnitPathUpdateMessage.UnitPtr;
+	TObjectPtr<ABOHUnit> UpdatedUnit = UnitPath.UnitPtr;
 	if (!UpdatedUnit || !PlayerUnits.Contains(UpdatedUnit))
 	{
 		return;
 	}
 
-	Client_TryUpdateUnitPath(UnitPathUpdateMessage);
+	Client_TryUpdateUnitPath(UnitPath);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

@@ -31,10 +31,11 @@ public:
 
 	// Messages Channels
 	FGameplayTag Tag_MessageChannel_UnitMoveCommand;
-	FGameplayTag Tag_MessageChannel_UnitPathUpdate;
+	FGameplayTag Tag_MessageChannel_UnitPathEnded;
 	FGameplayTag Tag_MessageChannel_UnitSelected;
 	FGameplayTag Tag_MessageChannel_PlayersNameChanged;
 	FGameplayTag Tag_MessageChannel_PlayersScoreChanged;
+	FGameplayTag Tag_MessageChannel_PlayersTurnStateChanged;
 	FGameplayTag Tag_MessageChannel_MatchTotalTimeChanged;
 	FGameplayTag Tag_MessageChannel_MatchCurrentTimeChanged;
 

@@ -141,6 +141,12 @@ public:
 	 * @param InUnitInfo 
 	 */
 	FORCEINLINE void SetUnitInfo(const FBOHUnitInfo& InUnitInfo) { UnitInfo = InUnitInfo; }
+	
+	/**
+	 * Returns unit's player.
+	 * @return 
+	 */
+	FORCEINLINE ABOHPlayerController* GetPlayer() { return Player; } ;
 
 	/**
 	 * Set Player Controller

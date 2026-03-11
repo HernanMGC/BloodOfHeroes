@@ -5,10 +5,11 @@
 #include "BOHGameState.h"
 
 // UnrealEngine
+#include "Net/UnrealNetwork.h"
+
+// BOH
 #include "BOH/GameModes/BOHGameModeBase.h"
 #include "BOH/Tags/BOHGameplayTagCollection.h"
-#include "BOH/Utils/BOHUtils.h"
-#include "Net/UnrealNetwork.h"
 
 ////////////////////////////////////////////////////////////////////////////////////
 //
@@ -34,7 +35,6 @@ void ABOHGameState::OnRep_MatchTotalTime()
 	PlayersNameMessage.Sender = this;
 	PlayersNameMessage.Number = GetMatchTotalTime();
 
-	BOH_LOG(LogTemp, Warning, "[DHER]");
 	GameplayMessageSubsystem.BroadcastMessage(UBOHGameplayTagCollection::Get().Tag_MessageChannel_PlayersNameChanged, PlayersNameMessage);
 }
 
@@ -49,8 +49,7 @@ void ABOHGameState::OnRep_MatchCurrentTime()
 	PlayersNameMessage.Sender = this;
 	PlayersNameMessage.Number = GetMatchCurrentTime();
 
-	BOH_LOG(LogTemp, Warning, "[DHER]");
-	GameplayMessageSubsystem.BroadcastMessage(UBOHGameplayTagCollection::Get().Tag_MessageChannel_PlayersNameChanged, PlayersNameMessage);
+	GameplayMessageSubsystem.BroadcastMessage(UBOHGameplayTagCollection::Get().Tag_MessageChannel_MatchCurrentTimeChanged, PlayersNameMessage);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -68,7 +67,6 @@ void ABOHGameState::SetMatchCurrentTime(float InMatchCurrentTime)
 	}
 	
 	ForceNetUpdate();
-	BOH_LOG(LogTemp, Warning, "[DHER]");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -86,7 +84,6 @@ void ABOHGameState::SetMatchTotalTime(float InMatchTotalTime)
 	}
 	
 	ForceNetUpdate();
-	BOH_LOG(LogTemp, Warning, "[DHER]");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -97,7 +94,6 @@ void ABOHGameState::SetMaxTimePerTurn(float InMaxTimePerTurn)
 {
 	MaxTimePerTurn = InMaxTimePerTurn;
 	ForceNetUpdate();
-	BOH_LOG(LogTemp, Warning, "[DHER]");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

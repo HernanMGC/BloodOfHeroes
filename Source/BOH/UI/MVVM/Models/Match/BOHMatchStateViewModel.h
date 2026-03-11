@@ -59,12 +59,20 @@ protected:
 	 */
 	void OnMatchCurrentTimeChanged(FGameplayTag GameplayTag, const FBOHAuthorizedFloatMessage& AuthorizedFloatMessage);
 
+	/**
+	 * 
+	 * @param GameplayTag 
+	 * @param AuthorizedTurnStateMessage 
+	 */
+	void OnPlayersTurnStateChanged(FGameplayTag GameplayTag, const FBOHAuthorizedPlayerTurnStateMessage& AuthorizedTurnStateMessage);
+	
 protected:
 	FGameplayMessageListenerHandle OnPlayersNameChangedMessageListenerHandle;
 	FGameplayMessageListenerHandle OnPlayersScoreChangedMessageListenerHandle;
 	FGameplayMessageListenerHandle OnMatchTotalTimeChangedMessageListenerHandle;
 	FGameplayMessageListenerHandle OnMatchCurrentTimeChangedMessageListenerHandle;
-				
+	FGameplayMessageListenerHandle OnPlayersTurnStateChangedMessageListenerHandle;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, FieldNotify)
 	int32 OwnPlayerScore = INDEX_NONE;
 	
@@ -82,4 +90,10 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, FieldNotify)
 	float MatchCurrentTime = 0.f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, FieldNotify)
+	EBOHPlayerTurnState OwnPlayerTurnState = EBOHPlayerTurnState::None;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, FieldNotify)
+	EBOHPlayerTurnState OtherPlayerTurnState = EBOHPlayerTurnState::None;
 };

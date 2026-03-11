@@ -6,6 +6,8 @@
 // UnrealEngine
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
+#include "BOH/Component/Path/BOHPathActor.h"
+#include "BOH/PlayerStates/BOHPlayerState.h"
 
 // BOH
 #include "BOHGameplayMessage.generated.h"
@@ -64,7 +66,7 @@ struct FBOHSenderAuthorizedMessage
 };
 
 /**
- * Sender authorized sring message.
+ * Sender authorized string message.
  */
 USTRUCT(BlueprintType)
 struct FBOHAuthorizedTextMessage : public FBOHSenderAuthorizedMessage
@@ -103,6 +105,19 @@ struct FBOHAuthorizedFloatMessage : public FBOHSenderAuthorizedMessage
 };
 
 /**
+ * Sender authorized turn state message.
+ */
+USTRUCT(BlueprintType)
+struct FBOHAuthorizedPlayerTurnStateMessage : public FBOHSenderAuthorizedMessage
+{
+	GENERATED_BODY()
+
+	// Turn state Message.
+	UPROPERTY(BlueprintReadWrite)
+	EBOHPlayerTurnState TurnState = EBOHPlayerTurnState::None;
+};
+
+/**
  * Selected unit message.
  */
 USTRUCT(BlueprintType)
@@ -117,4 +132,21 @@ struct FBOHSelectedUnitMessage
 	// Sender pointer for auth validation.
 	UPROPERTY(BlueprintReadWrite)
 	TObjectPtr<ABOHUnit> Unit = nullptr;
+};
+
+/**
+ * Selected unit path ended.
+ */
+USTRUCT(BlueprintType)
+struct FBOHUnitPathEndedMessage
+{
+	GENERATED_BODY()
+
+	// Sender pointer for auth validation.
+	UPROPERTY(BlueprintReadWrite)
+	FBOHUnitPath UniPath;
+
+	// World time in seconds the unit turn ended.
+	UPROPERTY(BlueprintReadWrite)
+	float UnitTurnEndWorldTimeInSeconds = 0.f;
 };

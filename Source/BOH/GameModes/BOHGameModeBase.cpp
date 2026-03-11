@@ -13,9 +13,12 @@
 #include "BOH/AI/BOHAIController.h"
 #include "BOH/Characters/BOHUnit.h"
 #include "BOH/Controllers/BOHPlayerController.h"
+#include "BOH/GameStates/BOHGameState.h"
 #include "BOH/PlayerStarts/BOHPlayerStart.h"
 #include "BOH/PlayerStates/BOHPlayerState.h"
+#include "BOH/Tags/BOHGameplayTagCollection.h"
 #include "BOH/Utils/BOHUtils.h"
+#include "Kismet/GameplayStatics.h"
 
 ////////////////////////////////////////////////////////////////////////////////////
 //
@@ -45,12 +48,24 @@ FBOHUnitPathList::FBOHUnitPathList(const TArray<FBOHUnitPath>& InUnitPaths) : Un
 
 void ABOHGameModeBase::SubmitUnitsMoveCommand(const ABOHPlayerController* Player, const TArray<FBOHUnitPath> UnitsPath)
 {
+	if (PlayerTurnsSubmitted.Contains(Player))
+	{
+		return;	
+	}
+	
 	PlayerTurnsSubmitted.Add(Player, FBOHUnitPathList(UnitsPath));
+	if (ABOHPlayerState* PlayerSate = Player->GetPlayerState<ABOHPlayerState>())
+	{
+		PlayerSate->SetTurnState(EBOHPlayerTurnState::Waiting);
+	}
+
 	if (PlayerTurnsSubmitted.Num() < PlayersPerMatch)
 	{
 		return;
 	}
 
+	TurnStartWorldTimeInSeconds = UGameplayStatics::GetTimeSeconds(this);
+	
 	for (TPair<const ABOHPlayerController*, FBOHUnitPathList> PlayerTurn : PlayerTurnsSubmitted)
 	{
 		if (!PlayerTurn.Key) { continue; }
@@ -58,7 +73,8 @@ void ABOHGameModeBase::SubmitUnitsMoveCommand(const ABOHPlayerController* Player
 		for (FBOHUnitPath UnitPath : PlayerTurn.Value.UnitPaths)
 		{
 			BOH_LOG(LogBOHPlayerController, Display, "%s", *UnitPath.ToString());
-			
+
+			// Discard unit path command if the player does not own that unit.
 			if (!PlayerTurn.Key->GetUnits().Contains(UnitPath.UnitPtr)) { continue; }
 
 			if (UBOHUnitPathComponent* UnitPathComponent = UnitPath.UnitPtr->GetComponentByClass<UBOHUnitPathComponent>())
@@ -69,10 +85,22 @@ void ABOHGameModeBase::SubmitUnitsMoveCommand(const ABOHPlayerController* Player
 			if (ABOHAIController* UnitAIController = Cast<ABOHAIController>(UnitPath.UnitPtr->GetController()))
 			{
 				UnitAIController->SendUnitOrder(FBOHUnitOrder(EUnitOrderType::MoveAlongPath, EUnitOrderSortingPolicy::AddToQueue, true, nullptr));
+				
+				// Reset Unit turn duration.
+				TurnDurationInSecondsPerUnit.Add(UnitPath.UnitPtr, 0.f);
+				CurrentUnitTurnsPending++;
 			}
 		}
 	}
 
+	for (TObjectPtr<ABOHPlayerController> PlayerController : PlayerControllers)
+	{
+		if (ABOHPlayerState* PlayerState = PlayerController->GetPlayerState<ABOHPlayerState>())
+		{
+			PlayerState->SetTurnState(EBOHPlayerTurnState::Resolving);
+		}
+	}
+	
 	PlayerTurnsSubmitted.Empty();
 }
 
@@ -157,10 +185,73 @@ FString ABOHGameModeBase::InitNewPlayer(APlayerController* NewPlayerController, 
 		PlayerState->SetTeamScore(0);
 		const FString Name = UniqueId.ToString();
 		PlayerState->SetPlayerName(PlayerState->GetName());
-		BOH_LOG(LogTemp, Warning, "[DHER]");
+		PlayerState->SetTurnState(EBOHPlayerTurnState::Planning);
+
+		PlayerControllers.AddUnique(PlayerController);
 	}
 
 	return ErrorMessage;
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////////
+
+void ABOHGameModeBase::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	UGameplayMessageSubsystem& GameplayMessageSubsystem = UGameplayMessageSubsystem::Get(this);
+
+	OnUnitPathEndedMessageListenerHandle = GameplayMessageSubsystem.RegisterListener<
+		FBOHUnitPathEndedMessage>(UBOHGameplayTagCollection::Get().Tag_MessageChannel_UnitPathEnded, this,
+									&ThisClass::OnUnitPathEndedReceived);
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////////
+
+void ABOHGameModeBase::OnUnitPathEndedReceived(FGameplayTag GameplayTag,
+	const FBOHUnitPathEndedMessage& UnitPathEndedMessage)
+{
+	TObjectPtr<ABOHUnit> Unit = UnitPathEndedMessage.UniPath.UnitPtr;
+	if (!Unit)
+	{
+		BOH_LOG(LogBOHGameMode, Error, "Invalid unit received.");
+		return;
+	}
+
+	if (!TurnDurationInSecondsPerUnit.Contains(Unit))
+	{
+		BOH_LOG(LogBOHGameMode, Error, "Unit received was not commanded to move.");
+		return;
+	}
+
+	float TurnDuration = UnitPathEndedMessage.UnitTurnEndWorldTimeInSeconds - TurnStartWorldTimeInSeconds;;
+	TurnDurationInSecondsPerUnit.Add(Unit, TurnDuration);
+	if (ABOHPlayerController* Player = Unit->GetPlayer())
+	{
+		Player->UpdateUnitPath(UnitPathEndedMessage.UniPath);
+	}
+	
+	CurrentUnitTurnsPending--;
+
+	if (CurrentUnitTurnsPending > 0)
+	{
+		return;
+	}
+	
+	ABOHGameState* BOHGameState = Cast<ABOHGameState>(GameState);
+	BOHGameState->SetMatchCurrentTime(BOHGameState->GetMatchCurrentTime() - TurnDuration);
+
+	for (TObjectPtr<ABOHPlayerController> PlayerController : PlayerControllers)
+	{
+		if (ABOHPlayerState* PlayerState = PlayerController->GetPlayerState<ABOHPlayerState>())
+		{
+			PlayerState->SetTurnState(EBOHPlayerTurnState::Planning);
+		}
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

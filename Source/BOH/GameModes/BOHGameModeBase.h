@@ -73,7 +73,20 @@ protected:
 	// Overriden to: set match score.
 	virtual FString InitNewPlayer(APlayerController* NewPlayerController, const FUniqueNetIdRepl& UniqueId, const FString& Options, const FString& Portal = L"") override;
 
+	// Overriden to: bind unit path end message.
+	virtual void BeginPlay() override;
+
+	/**
+	 * Reacts on Unit Path ended received to update turn time.
+	 * @param GameplayTag 
+	 * @param UnitPathEndedMessage 
+	 */
+	void OnUnitPathEndedReceived(FGameplayTag GameplayTag, const FBOHUnitPathEndedMessage& UnitPathEndedMessage);
+
 protected:
+	// Message listener handler for Unit Command Messages. 
+	FGameplayMessageListenerHandle OnUnitPathEndedMessageListenerHandle; 
+
 	// Turn time in seconds
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BOH|Turn", meta = (Units = "s", ClampMin = 0.f))
 	float MatchTotalTime = 150.f;
@@ -97,4 +110,15 @@ protected:
 	// List of submitted turns
 	UPROPERTY(Transient)
 	TMap<const ABOHPlayerController*, FBOHUnitPathList> PlayerTurnsSubmitted;
+
+	// List of current player controllers.
+	UPROPERTY(Transient)
+	TArray<TObjectPtr<ABOHPlayerController>> PlayerControllers;
+
+	// World time in which the turn started on server. 
+	float TurnStartWorldTimeInSeconds = 0.f;
+
+	TMap<TObjectPtr<ABOHUnit>, float> TurnDurationInSecondsPerUnit;
+
+	int32 CurrentUnitTurnsPending = 0; 
 };

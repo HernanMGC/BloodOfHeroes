@@ -104,6 +104,12 @@ public:
 	 */
 	FORCEINLINE TArray<ABOHUnit*> GetUnits() const { return PlayerUnits; };
 
+	/**
+	 * Gets a Unit Path update message and sent a call for client to be updated.  
+	 * @param UnitPath
+	 */
+	void UpdateUnitPath(const FBOHUnitPath& UnitPath);
+
 protected:
 	// Overriden to: bind messages.
 	virtual void BeginPlay() override;
@@ -164,12 +170,6 @@ protected:
 	 */
 	void OnUnitMoveCommandReceived(FGameplayTag GameplayTag, const FBOHSenderAuthorizedMessage& UnitMoveCommandMessage);
 
-	/**
-	 * Gets a Unit Path update message and sent a call for client to be updated. 
-	 * @param GameplayTag 
-	 * @param UnitPathUpdateMessage 
-	 */
-	void OnUnitPathUpdateReceived(FGameplayTag GameplayTag, const FBOHUnitPath& UnitPathUpdateMessage);
 #pragma endregion // MessageRouter
 
 private:
@@ -232,8 +232,5 @@ protected:
 
 	// Message listener handler for Unit Command Messages. 
 	FGameplayMessageListenerHandle OnUnitCommandMessageListenerHandle; 
-
-	// Message listener handler for Unit Path update Messages. 
-	FGameplayMessageListenerHandle OnUnitPathUpdateMessageListenerHandle;
 };
 

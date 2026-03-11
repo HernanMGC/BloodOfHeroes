@@ -37,7 +37,19 @@ public:
 	 * Returns player score.
 	 * @return 
 	 */
-	FORCEINLINE int32 GetTeamScore() const { return TeamScore; };;
+	FORCEINLINE int32 GetTeamScore() const { return TeamScore; };
+
+	/**
+	 * Sets player turn state.
+	 * @param InTurnState 
+	 */
+	void SetTurnState(EBOHPlayerTurnState InTurnState);
+
+	/**
+	 * Returns player turn state.
+	 * @return 
+	 */
+	FORCEINLINE EBOHPlayerTurnState GetTurnState() const { return PlayerTurnState; };
 	
 protected:
 	// Overriden to: send a message on players name update.
@@ -47,7 +59,13 @@ protected:
 	 * On rep sends s message for player score update.
 	 */
 	UFUNCTION()
-	void OnRep_TeamScore(); 
+	void OnRep_TeamScore();
+
+	/**
+	 * On rep sends s message for player turn state update.
+	 */
+	UFUNCTION()
+	void OnRep_PlayerTurnState();
 
 protected:
 	// Player score. This is an int32 version of the player score in APlayerState.
@@ -55,6 +73,6 @@ protected:
 	int32 TeamScore = INDEX_NONE;
 
 	// Current turn state
-	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly)
-	EBOHPlayerTurnState TurnState = EBOHPlayerTurnState::None;
+	UPROPERTY(Replicated, ReplicatedUsing = OnRep_PlayerTurnState, VisibleAnywhere, BlueprintReadOnly)
+	EBOHPlayerTurnState PlayerTurnState = EBOHPlayerTurnState::None;
 };

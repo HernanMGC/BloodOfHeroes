@@ -53,10 +53,11 @@ void UBOHGameplayTagCollection::AddAllTags()
 
 	// Messages Channels
 	AddTag(Tag_MessageChannel_UnitMoveCommand, "MessageChannel.UnitMoveCommand", "Message channel for Unit Move Commands.");
-	AddTag(Tag_MessageChannel_UnitPathUpdate, "MessageChannel.UnitPathUpdate", "Message channel for Player controller to update Unit Paths visualization.");
+	AddTag(Tag_MessageChannel_UnitPathEnded, "MessageChannel.UnitPathUpdate", "Message channel for Player controller to update Unit Paths visualization.");
 	AddTag(Tag_MessageChannel_UnitSelected, "MessageChannel.UnitSelected", "Message channel for Player controller has selected a Unit.");
 	AddTag(Tag_MessageChannel_PlayersNameChanged, "MessageChannel.PlayersNameChanged", "Message channel for PlayerState has changed its Name.");
 	AddTag(Tag_MessageChannel_PlayersScoreChanged, "MessageChannel.PlayersScoreChanged", "Message channel for PlayerState has changed its Score.");
+	AddTag(Tag_MessageChannel_PlayersTurnStateChanged, "MessageChannel.PlayersTurnStateChanged", "Message channel for PlayerState has changed its Turn State.");
 	AddTag(Tag_MessageChannel_MatchTotalTimeChanged, "MessageChannel.MatchTotalTimeChanged", "Message channel for Match Total Time has changed.");
 	AddTag(Tag_MessageChannel_MatchCurrentTimeChanged, "MessageChannel.MatchCurrentTimeChanged", "Message channel for Match Current Time has changed.");
 }

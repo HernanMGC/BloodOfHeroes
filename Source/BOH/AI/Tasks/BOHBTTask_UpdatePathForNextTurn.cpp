@@ -12,9 +12,11 @@
 #include "BOH/Characters/BOHUnit.h"
 #include "BOH/Component/Path/BOHPathActor.h"
 #include "BOH/Component/Path/BOHUnitPathComponent.h"
+#include "BOH/Messages/BOHGameplayMessage.h"
 #include "BOH/Tags/BOHGameplayTagCollection.h"
 #include "BOH/Utils/BOHUtils.h"
 #include "GameFramework/GameplayMessageSubsystem.h"
+#include "Kismet/GameplayStatics.h"
 
 ////////////////////////////////////////////////////////////////////////////////////
 //
@@ -68,11 +70,15 @@ EBTNodeResult::Type UBOHBTTask_UpdatePathForNextTurn::ExecuteTask(UBehaviorTreeC
 	
 	// TODO: Check whether this can be done in a less coupled way
 	UGameplayMessageSubsystem& GameplayMessageSubsystem = UGameplayMessageSubsystem::Get(this);
-	FBOHUnitPath UnitPathUpdateMessage;
-	UnitPathUpdateMessage.UnitPtr = Unit;
-	UnitPathUpdateMessage.UnitPath = PathComponent->GetUnitPath();
+	FBOHUnitPath UnitPathUpdate;
+	UnitPathUpdate.UnitPtr = Unit;
+	UnitPathUpdate.UnitPath = PathComponent->GetUnitPath();
+
+	FBOHUnitPathEndedMessage UnitPathEnded;
+	UnitPathEnded.UniPath = UnitPathUpdate;
+	UnitPathEnded.UnitTurnEndWorldTimeInSeconds = UGameplayStatics::GetTimeSeconds(this);
 	
-	GameplayMessageSubsystem.BroadcastMessage(UBOHGameplayTagCollection::Get().Tag_MessageChannel_UnitPathUpdate, UnitPathUpdateMessage);
+	GameplayMessageSubsystem.BroadcastMessage(UBOHGameplayTagCollection::Get().Tag_MessageChannel_UnitPathEnded, UnitPathEnded);
 
 	BlackboardComponent->SetValueAsBool(GetTargetLocationReachedBlackboardKey(), false);
 	BlackboardComponent->SetValueAsInt(GetTargetPositionIndexBlackboardKey(), 0);

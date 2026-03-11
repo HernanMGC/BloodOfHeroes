@@ -35,6 +35,8 @@ public:
 	FGameplayTag Tag_MessageChannel_UnitSelected;
 	FGameplayTag Tag_MessageChannel_PlayersNameChanged;
 	FGameplayTag Tag_MessageChannel_PlayersScoreChanged;
+	FGameplayTag Tag_MessageChannel_MatchTotalTimeChanged;
+	FGameplayTag Tag_MessageChannel_MatchCurrentTimeChanged;
 
 public:
 	static const UBOHGameplayTagCollection& Get() { return *StaticClass()->GetDefaultObject<UBOHGameplayTagCollection>(); }

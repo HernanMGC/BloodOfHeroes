@@ -6,10 +6,15 @@
 // UnrealEngine
 #include "CoreMinimal.h"
 
+namespace BOHGameConstants
+{
+	inline constexpr int32 MaxPlayerPerMatch = 2;
+}
+
 namespace BOHUnitConstants
 {
-	inline float CentimetersToMeters = 0.01f;
-	inline float MetersToCentimeters = 100.0f;
+	inline constexpr float CentimetersToMeters = 0.01f;
+	inline constexpr float MetersToCentimeters = 100.0f;
 }
 
 namespace EBOHCollisionChannel

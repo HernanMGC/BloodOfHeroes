@@ -14,6 +14,7 @@
 #include "BOH/Characters/BOHUnit.h"
 #include "BOH/Controllers/BOHPlayerController.h"
 #include "BOH/PlayerStarts/BOHPlayerStart.h"
+#include "BOH/PlayerStates/BOHPlayerState.h"
 #include "BOH/Utils/BOHUtils.h"
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -139,6 +140,27 @@ void ABOHGameModeBase::RestartPlayerAtPlayerStart(AController* NewPlayer, AActor
 	}
 
 	PlayerController->SpawnUnits(PlayerStart->GetUnitSpawnPointsTransformWorld());
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////////////////////////////////////
+
+FString ABOHGameModeBase::InitNewPlayer(APlayerController* NewPlayerController, const FUniqueNetIdRepl& UniqueId,
+	const FString& Options, const FString& Portal)
+{
+	FString ErrorMessage = Super::InitNewPlayer(NewPlayerController, UniqueId, Options, Portal);
+
+	ABOHPlayerController* PlayerController = NewPlayerController ? Cast<ABOHPlayerController>(NewPlayerController) : nullptr;
+	if (ABOHPlayerState* PlayerState = PlayerController ? Cast<ABOHPlayerState>(PlayerController->PlayerState) : nullptr)
+	{
+		PlayerState->SetTeamScore(0);
+		const FString Name = UniqueId.ToString();
+		PlayerState->SetPlayerName(PlayerState->GetName());
+		BOH_LOG(LogTemp, Warning, "[DHER]");
+	}
+
+	return ErrorMessage;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

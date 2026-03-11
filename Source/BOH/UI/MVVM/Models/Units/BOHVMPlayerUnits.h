@@ -94,10 +94,6 @@ private:
 	UPROPERTY(Transient)
 	TObjectPtr<ABOHUnit> SelectedUnit = nullptr;
 
-	// Owning player controller. TODO: Consider moving this to the base class.
-	UPROPERTY(Transient)
-	TObjectPtr<ABOHPlayerController> OwningPlayerController = nullptr;
-
 	// On unit selected message listener handle.
 	FGameplayMessageListenerHandle OnUnitSelectedMessageListenerHandle;
 };

@@ -12,7 +12,6 @@
 // BOH
 #include "BOH/AI/BOHAIController.h"
 #include "BOH/Component/Path/BOHUnitPathComponent.h"
-#include "BOH/Controllers/BOHPlayerController.h"
 #include "BOH/GAS/Abilities/BOHGameplayAbility.h"
 #include "BOH/GAS/Attributes/BOHUnitAttributeSet.h"
 #include "BOH/GAS/Components/BOHAbilitySystemComponent.h"
@@ -156,7 +155,7 @@ void ABOHUnit::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	BOH_LOG(LogBOHUnit, Warning, "[DHER][%s] ABOHUnit::BeginPlay %s created owned by %s.", *UEnum::GetValueAsString(GetLocalRole()), *GetName(), *GetNetOwner()->GetName());
+	BOH_LOG(LogBOHUnit, Warning, "ABOHUnit::BeginPlay %s created owned by %s.", *GetName(), *GetNetOwner()->GetName());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

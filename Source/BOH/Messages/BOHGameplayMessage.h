@@ -90,6 +90,19 @@ struct FBOHAuthorizedInt32Message : public FBOHSenderAuthorizedMessage
 };
 
 /**
+ * Sender authorized float message.
+ */
+USTRUCT(BlueprintType)
+struct FBOHAuthorizedFloatMessage : public FBOHSenderAuthorizedMessage
+{
+	GENERATED_BODY()
+
+	// Float Message.
+	UPROPERTY(BlueprintReadWrite)
+	float Number = 0.f;
+};
+
+/**
  * Selected unit message.
  */
 USTRUCT(BlueprintType)

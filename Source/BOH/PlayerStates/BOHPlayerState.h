@@ -24,6 +24,21 @@ class BOH_API ABOHPlayerState : public APlayerState
 {
 	GENERATED_BODY()
 
+public:
+	ABOHPlayerState(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+
+	/**
+	 * Sets player score.
+	 * @param InTeamScore 
+	 */
+	void SetTeamScore(int32 InTeamScore);
+
+	/**
+	 * Returns player score.
+	 * @return 
+	 */
+	FORCEINLINE int32 GetTeamScore() const { return TeamScore; };;
+	
 protected:
 	// Overriden to: send a message on players name update.
 	virtual void OnRep_PlayerName() override;
@@ -31,12 +46,13 @@ protected:
 	/**
 	 * On rep sends s message for player score update.
 	 */
-	void OnRep_PlayerScore(); 
+	UFUNCTION()
+	void OnRep_TeamScore(); 
 
 protected:
-	// Player score
-	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly)
-	int32 PlayerScore = 0;
+	// Player score. This is an int32 version of the player score in APlayerState.
+	UPROPERTY(Replicated, ReplicatedUsing = OnRep_TeamScore, VisibleAnywhere, BlueprintReadOnly)
+	int32 TeamScore = INDEX_NONE;
 
 	// Current turn state
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly)

@@ -19,6 +19,7 @@
 #include "BOH/Messages/BOHGameplayMessage.h"
 #include "BOH/Pawns/BOHPlayerPawn.h"
 #include "BOH/Tags/BOHGameplayTagCollection.h"
+#include "BOH/UI/MVVM/Models/Match/BOHMatchStateViewModel.h"
 #include "BOH/Utils/BOHUtils.h"
 
 ////////////////////////////////////////////////////////////////////////////////////

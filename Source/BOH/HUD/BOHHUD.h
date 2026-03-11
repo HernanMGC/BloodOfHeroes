@@ -13,6 +13,7 @@
 //// ForwardDeclarations
 // BOH
 class UBOHHudWidget;
+class UBOHMatchStateViewModel;
 
 /**
  * 
@@ -34,4 +35,6 @@ protected:
 protected:
 	// HUD Widget reference.
 	TObjectPtr<UBOHHudWidget> HUDWidget = nullptr; 
+
+	TObjectPtr<UBOHMatchStateViewModel> MatchStateViewModel = nullptr;
 };

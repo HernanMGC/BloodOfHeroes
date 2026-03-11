@@ -12,6 +12,8 @@ public class BOH : ModuleRules
 		{
 			// CORE
 			"Core",
+			"NetCore",
+			"CoreOnline",
 			"CoreUObject",
 			"Engine",
 			

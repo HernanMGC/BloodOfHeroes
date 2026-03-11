@@ -42,7 +42,13 @@ public:
 	 * Returns turn time in seconds.
 	 * @return 
 	 */
-	FORCEINLINE float GetTurnTime() const { return TurnTime; }
+	FORCEINLINE float GetMaxTimePerTurn() const { return MaxTimePerTurn; }
+
+	/**
+	 * Returns match total time in seconds.
+	 * @return 
+	 */
+	FORCEINLINE float GetMatchTotalTime() const { return MatchTotalTime; }
 
 	/**
 	 * Returns default unit class.
@@ -63,11 +69,18 @@ protected:
 
 	// Overriden to: spawn units per controller.
 	virtual void RestartPlayerAtPlayerStart(AController* NewPlayer, AActor* StartSpot) override;
-	
+
+	// Overriden to: set match score.
+	virtual FString InitNewPlayer(APlayerController* NewPlayerController, const FUniqueNetIdRepl& UniqueId, const FString& Options, const FString& Portal = L"") override;
+
 protected:
 	// Turn time in seconds
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BOH|Turn", meta = (Units = "s", ClampMin = 0.f))
-	float TurnTime = 3.f;
+	float MatchTotalTime = 150.f;
+
+	// Turn time in seconds
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BOH|Turn", meta = (Units = "s", ClampMin = 0.f))
+	float MaxTimePerTurn = 3.f;
 
 	// Players Per Match.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BOH|Players", meta = (ClampMin = 0))

@@ -234,6 +234,6 @@ protected:
 	FGameplayMessageListenerHandle OnUnitCommandMessageListenerHandle; 
 
 	// Message listener handler for Unit Path update Messages. 
-	FGameplayMessageListenerHandle OnUnitPathUpdateMessageListenerHandle; 
+	FGameplayMessageListenerHandle OnUnitPathUpdateMessageListenerHandle;
 };
 
